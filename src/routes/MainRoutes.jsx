@@ -8,7 +8,7 @@ import { element } from 'prop-types';
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const QuestionScreen = Loadable(lazy(() => import('views/pages/question')));
-const AddQuestionScreen = Loadable(lazy(() => import('views/pages/question/formQuestion')));
+const AddQuestionScreen = Loadable(lazy(() => import('views/pages/question/FormQuestion')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
