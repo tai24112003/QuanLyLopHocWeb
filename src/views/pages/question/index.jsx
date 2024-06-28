@@ -11,7 +11,7 @@ import { gridSpacing } from 'store/constant';
 // assets
 import MainCard from 'ui-component/cards/MainCard';
 import { Button, CardActions, CardContent } from '@mui/material';
-import DataTable from './questionTable';
+import DataTable from './QuestionTable';
 import {runDeleteQuestionDatas, runGetQuestionDatas} from 'api/question';
 import AddIcon from '@mui/icons-material/Add';
 
