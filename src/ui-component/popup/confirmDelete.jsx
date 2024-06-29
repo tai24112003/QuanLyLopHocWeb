@@ -14,18 +14,18 @@ const ConfirmationDialog = ({ open, handleClose, handleConfirm }) => {
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
     >
-      <DialogTitle id="alert-dialog-title">{"Confirm Deletion"}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">{"Xác nhận xóa"}</DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">
-          Are you sure you want to delete this item?
+          Bạn chắc chắn muốn xóa câu hỏi này?
         </DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-          Cancel
+          Không
         </Button>
         <Button onClick={handleConfirm} color="error" autoFocus>
-          Delete
+          Xóa
         </Button>
       </DialogActions>
     </Dialog>
