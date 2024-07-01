@@ -12,7 +12,7 @@ import useNotification from './Notification';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const ListQuestion = ({listQuestion, subjects, infoExam, inExam = false, reloadList = ()=>{}}) => {
+const ListQuestion = ({ listQuestion, subjects, infoExam, inExam = false, reloadList = () => {} }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [questionSelected, setQuestionSelected] = useState();
@@ -32,53 +32,59 @@ const ListQuestion = ({listQuestion, subjects, infoExam, inExam = false, reloadL
     setOpen(false);
   };
 
-  
-
-  const onDeleteQuestionChild = (value)=>{
-    listQuestion.forEach((e)=>{
-        e.ref.style.border = 'none';
-    })
+  const onDeleteQuestionChild = (value) => {
+    listQuestion.forEach((e) => {
+      e.ref.style.border = 'none';
+    });
     const index = listQuestion.indexOf(value);
     if (index > -1) {
       listQuestion.splice(index, 1);
       showNotification('Xóa thành công!', 'success');
       setReload(!reload);
-    }else{
+    } else {
       let indexChild = -1;
-      listQuestion.forEach((e)=>{
-      indexChild = e.questions?.indexOf(value);
-      if(indexChild > -1) {
-        e.questions.splice(indexChild,1);
-        showNotification('Xóa thành công!', 'success');
-        setReload(!reload);
-      };
-    })
+      listQuestion.forEach((e) => {
+        indexChild = e.questions?.indexOf(value);
+        if (indexChild > -1) {
+          e.questions.splice(indexChild, 1);
+          showNotification('Xóa thành công!', 'success');
+          setReload(!reload);
+        }
+      });
     }
-  }
+  };
   return (
-  <>
-    {listQuestion?.map((question, index)=>{
-      return (
-        question.type_id === 2 ?
-        (
-        <React.Fragment key={index}>
-          <QuestionItem updateList={reloadList} inExam={inExam} infoExam={infoExam} subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght}/>
-        </React.Fragment>
-        ):
-        (
-        <React.Fragment key={index}>
-          <CommonQuestionItem updateList={reloadList} inExam={inExam} infoExam={infoExam} subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght}/>
-        </React.Fragment>
-        )
-      )
-    })}
-    <ConfirmationDialog 
-    open={open}
-    handleClose={handleClose}
-    handleConfirm={handleConfirm}
-    />
-    <NotificationComponent/>
-  </>
+    <>
+      {listQuestion?.map((question, index) => {
+        return question.type_id === 2 ? (
+          <React.Fragment key={index}>
+            <QuestionItem
+              updateList={reloadList}
+              inExam={inExam}
+              infoExam={infoExam}
+              subjects={subjects}
+              onDestroy={handleClickOpen}
+              question={question}
+              lenght={listQuestion.lenght}
+            />
+          </React.Fragment>
+        ) : (
+          <React.Fragment key={index}>
+            <CommonQuestionItem
+              updateList={reloadList}
+              inExam={inExam}
+              infoExam={infoExam}
+              subjects={subjects}
+              onDestroy={handleClickOpen}
+              question={question}
+              lenght={listQuestion.lenght}
+            />
+          </React.Fragment>
+        );
+      })}
+      <ConfirmationDialog open={open} handleClose={handleClose} handleConfirm={handleConfirm} />
+      <NotificationComponent />
+    </>
   );
 };
 

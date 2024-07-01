@@ -6,14 +6,14 @@ const useNotification = () => {
   const [notification, setNotification] = useState({
     open: false,
     message: '',
-    severity: 'success', // 'success' | 'error' | 'warning' | 'info'
+    severity: 'success' // 'success' | 'error' | 'warning' | 'info'
   });
 
   const showNotification = (message, severity = 'success') => {
     setNotification({
       open: true,
       message,
-      severity,
+      severity
     });
   };
 
@@ -23,7 +23,7 @@ const useNotification = () => {
     }
     setNotification({
       ...notification,
-      open: false,
+      open: false
     });
   };
 
@@ -42,7 +42,7 @@ const useNotification = () => {
 
   return {
     showNotification,
-    NotificationComponent,
+    NotificationComponent
   };
 };
 

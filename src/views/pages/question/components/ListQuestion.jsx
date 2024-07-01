@@ -12,14 +12,11 @@ import useNotification from './Notification';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const ListQuestion = ({listQuestion, subjects}) => {
+const ListQuestion = ({ listQuestion, subjects }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [questionSelected, setQuestionSelected] = useState();
   const { showNotification, NotificationComponent } = useNotification();
-
-
-
 
   const handleClickOpen = (value) => {
     setQuestionSelected(value);
@@ -35,97 +32,87 @@ const ListQuestion = ({listQuestion, subjects}) => {
     setOpen(false);
   };
 
-  
-
-  const onDeleteQuestionChild = (value)=>{
-    listQuestion.forEach((e)=>{
-        e.ref.style.border = 'none';
-    })
-    if(value.id === -1){
+  const onDeleteQuestionChild = (value) => {
+    listQuestion.forEach((e) => {
+      e.ref.style.border = 'none';
+    });
+    if (value.id === -1) {
       const index = listQuestion.indexOf(value);
       if (index > -1) {
-       listQuestion.splice(index, 1);
-       showNotification('Xóa thành công!', 'success');
+        listQuestion.splice(index, 1);
+        showNotification('Xóa thành công!', 'success');
         setReload(!reload);
-      }else{
+      } else {
         let indexChild = -1;
-        listQuestion.forEach((e)=>{
-        indexChild = e.questions?.indexOf(value);
-        if(indexChild > -1) {
-          e.questions.splice(indexChild,1);
-          showNotification('Xóa thành công!', 'success');
-          setReload(!reload);
-        };
-      })
+        listQuestion.forEach((e) => {
+          indexChild = e.questions?.indexOf(value);
+          if (indexChild > -1) {
+            e.questions.splice(indexChild, 1);
+            showNotification('Xóa thành công!', 'success');
+            setReload(!reload);
+          }
+        });
       }
-    }else if(value.type_id === 2){
-      runDeleteQuestionDatas(value.id).then((data)=>{
-        if(data.success) {
+    } else if (value.type_id === 2) {
+      runDeleteQuestionDatas(value.id).then((data) => {
+        if (data.success) {
           const index = listQuestion.indexOf(value);
           if (index > -1) {
             listQuestion.splice(index, 1);
-             setReload(!reload);
-           }
-        showNotification('Xóa thành công!', 'success');
-        }else{
-       showNotification('Xóa thất bại!', 'error');
-        }
-      });
-    }else if ((value.common_content_id)){
-      runDeleteQuestionDatas(value.id).then((data)=>{
-        if(data.success) {
-          let indexChild = -1;
-          listQuestion.forEach((e)=>{
-          indexChild = e.questions?.indexOf(value);
-          if(indexChild > -1) {
-            e.questions.splice(indexChild,1);
-            showNotification('Xóa thành công!', 'success');
-          };
-          setReload(!reload);
-        })
-        }else{
+            setReload(!reload);
+          }
+          showNotification('Xóa thành công!', 'success');
+        } else {
           showNotification('Xóa thất bại!', 'error');
         }
       });
-    }else {
-      runDeleteCommonQuestion(value.id).then((data)=>{
-        if(data.success) {
+    } else if (value.common_content_id) {
+      runDeleteQuestionDatas(value.id).then((data) => {
+        if (data.success) {
+          let indexChild = -1;
+          listQuestion.forEach((e) => {
+            indexChild = e.questions?.indexOf(value);
+            if (indexChild > -1) {
+              e.questions.splice(indexChild, 1);
+              showNotification('Xóa thành công!', 'success');
+            }
+            setReload(!reload);
+          });
+        } else {
+          showNotification('Xóa thất bại!', 'error');
+        }
+      });
+    } else {
+      runDeleteCommonQuestion(value.id).then((data) => {
+        if (data.success) {
           const index = listQuestion.indexOf(value);
           if (index > -1) {
             listQuestion.splice(index, 1);
-             setReload(!reload);
-           }
-        showNotification('Xóa thành công!', 'success');
-        }else{
-       showNotification('Xóa thất bại!', 'error');
+            setReload(!reload);
+          }
+          showNotification('Xóa thành công!', 'success');
+        } else {
+          showNotification('Xóa thất bại!', 'error');
         }
       });
     }
-  }
+  };
   return (
-  <>
-    {listQuestion?.map((question, index)=>{
-      return (
-        question.type_id === 2 ?
-        (
-        <React.Fragment key={index}>
-          <QuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght}/>
-        </React.Fragment>
-        ):
-        (
-        <React.Fragment key={index}>
-          <CommonQuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght}/>
-        </React.Fragment>
-        )
-      )
-    })}
-    <ConfirmationDialog 
-    open={open}
-    handleClose={handleClose}
-    handleConfirm={handleConfirm}
-    />
-    <NotificationComponent/>
-  </>
+    <>
+      {listQuestion?.map((question, index) => {
+        return question.type_id === 2 ? (
+          <React.Fragment key={index}>
+            <QuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght} />
+          </React.Fragment>
+        ) : (
+          <React.Fragment key={index}>
+            <CommonQuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght} />
+          </React.Fragment>
+        );
+      })}
+      <ConfirmationDialog open={open} handleClose={handleClose} handleConfirm={handleConfirm} />
+      <NotificationComponent />
+    </>
   );
 };
 
