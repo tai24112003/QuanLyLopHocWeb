@@ -75,6 +75,10 @@ const QuestionItem = ({question, onDestroy,parentQuestion, subjects, infoExam, i
 
   const addIntoExam = (event)=>{
     event.stopPropagation();
+    if(infoExam.questions.length === infoExam.count){
+      showNotification('Đề đã đủ số câu','success');
+      return;
+    }
     showNotification('Đã thêm thành công','success');
     infoExam.questions = [question, ...infoExam.questions];
     setIsExit(true);
@@ -99,15 +103,82 @@ const QuestionItem = ({question, onDestroy,parentQuestion, subjects, infoExam, i
   return (
   <>
     <Grid item xs={12}>
-          <Accordion ref={thisRef}>
+          <Accordion ref={thisRef} sx={{ marginBottom: 3}}>
             <AccordionSummary
               expandIcon={<ExpandMore/>}
               aria-controls='panel1-content'
               id='panel1-header'
             >
             <Grid container>
+            {question.type_id===2 ? (
+                <>
+                <Grid item xs={12} sx={{marginBottom:0}}>
+                    <Typography><b style={{fontSize:18}}>Thông tin chung:</b></Typography>
+                </Grid>
+                  <Grid item xs={3.3} sx={{  marginTop: 1}}>
+                  <InputLabel>Môn</InputLabel>
+                  <Select inputProps={{readOnly: true}} 
+                  onChange={(e)=>{
+                    thisRef.current.style.border="none";
+                      if(!question.new_or_edit){
+                        question.new_or_edit = true;
+                      }
+                      question.subject_id = e.target.value;
+                      let lstChapter = subjects.find(item=>item.id === e.target.value).Chapters;
+                      question.chapter_id = lstChapter[0]?.id ?? '';
+                      setChapters(lstChapter);
+                      setReload(!reload);
+                    }} value={question.subject_id} sx={{width:'100%'}}>
+                      {subjects?.map((subject)=>(<MenuItem value={subject.id}>{subject.name}</MenuItem>))}
+                    </Select>
+                  </Grid>
+                  <Grid item xs={3.3} sx={{paddingLeft:3,  marginTop: 1}}>
+                    <InputLabel>Chương</InputLabel>
+                      <Select 
+                      inputProps={{readOnly: true}} 
+                      onChange={(e)=>{
+                        thisRef.current.style.border="none";
+                          if(!question.new_or_edit){
+                            question.new_or_edit = true;
+                          }
+                          question.chapter_id = e.target.value;
+                          setReload(!reload);
+                        }} 
+                        value={question.chapter_id} 
+                        sx={{width:'100%'}}>
+                            <MenuItem value=''>Chọn chương</MenuItem>
+                            {chapters?.map((chapter)=>(<MenuItem value={chapter.id}>{chapter.name}</MenuItem>))}
+                        </Select>
+                  </Grid>
+                  <Grid item xs={3.3} sx={{paddingLeft:3,   marginTop: 1}}>
+                    <InputLabel>Độ khó</InputLabel>
+                      <Select
+                      inputProps={{readOnly: true}} 
+                       onChange={(e)=>{
+                        thisRef.current.style.border="none";
+                          question.difficulty = e.target.value;
+                          if(!question.new_or_edit){
+                            question.new_or_edit = true;
+                          }
+                          setReload(!reload);
+                        }} value={question.difficulty} sx={{width:'100%'}}>
+                          <MenuItem value={1}>Dễ</MenuItem>
+                          <MenuItem value={2}>Trung bình</MenuItem>
+                          <MenuItem value={3}>Khó</MenuItem>
+                        </Select>
+                  </Grid>
+                </>
+              ):(
+                <>
+                  <Grid item xs={12} >
+                  <Typography><b style={{fontSize:18}}>Các đáp án:</b></Typography>
+                  </Grid>
+                  <Grid item xs={12} >
+                  </Grid>
+                </>
+              )}
               {question.type_id === 2 && (
-                <Grid item xs={12} sx={{marginBottom:1.5}}>
+                <Grid item xs={12} sx={{marginTop:1.5, marginBottom:1.5}}>
                     <Typography><b style={{fontSize:18}}>Nội dung câu hỏi:</b></Typography>
                 </Grid>
               )}
@@ -183,69 +254,6 @@ const QuestionItem = ({question, onDestroy,parentQuestion, subjects, infoExam, i
             </AccordionSummary>
             <AccordionDetails>
             <Grid container spacing={gridSpacing}>
-              {question.type_id===2 ? (
-                <>
-                <Grid item xs={12} sx={{marginBottom:-3}}>
-                    <Typography><b style={{fontSize:18}}>Thông tin chung:</b></Typography>
-                </Grid>
-                  <Grid item xs={4} sx={{ paddingLeft:3,  marginTop: 1.5}}>
-                  <InputLabel>Môn</InputLabel>
-                  <Select onChange={(e)=>{
-                    thisRef.current.style.border="none";
-                      if(!question.new_or_edit){
-                        question.new_or_edit = true;
-                      }
-                      question.subject_id = e.target.value;
-                      let lstChapter = subjects.find(item=>item.id === e.target.value).Chapters;
-                      question.chapter_id = lstChapter[0]?.id ?? '';
-                      setChapters(lstChapter);
-                      setReload(!reload);
-                    }} value={question.subject_id} sx={{width:'100%'}}>
-                      {subjects?.map((subject)=>(<MenuItem value={subject.id}>{subject.name}</MenuItem>))}
-                    </Select>
-                  </Grid>
-
-                  <Grid item xs={4} sx={{paddingLeft:3,  marginTop: 1.5}}>
-                    <InputLabel>Chương</InputLabel>
-                      <Select 
-                      onChange={(e)=>{
-                        thisRef.current.style.border="none";
-                          if(!question.new_or_edit){
-                            question.new_or_edit = true;
-                          }
-                          question.chapter_id = e.target.value;
-                          setReload(!reload);
-                        }} 
-                        value={question.chapter_id} 
-                        sx={{width:'100%'}}>
-                            <MenuItem value=''>Chọn chương</MenuItem>
-                            {chapters?.map((chapter)=>(<MenuItem value={chapter.id}>{chapter.name}</MenuItem>))}
-                        </Select>
-                  </Grid>
-                  <Grid item xs={4} sx={{paddingLeft:3,   marginTop: 1.5}}>
-                    <InputLabel>Độ khó</InputLabel>
-                      <Select onChange={(e)=>{
-                        thisRef.current.style.border="none";
-                          question.difficulty = e.target.value;
-                          if(!question.new_or_edit){
-                            question.new_or_edit = true;
-                          }
-                          setReload(!reload);
-                        }} value={question.difficulty} sx={{width:'100%'}}>
-                          <MenuItem value={1}>Dễ</MenuItem>
-                          <MenuItem value={2}>Trung bình</MenuItem>
-                          <MenuItem value={3}>Khó</MenuItem>
-                        </Select>
-                  </Grid>
-                </>
-              ):(
-                <>
-                  <Grid item xs={4} sx={{ marginBottom: '-15px'}}>
-                  <Typography><b style={{fontSize:18}}>Các đáp án:</b></Typography>
-                  </Grid>
-                </>
-              )}
-              <Grid item xs={8} sx={{paddingLeft:3}}/>
               {question.type_id === 2 && (
                 <Grid item xs={12} sx={{marginBottom:-1.5}}>
                     <Typography><b style={{fontSize:18}}>Các đáp án:</b></Typography>

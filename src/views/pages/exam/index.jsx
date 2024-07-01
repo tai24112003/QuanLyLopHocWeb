@@ -162,6 +162,10 @@ const ExamScreen = () => {
     //   });
       
     // }
+    if(infoExam.questions.length < infoExam.count){
+      showNotification('Đề chưa đủ câu','error');
+      return;
+    }
     console.log(infoExam);  
   }
 
@@ -247,8 +251,8 @@ const ExamScreen = () => {
                 </Grid>
                 <Grid item xs={1}>
                   <InputLabel>Số câu</InputLabel>
-                  <TextField onChange={e=>{
-                    infoExam.count = e.target.value;
+                  <TextField type='number' onChange={e=>{
+                    infoExam.count = Math.abs(e.target.value);
                     setInfoExam({...infoExam});
                   }} value={infoExam.count} sx={{width:'100%'}}></TextField>
                 </Grid>

@@ -58,9 +58,9 @@ useEffect(() => {
   }
 
   return (
-      <Dialog open={open} onClose={handleClose} maxWidth="lg">
-        <DialogTitle sx={{fontSize:25}}>Danh sách câu hỏi</DialogTitle>
-        <DialogContent>
+      <Dialog  open={open} onClose={handleClose} maxWidth="lg">
+        <DialogTitle sx={{fontSize:25,backgroundColor:'#eef2f6'}}>Danh sách câu hỏi</DialogTitle>
+        <DialogContent container sx={{backgroundColor:'#eef2f6'}}>
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={1}/>
                 <Grid item xs={8.7}>
@@ -84,7 +84,7 @@ useEffect(() => {
                 </Grid>
             </Grid>
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{backgroundColor:'#eef2f6'}}>
           <Button onClick={handleClose} color="primary">
             Đóng
           </Button>
