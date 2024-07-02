@@ -126,3 +126,13 @@
     transform: translateX(10px);
   }
 }
+
+.ck-editor__editable {
+  background-color: transparent !important;
+}
+
+/* Target CKEditor toolbar */
+.ck-toolbar {
+  background-color: transparent !important;
+  border: none !important;
+}

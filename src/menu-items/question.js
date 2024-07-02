@@ -1,8 +1,8 @@
 // assets
-import { IconDashboard } from '@tabler/icons-react';
+import { IconDashboard,IconList } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard };
+const icons = { IconDashboard,IconList };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -16,7 +16,7 @@ const questionScreen = {
       title: 'Danh sách',
       type: 'item',
       url: '/question',
-      icon: icons.IconDashboard,
+      icon: icons.IconList,
       breadcrumbs: true
     }
   ]
