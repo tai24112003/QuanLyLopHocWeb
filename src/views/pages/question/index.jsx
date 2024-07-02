@@ -9,7 +9,7 @@ import { useForm, FormProvider } from 'react-hook-form';
 
 // assets
 import MainCard from 'ui-component/cards/MainCard';
-import { Button, CardActions, CardContent, Snackbar, TextField } from '@mui/material';
+import { Button, CardActions, CardContent, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
 import { runAddOrUpdateQuestions, runDeleteQuestionDatas, runGetQuestionDatas } from 'api/question';
 import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
@@ -21,7 +21,12 @@ const QuestionScreen = () => {
   const [data, setData] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [reloadActive, setReloadActive] = useState(false);
-  const navigate = useNavigate();
+  const [qValue, setQValue] = useState('');
+  const [subjectValue, setSubjectValue] = useState(-1);
+  const [diffValue, setDiffValue] = useState(-1);
+  const [chapterValue, setChapterValue] = useState(-1);
+  const [listChapterValue, setListChapterValue] = useState([]);
+  const [search, setSearch] = useState({ q: '' });
   const methods = useForm();
   const {
     register,
@@ -32,10 +37,16 @@ const QuestionScreen = () => {
   const { showNotification, NotificationComponent } = useNotification();
 
   useEffect(() => {
-    runGetQuestionDatas().then((data) => {
+    const searchParams = {
+      ...search
+    };
+    if (diffValue !== -1) searchParams.difficult = diffValue;
+    if (chapterValue !== -1) searchParams.chapter_id = chapterValue;
+    if (subjectValue !== -1) searchParams.subject_id = subjectValue;
+    runGetQuestionDatas(searchParams).then((data) => {
       setData(formatData(data.data));
     });
-  }, [reloadActive]);
+  }, [reloadActive, search]);
 
   useEffect(() => {
     runGetSubjectOptions().then((data) => {
@@ -176,13 +187,78 @@ const QuestionScreen = () => {
           <Grid item xs={12}>
             <MainCard>
               <Grid container spacing={1}>
-                <Grid item xs={8}>
-                  <TextField placeholder="Tìm kiếm nội dung câu hỏi" sx={{ width: '100%' }}></TextField>
+                <Grid item xs={4.5}>
+                  <TextField
+                    onChange={(e) => {
+                      setQValue(e.target.value);
+                    }}
+                    placeholder="Tìm kiếm nội dung câu hỏi"
+                    sx={{ width: '100%' }}
+                  ></TextField>
                 </Grid>
-                <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
-                  <Button variant="contained" color="warning" sx={{ margin: '10px 0' }}>
+                <Grid item xs={2}>
+                  <Select
+                    onChange={(e) => {
+                      setSubjectValue(Number(e.target.value));
+                      setListChapterValue(subjects.find((item) => item.id === Number(e.target.value))?.Chapters ?? []);
+                    }}
+                    value={subjectValue}
+                    sx={{ width: '100%' }}
+                  >
+                    <MenuItem value={-1}>Chọn môn</MenuItem>
+                    {subjects?.map((chapter, index) => (
+                      <MenuItem key={index} value={chapter.id}>
+                        {chapter.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Grid>
+                <Grid item xs={2}>
+                  <Select
+                    onChange={(e) => {
+                      setChapterValue(Number(e.target.value));
+                    }}
+                    value={chapterValue}
+                    sx={{ width: '100%' }}
+                  >
+                    <MenuItem value={-1}>Chọn chương</MenuItem>
+                    {listChapterValue?.map((chapter, index) => (
+                      <MenuItem key={index} value={chapter.id}>
+                        {chapter.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </Grid>
+                <Grid item xs={1.5}>
+                  <Select
+                    onChange={(e) => {
+                      setDiffValue(Number(e.target.value));
+                    }}
+                    value={diffValue}
+                    sx={{ width: '100%' }}
+                  >
+                    <MenuItem value={-1}>Chọn độ khó</MenuItem>
+                    <MenuItem value={1}>Dễ</MenuItem>
+                    <MenuItem value={2}>Trung bình</MenuItem>
+                    <MenuItem value={3}>Khó</MenuItem>
+                  </Select>
+                </Grid>
+                <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
+                  <Button
+                    onClick={(e) => {
+                      setSearch({ q: qValue });
+                    }}
+                    variant="contained"
+                    color="warning"
+                    sx={{ margin: '10px 0' }}
+                  >
                     Tìm kiếm
                   </Button>
+                </Grid>
+                <Grid item xs={12}>
+                  <Typography>
+                    Có <b>{data.length}</b> kết quả cho "{search.q}"
+                  </Typography>
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
                   <Button variant="contained" onClick={onAddQuestion} sx={{ margin: '10px 0px' }}>

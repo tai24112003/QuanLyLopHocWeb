@@ -71,7 +71,7 @@ const CommonQuestionItem = ({ question, onDestroy, subjects, infoExam, inExam, u
   const addIntoExam = (event) => {
     event.stopPropagation();
     if (infoExam.questions.length === infoExam.count) {
-      showNotification('Đề đã đủ số câu', 'success');
+      showNotification('Đề đã đủ số câu', 'error');
       return;
     }
     showNotification('Đã thêm thành công', 'success');

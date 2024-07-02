@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 // material-ui
@@ -23,6 +23,8 @@ const ExamScreen = () => {
   const [data, setData] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [search, setSearch] = useState('');
+  const timeRef = useRef();
+  const nameRef = useRef();
   const [reloadActive, setReloadActive] = useState(false);
   const [infoExam, setInfoExam] = useState({
     code: '',
@@ -131,8 +133,18 @@ const ExamScreen = () => {
       }
     });
 
+    if (!infoExam.time) {
+      err = true;
+      timeRef.current.querySelector('input').style.border = '1px solid red';
+    }
+
+    if (!infoExam.name) {
+      err = true;
+      nameRef.current.querySelector('input').style.border = '1px solid red';
+    }
+
     if (err) {
-      showNotification('Không để trống các câu hỏi!', 'error');
+      showNotification('Không để trống thông tin!', 'error');
       return;
     }
     if (infoExam.questions.length < infoExam.count) {
@@ -212,9 +224,13 @@ const ExamScreen = () => {
                   </Select>
                 </Grid>
                 <Grid item xs={2}>
-                  <InputLabel>Thời gian (phút)</InputLabel>
+                  <InputLabel>
+                    Thời gian (phút) <span style={{ color: 'red' }}>*</span>
+                  </InputLabel>
                   <TextField
+                    ref={timeRef}
                     onChange={(e) => {
+                      timeRef.current.querySelector('input').style.border = '0.2px solid #bfc0c2';
                       infoExam.time = e.target.value;
                       setInfoExam({ ...infoExam });
                     }}
@@ -224,9 +240,13 @@ const ExamScreen = () => {
                 </Grid>
                 <Grid item xs={4} />
                 <Grid item xs={3}>
-                  <InputLabel>Tên đề</InputLabel>
+                  <InputLabel>
+                    Tên đề <span style={{ color: 'red' }}>*</span>
+                  </InputLabel>
                   <TextField
+                    ref={nameRef}
                     onChange={(e) => {
+                      nameRef.current.querySelector('input').style.border = '0.2px solid #bfc0c2';
                       infoExam.name = e.target.value;
                       setInfoExam({ ...infoExam });
                     }}
@@ -243,6 +263,7 @@ const ExamScreen = () => {
                     onChange={(e) => {
                       infoExam.count = Math.abs(e.target.value);
                       if (Math.abs(e.target.value) < infoExam.questions.length) infoExam.count = infoExam.questions.length;
+                      if (infoExam.count < 1) infoExam.count = 1;
                       setInfoExam({ ...infoExam });
                     }}
                     value={infoExam.count}
@@ -302,7 +323,13 @@ const ExamScreen = () => {
           </Grid>
         </Grid>
         <NotificationComponent />
-        <PopupSearchQuestion infoExam={infoExam} search={search} open={openSearchQuestion} handleClose={handleCloseSearch} />
+        <PopupSearchQuestion
+          chapters={subjects.find((item) => item.id === infoExam.subject_id)?.Chapters}
+          infoExam={infoExam}
+          search={search}
+          open={openSearchQuestion}
+          handleClose={handleCloseSearch}
+        />
       </form>
     </FormProvider>
   );

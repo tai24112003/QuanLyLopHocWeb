@@ -26,6 +26,9 @@ const runGetQuestionDatas = async (searchParams = {}) => {
   if (searchParams.subject_id) {
     url.searchParams.append('subject_id', searchParams.subject_id);
   }
+  if (searchParams.chapter_id) {
+    url.searchParams.append('chapter_id', searchParams.chapter_id);
+  }
   if (searchParams.difficult) {
     url.searchParams.append('difficult', searchParams.difficult);
   }

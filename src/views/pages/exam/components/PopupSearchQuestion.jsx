@@ -1,15 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Grid, TextField, Typography } from '@mui/material';
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
+  Grid,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography
+} from '@mui/material';
 import ListQuestion from './ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
 import { runGetQuestionDatas } from 'api/question';
 import { gridSpacing } from 'store/constant';
 
-const PopupSearchQuestion = ({ handleClose, open, infoExam }) => {
+const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
   const [subjects, setSubjects] = useState([]);
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [qValue, setQValue] = useState('');
+  const [diffValue, setDiffValue] = useState(-1);
+  const [chapterValue, setChapterValue] = useState(-1);
   const [search, setSearch] = useState({ q: '' });
 
   const handleSearch = (e) => {
@@ -24,6 +39,8 @@ const PopupSearchQuestion = ({ handleClose, open, infoExam }) => {
           ...search,
           subject_id: infoExam.subject_id
         };
+        if (diffValue !== -1) searchParams.difficult = diffValue;
+        if (chapterValue !== -1) searchParams.chapter_id = chapterValue;
         const [questionsData, subjectsData] = await Promise.all([runGetQuestionDatas(searchParams), runGetSubjectOptions()]);
 
         setData(formatData(questionsData.data));
@@ -72,7 +89,7 @@ const PopupSearchQuestion = ({ handleClose, open, infoExam }) => {
       <DialogContent container sx={{ backgroundColor: '#eef2f6', minHeight: '70vh', maxHeight: '70vh' }}>
         <Grid container spacing={gridSpacing}>
           <Grid item xs={1} />
-          <Grid item xs={8.7}>
+          <Grid item xs={4.7}>
             <TextField
               onChange={(e) => {
                 setQValue(e.target.value);
@@ -81,6 +98,37 @@ const PopupSearchQuestion = ({ handleClose, open, infoExam }) => {
               sx={{ width: '100%' }}
             ></TextField>
           </Grid>
+          <Grid item xs={2}>
+            <Select
+              onChange={(e) => {
+                setChapterValue(Number(e.target.value));
+              }}
+              value={chapterValue}
+              sx={{ width: '100%' }}
+            >
+              <MenuItem value={-1}>Chọn độ chương</MenuItem>
+              {chapters?.map((chapter, index) => (
+                <MenuItem key={index} value={chapter.id}>
+                  {chapter.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </Grid>
+          <Grid item xs={2}>
+            <Select
+              onChange={(e) => {
+                setDiffValue(Number(e.target.value));
+              }}
+              value={diffValue}
+              sx={{ width: '100%' }}
+            >
+              <MenuItem value={-1}>Chọn độ khó</MenuItem>
+              <MenuItem value={1}>Dễ</MenuItem>
+              <MenuItem value={2}>Trung bình</MenuItem>
+              <MenuItem value={3}>Khó</MenuItem>
+            </Select>
+          </Grid>
+
           <Grid item xs={1.35} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
             <Button onClick={handleSearch} variant="contained" color="warning" sx={{ margin: '10px 0', width: '100%' }}>
               Tìm kiếm
