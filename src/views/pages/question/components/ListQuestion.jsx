@@ -9,10 +9,11 @@ import CommonQuestionItem from './CommonQuestionItem';
 import { runDeleteCommonQuestion, runDeleteQuestionDatas } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import useNotification from './Notification';
+import generateId from 'utils/generate-id';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const ListQuestion = ({ listQuestion, subjects }) => {
+const ListQuestion = ({ listQuestion, subjects, arrChapter }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [questionSelected, setQuestionSelected] = useState();
@@ -88,9 +89,11 @@ const ListQuestion = ({ listQuestion, subjects }) => {
           const index = listQuestion.indexOf(value);
           if (index > -1) {
             listQuestion.splice(index, 1);
-            setReload(!reload);
+            showNotification('Xóa thành công!', 'success');
+            setTimeout(() => {
+              setReload(!reload);
+            }, 1000);
           }
-          showNotification('Xóa thành công!', 'success');
         } else {
           showNotification('Xóa thất bại!', 'error');
         }
@@ -101,12 +104,24 @@ const ListQuestion = ({ listQuestion, subjects }) => {
     <>
       {listQuestion?.map((question, index) => {
         return question.type_id === 2 ? (
-          <React.Fragment key={index}>
-            <QuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght} />
+          <React.Fragment key={listQuestion.length - index}>
+            <QuestionItem
+              arrChapter={arrChapter[question.subject_id]}
+              subjects={subjects}
+              onDestroy={handleClickOpen}
+              question={question}
+              lenght={listQuestion.length}
+            />
           </React.Fragment>
         ) : (
-          <React.Fragment key={index}>
-            <CommonQuestionItem subjects={subjects} onDestroy={handleClickOpen} question={question} lenght={listQuestion.lenght} />
+          <React.Fragment key={listQuestion.length - index}>
+            <CommonQuestionItem
+              arrChapter={arrChapter[question.subject_id]}
+              subjects={subjects}
+              onDestroy={handleClickOpen}
+              question={question}
+              lenght={listQuestion.length}
+            />
           </React.Fragment>
         );
       })}

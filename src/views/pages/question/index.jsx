@@ -19,6 +19,7 @@ import useNotification from './components/Notification';
 
 const QuestionScreen = () => {
   const [data, setData] = useState([]);
+  const [arrChapter, setArrChapter] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [reloadActive, setReloadActive] = useState(false);
   const [qValue, setQValue] = useState('');
@@ -26,6 +27,7 @@ const QuestionScreen = () => {
   const [diffValue, setDiffValue] = useState(-1);
   const [chapterValue, setChapterValue] = useState(-1);
   const [listChapterValue, setListChapterValue] = useState([]);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState({ q: '' });
   const methods = useForm();
   const {
@@ -51,6 +53,11 @@ const QuestionScreen = () => {
   useEffect(() => {
     runGetSubjectOptions().then((data) => {
       setSubjects(data.data);
+      let arr = [];
+      data.data?.forEach((item) => {
+        arr[item.id] = item.Chapters;
+      });
+      setArrChapter(arr);
     });
   }, []);
 
@@ -86,7 +93,7 @@ const QuestionScreen = () => {
   const onSubmit = () => {
     let err = false;
     data.map((e) => {
-      if (e.content === '' || e.chapter_id === '') {
+      if (e.content === '' || e.chapter_id === '' || e.chapter_id === -1) {
         e.ref.style.border = '1px solid red';
         err = true;
       } else {
@@ -127,15 +134,25 @@ const QuestionScreen = () => {
         });
         return cleanedItem;
       });
+      if (dataChanged.length === 0) {
+        return;
+      }
+      setLoading(true);
       runAddOrUpdateQuestions(dataChanged)
         .then((data) => {
           if (data.success) {
-            showNotification('Cập nhật thành công!', 'success');
             setReloadActive(!reloadActive);
+            setTimeout(() => {
+              showNotification('Cập nhật thành công!', 'success');
+            }, 100);
           } else showNotification('Cập nhật thất bại!', 'error');
+          setLoading(false);
         })
         .catch((err) => {
-          showNotification('Cập nhật thất bại!', 'error');
+          setTimeout(() => {
+            showNotification('Cập nhật thất bại!', 'error');
+          }, 100);
+          setLoading(false);
         });
     }
   };
@@ -147,7 +164,7 @@ const QuestionScreen = () => {
         content: '',
         subject_id: 1,
         difficulty: 1,
-        chapter_id: ``,
+        chapter_id: -1,
         new_or_edit: true,
         type_id: 2,
         choices: [{ id: -1, content: '', is_correct: true }]
@@ -165,7 +182,7 @@ const QuestionScreen = () => {
         type_id: 1,
         subject_id: 1,
         difficulty: 1,
-        chapter_id: ``,
+        chapter_id: -1,
         questions: [
           {
             id: -1,
@@ -243,14 +260,13 @@ const QuestionScreen = () => {
                     <MenuItem value={3}>Khó</MenuItem>
                   </Select>
                 </Grid>
-                <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
+                <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
                   <Button
                     onClick={(e) => {
                       setSearch({ q: qValue });
                     }}
                     variant="contained"
                     color="warning"
-                    sx={{ margin: '10px 0' }}
                   >
                     Tìm kiếm
                   </Button>
@@ -260,18 +276,20 @@ const QuestionScreen = () => {
                     Có <b>{data.length}</b> kết quả cho "{search.q}"
                   </Typography>
                 </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
-                  <Button variant="contained" onClick={onAddQuestion} sx={{ margin: '10px 0px' }}>
-                    Thêm câu hỏi
-                  </Button>
-                  <Button variant="contained" onClick={onAddCommonQuestion} sx={{ margin: '10px 10px' }}>
-                    Thêm câu hỏi chung
-                  </Button>
-                </Grid>
               </Grid>
             </MainCard>
+            <Grid container>
+              <Grid item xs={12} sx={{ marginBottom: -3, paddingRight: 0, display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
+                <Button variant="contained" onClick={onAddQuestion} sx={{ margin: '10px 0px', marginRight: '10px' }}>
+                  Thêm câu hỏi
+                </Button>
+                <Button variant="contained" onClick={onAddCommonQuestion} sx={{ margin: '10px 0px' }}>
+                  Thêm câu hỏi chung
+                </Button>
+              </Grid>
+            </Grid>
           </Grid>
-          <ListQuestion subjects={subjects} listQuestion={data} register={register} errors={errors} />
+          <ListQuestion arrChapter={arrChapter} subjects={subjects} listQuestion={data} register={register} errors={errors} />
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', position: 'sticky', bottom: 20 }}>
             <Button onClick={onSubmit} variant="contained">
               Cập nhật

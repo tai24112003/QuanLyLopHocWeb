@@ -5,7 +5,6 @@ import Grid from '@mui/material/Grid';
 
 import 'ckeditor5/ckeditor5.css';
 import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
-import { useNavigate } from 'react-router-dom';
 import { Accordion, AccordionDetails, AccordionSummary, Button, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
@@ -30,10 +29,13 @@ import generateId from 'utils/generate-id';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
+const CommonQuestionItem = ({ arrChapter = [], question, onDestroy, subjects }) => {
   const [reload, setReload] = useState(false);
   const [chapters, setChapters] = useState([]);
   const thisRef = useRef();
+  const [chaptersController, setChaptersController] = useState(-1);
+  const [subjectController, setSubjectController] = useState(-1);
+  const [diffController, setDiffController] = useState(1);
 
   question.ref = thisRef.current;
   const onDeleteQuestion = (event) => {
@@ -42,12 +44,18 @@ const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
   };
 
   useEffect(() => {
-    let lstChapter = subjects.find((item) => item.id === question.subject_id)?.Chapters;
-    setChapters(lstChapter);
+    setChapters(arrChapter);
   }, []);
-
   useEffect(() => {
-    setReload(!reload);
+    if (chapters.length == 0) {
+      setChaptersController(-1);
+      setSubjectController(-1);
+      setDiffController(1);
+    } else {
+      setChaptersController(question.chapter_id);
+      setSubjectController(question.subject_id);
+      setDiffController(question.difficulty);
+    }
   }, [chapters]);
 
   const onAddQuestion = () => {
@@ -55,7 +63,7 @@ const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
     question.questions.push({
       id: -1,
       content: '',
-      chapter_id: ``,
+      chapter_id: -1,
       subject_id: 1,
       difficulty: 1,
       new_or_edit: true,
@@ -67,83 +75,16 @@ const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid item xs={12} className="fade-in">
         <Accordion ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container>
               <Grid item xs={12} sx={{ marginBottom: 1 }}>
                 <Typography>
-                  <b style={{ fontSize: 18 }}>Thông tin chung:</b>
+                  <b>Nội dung câu hỏi</b>
                 </Typography>
               </Grid>
-              <Grid item xs={3.3} sx={{ marginTop: 0 }}>
-                <InputLabel>Môn</InputLabel>
-                <Select
-                  onChange={(e) => {
-                    thisRef.current.style.border = 'none';
-                    if (!question.new_or_edit) {
-                      question.new_or_edit = true;
-                    }
-                    question.subject_id = e.target.value;
-                    let lstChapter = subjects.find((item) => item.id === e.target.value)?.Chapters;
-                    question.chapter_id = lstChapter[0]?.id ?? '';
-                    setChapters(lstChapter);
-                    setReload(!reload);
-                  }}
-                  value={question.subject_id}
-                  sx={{ width: '100%' }}
-                >
-                  {subjects.map((subject) => (
-                    <MenuItem value={subject.id}>{subject.name}</MenuItem>
-                  ))}
-                </Select>
-              </Grid>
-
-              <Grid item xs={3.3} sx={{ paddingLeft: 3, marginTop: 0 }}>
-                <InputLabel>Chương</InputLabel>
-                <Select
-                  onChange={(e) => {
-                    thisRef.current.style.border = 'none';
-                    if (!question.new_or_edit) {
-                      question.new_or_edit = true;
-                    }
-                    question.chapter_id = e.target.value;
-                    setReload(!reload);
-                  }}
-                  value={question.chapter_id}
-                  sx={{ width: '100%' }}
-                >
-                  <MenuItem value={``}>Chọn chương</MenuItem>
-                  {chapters?.map((chapter) => (
-                    <MenuItem value={chapter.id}>{chapter.name}</MenuItem>
-                  ))}
-                </Select>
-              </Grid>
-              <Grid item xs={3.3} sx={{ paddingLeft: 3, marginTop: 0 }}>
-                <InputLabel>Độ khó</InputLabel>
-                <Select
-                  onChange={(e) => {
-                    thisRef.current.style.border = 'none';
-                    if (!question.new_or_edit) {
-                      question.new_or_edit = true;
-                    }
-                    question.difficulty = e.target.value;
-                    setReload(!reload);
-                  }}
-                  value={question.difficulty}
-                  sx={{ width: '100%' }}
-                >
-                  <MenuItem value={1}>Dễ</MenuItem>
-                  <MenuItem value={2}>Trung bình</MenuItem>
-                  <MenuItem value={3}>Khó</MenuItem>
-                </Select>
-              </Grid>
-              <Grid item xs={12} sx={{ marginBottom: 1.5, marginTop: 2 }}>
-                <Typography>
-                  <b style={{ fontSize: 18 }}>Nội dung câu hỏi:</b>
-                </Typography>
-              </Grid>
-              <Grid item xs={10}>
+              <Grid item xs={5.8}>
                 <CKEditor
                   id={generateId()}
                   editor={ClassicEditor}
@@ -215,6 +156,95 @@ const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
                   }}
                 />
               </Grid>
+              <Grid item xs={0.2}></Grid>
+              <Grid item xs={4}>
+                <Grid container>
+                  <Grid item xs={2}>
+                    Môn:
+                  </Grid>
+                  <Grid item xs={10} sx={{ marginBottom: 1 }}>
+                    <Select
+                      style={{ height: '25px', overflow: 'hidden' }}
+                      onChange={(e) => {
+                        thisRef.current.style.border = 'none';
+                        if (!question.new_or_edit) {
+                          question.new_or_edit = true;
+                        }
+                        question.subject_id = e.target.value;
+                        let lstChapter = subjects.find((item) => item.id === e.target.value)?.Chapters;
+                        question.chapter_id = lstChapter[0]?.id ?? '';
+                        setSubjectController(e.target.value);
+                        setChapters(lstChapter);
+                        setReload(!reload);
+                      }}
+                      value={subjectController}
+                      sx={{ width: '100%' }}
+                    >
+                      <MenuItem value={-1}>Chọn Môn</MenuItem>
+                      {subjects.map((subject, index) => (
+                        <MenuItem key={index} value={subject.id}>
+                          {subject.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
+                  <Grid item xs={2}>
+                    Chương:
+                  </Grid>
+                  <Grid item xs={10} sx={{ marginBottom: 1 }}>
+                    <Select
+                      style={{ height: '25px', overflow: 'hidden' }}
+                      onChange={(e) => {
+                        thisRef.current.style.border = 'none';
+                        if (!question.new_or_edit) {
+                          question.new_or_edit = true;
+                        }
+                        question.chapter_id = e.target.value;
+                        setChaptersController(e.target.value);
+                        setReload(!reload);
+                      }}
+                      value={chaptersController}
+                      sx={{ width: '100%' }}
+                    >
+                      <MenuItem value={-1}>Chọn chương</MenuItem>
+                      {chapters?.map((chapter, index) => (
+                        <MenuItem key={index} value={chapter.id}>
+                          {chapter.name}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </Grid>
+                  <Grid item xs={2}>
+                    Độ khó:
+                  </Grid>
+                  <Grid item xs={10}>
+                    <Select
+                      style={{ height: '25px', overflow: 'hidden' }}
+                      onChange={(e) => {
+                        thisRef.current.style.border = 'none';
+                        if (!question.new_or_edit) {
+                          question.new_or_edit = true;
+                        }
+                        question.difficulty = e.target.value;
+                        setDiffController(e.target.value);
+                        setReload(!reload);
+                      }}
+                      value={diffController}
+                      sx={{ width: '100%' }}
+                    >
+                      <MenuItem key={generateId()} value={1}>
+                        Dễ
+                      </MenuItem>
+                      <MenuItem key={generateId()} value={2}>
+                        Trung bình
+                      </MenuItem>
+                      <MenuItem key={generateId()} value={3}>
+                        Khó
+                      </MenuItem>
+                    </Select>
+                  </Grid>
+                </Grid>
+              </Grid>
               <Grid item xs={1.5} margin="20px 20px">
                 <Button onClick={onDeleteQuestion} variant="contained" color="error">
                   Xóa
@@ -226,11 +256,11 @@ const CommonQuestionItem = ({ question, onDestroy, subjects }) => {
             <Grid container spacing={gridSpacing}>
               <Grid item xs={12} sx={{ marginBottom: -3 }}>
                 <Typography>
-                  <b style={{ fontSize: 18 }}>Các câu hỏi:</b>
+                  <b>Các câu hỏi:</b>
                 </Typography>
               </Grid>
               {question?.questions?.map((questionItem, index) => (
-                <React.Fragment key={index}>
+                <React.Fragment key={generateId()}>
                   <QuestionItem
                     parentQuestion={question}
                     subjects={subjects}
