@@ -30,7 +30,7 @@ const useNotification = () => {
   const NotificationComponent = () => (
     <Snackbar
       open={notification.open}
-      autoHideDuration={3000}
+      autoHideDuration={1000}
       onClose={handleClose}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
     >

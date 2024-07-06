@@ -9,7 +9,10 @@ export const initialState = {
   defaultId: 'default',
   fontFamily: config.fontFamily,
   borderRadius: config.borderRadius,
-  opened: true
+  opened: true,
+  listQuestion: [],
+  editing: null,
+  trigger: 1
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -37,6 +40,26 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         borderRadius: action.borderRadius
+      };
+    case actionTypes.SET_LIST_QUESTION:
+      return {
+        ...state,
+        listQuestion: action.listQuestion
+      };
+    case actionTypes.SET_OBJ_EDITING:
+      return {
+        ...state,
+        editing: action.editing
+      };
+    case actionTypes.SET_COMMON_DATA:
+      return {
+        ...state,
+        commonData: action.commonData
+      };
+    case actionTypes.TRIGGER_RELOAD:
+      return {
+        ...state,
+        trigger: action.trigger
       };
     default:
       return state;

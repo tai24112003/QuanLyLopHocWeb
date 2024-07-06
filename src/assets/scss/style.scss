@@ -136,3 +136,20 @@
   background-color: transparent !important;
   border: none !important;
 }
+
+
+@keyframes slideInDown {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+
+.fade-in {
+  animation: slideInDown .3s ease-out; /* Thời gian 0.5s và chuyển động dễ dàng ra */
+}

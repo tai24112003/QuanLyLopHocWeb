@@ -21,11 +21,15 @@ import PopupSearchQuestion from './components/PopupSearchQuestion';
 
 const ExamScreen = () => {
   const [data, setData] = useState([]);
+  const [subjectController, setSubjectController] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [search, setSearch] = useState('');
   const timeRef = useRef();
   const nameRef = useRef();
   const [reloadActive, setReloadActive] = useState(false);
+  const [chapterValue, setChapterValue] = useState(-1);
+  const [diffValue, setDiffValue] = useState(-1);
+  const [listChapterFilter, setListChapterFilter] = useState([]);
   const [infoExam, setInfoExam] = useState({
     code: '',
     subject_id: '',
@@ -55,6 +59,8 @@ const ExamScreen = () => {
   useEffect(() => {
     infoExam.code = generateId().toUpperCase().substring(3);
     infoExam.subject_id = subjects[0]?.id;
+    setListChapterFilter(subjects.find((item) => item.id === infoExam.subject_id)?.Chapters);
+    setSubjectController(subjects[0]?.id ?? '');
     setInfoExam({ ...infoExam });
   }, [subjects]);
 
@@ -65,12 +71,12 @@ const ExamScreen = () => {
   }, []);
 
   const reloadList = (question) => {
-    showNotification('Đã xóa thành công', 'success');
     const idx = infoExam.questions.indexOf(question);
     if (idx > -1) {
       infoExam.questions.splice(idx, 1);
     }
     setInfoExam({ ...infoExam });
+    setTimeout(() => showNotification('Đã xóa thành công', 'success'), 0);
   };
 
   const formatData = (data) => {
@@ -151,47 +157,6 @@ const ExamScreen = () => {
       showNotification('Đề chưa đủ câu', 'error');
       return;
     }
-    console.log(infoExam);
-  };
-
-  const onAddQuestion = () => {
-    setData([
-      {
-        id: -1,
-        content: '',
-        subject_id: 1,
-        difficulty: 1,
-        chapter_id: ``,
-        new_or_edit: true,
-        type_id: 2,
-        choices: [{ id: -1, content: '', is_correct: true }]
-      },
-      ...data
-    ]);
-  };
-
-  const onAddCommonQuestion = () => {
-    setData([
-      {
-        id: -1,
-        content: '',
-        new_or_edit: true,
-        type_id: 1,
-        subject_id: 1,
-        difficulty: 1,
-        chapter_id: ``,
-        questions: [
-          {
-            id: -1,
-            content: '',
-            type_id: 1,
-            choices: [{ id: -1, content: '', is_correct: true }]
-          }
-        ],
-        choices: []
-      },
-      ...data
-    ]);
   };
 
   return (
@@ -203,21 +168,25 @@ const ExamScreen = () => {
               <Grid container spacing={gridSpacing}>
                 <Grid item xs={3}>
                   <InputLabel>Mã đề</InputLabel>
-                  <TextField InputProps={{ readOnly: true }} value={infoExam.code} placeholder="KTYAS" sx={{ width: '100%' }}></TextField>
+                  <TextField inputProps={{ readOnly: true }} value={infoExam.code} placeholder="KTYAS" sx={{ width: '100%' }}></TextField>
                 </Grid>
                 <Grid item xs={3}>
                   <InputLabel>Môn</InputLabel>
                   <Select
                     onChange={(e) => {
-                      infoExam.subject_id = e.target.value;
-                      infoExam.questions = [];
-                      setInfoExam({ ...infoExam });
+                      setSubjectController(e.target.value);
+                      setListChapterFilter(subjects.find((item) => item.id === e.target.value)?.Chapters ?? []);
+                      setInfoExam((prevInfoExam) => ({
+                        ...prevInfoExam,
+                        subject_id: e.target.value,
+                        questions: [] // Clear questions when subject changes
+                      }));
                     }}
-                    value={infoExam.subject_id}
+                    value={subjectController}
                     sx={{ width: '100%' }}
                   >
                     {subjects.map((subject, index) => (
-                      <MenuItem key={index} value={subject.id}>
+                      <MenuItem key={subject.id} value={subject.id}>
                         {subject.name}
                       </MenuItem>
                     ))}
@@ -228,6 +197,7 @@ const ExamScreen = () => {
                     Thời gian (phút) <span style={{ color: 'red' }}>*</span>
                   </InputLabel>
                   <TextField
+                    type="number"
                     ref={timeRef}
                     onChange={(e) => {
                       timeRef.current.querySelector('input').style.border = '0.2px solid #bfc0c2';
@@ -277,25 +247,55 @@ const ExamScreen = () => {
           <Grid item xs={12}>
             <MainCard>
               <Grid container spacing={1}>
-                <Grid item xs={8}>
+                <Grid item xs={5.5}>
                   <TextField
                     onChange={(e) => setSearch(e.target.value)}
-                    placeholder="Tìm kiếm nội dung câu hỏi"
+                    placeholder="Tìm kiếm câu hỏi trong đề"
                     sx={{ width: '100%' }}
                   ></TextField>
                 </Grid>
-                <Grid item xs={4} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
-                  <Button variant="contained" color="warning" sx={{ margin: '10px 0' }}>
-                    Tìm kiếm
-                  </Button>
+                <Grid item xs={2}>
+                  <Select
+                    onChange={(e) => {
+                      setChapterValue(Number(e.target.value));
+                    }}
+                    value={chapterValue}
+                    sx={{ width: '100%' }}
+                  >
+                    <MenuItem value={-1}>Chọn chương</MenuItem>
+                    {listChapterFilter?.map((chapter, index) => (
+                      <MenuItem key={index} value={chapter.id}>
+                        {chapter.name}
+                      </MenuItem>
+                    ))}
+                  </Select>
                 </Grid>
-                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
-                  <Button variant="contained" onClick={handleClickOpenSearch} sx={{ margin: '10px 0px' }}>
-                    Thêm câu hỏi
+                <Grid item xs={1.5}>
+                  <Select
+                    onChange={(e) => {
+                      setDiffValue(Number(e.target.value));
+                    }}
+                    value={diffValue}
+                    sx={{ width: '100%' }}
+                  >
+                    <MenuItem value={-1}>Chọn độ khó</MenuItem>
+                    <MenuItem value={1}>Dễ</MenuItem>
+                    <MenuItem value={2}>Trung bình</MenuItem>
+                    <MenuItem value={3}>Khó</MenuItem>
+                  </Select>
+                </Grid>
+                <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
+                  <Button size="small" variant="contained" color="warning">
+                    Tìm kiếm
                   </Button>
                 </Grid>
               </Grid>
             </MainCard>
+            <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
+              <Button variant="contained" onClick={handleClickOpenSearch} sx={{ margin: '10px 0px' }}>
+                Thêm câu hỏi
+              </Button>
+            </Grid>
           </Grid>
           <ListQuestion reloadList={reloadList} inExam infoExam={infoExam} subjects={subjects} listQuestion={infoExam.questions} />
           <Grid

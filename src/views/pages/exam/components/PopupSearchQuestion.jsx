@@ -106,7 +106,7 @@ const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
               value={chapterValue}
               sx={{ width: '100%' }}
             >
-              <MenuItem value={-1}>Chọn độ chương</MenuItem>
+              <MenuItem value={-1}>Chọn chương</MenuItem>
               {chapters?.map((chapter, index) => (
                 <MenuItem key={index} value={chapter.id}>
                   {chapter.name}
@@ -129,8 +129,8 @@ const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
             </Select>
           </Grid>
 
-          <Grid item xs={1.35} sx={{ display: 'flex', justifyContent: 'start', alignContent: 'center' }}>
-            <Button onClick={handleSearch} variant="contained" color="warning" sx={{ margin: '10px 0', width: '100%' }}>
+          <Grid item xs={1.35} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
+            <Button onClick={handleSearch} variant="contained" color="warning" sx={{ width: '100%' }}>
               Tìm kiếm
             </Button>
           </Grid>

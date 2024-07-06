@@ -4,3 +4,7 @@ export const MENU_TOGGLE = '@customization/MENU_TOGGLE';
 export const MENU_OPEN = '@customization/MENU_OPEN';
 export const SET_FONT_FAMILY = '@customization/SET_FONT_FAMILY';
 export const SET_BORDER_RADIUS = '@customization/SET_BORDER_RADIUS';
+export const SET_LIST_QUESTION = '@customization/SET_LIST_QUESTION';
+export const SET_OBJ_EDITING = '@customization/SET_OBJ_EDITING';
+export const SET_COMMON_DATA = '@customization/SET_COMMON_DATA';
+export const TRIGGER_RELOAD = '@customization/TRIGGER_RELOAD';
