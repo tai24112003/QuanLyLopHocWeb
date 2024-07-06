@@ -51,10 +51,43 @@ const runDeleteCommonQuestion = async (id) => {
   return data;
 };
 
+const runUpdateCommonQuestion = async (question) => {
+  const url = import.meta.env.VITE_APP_API_URL + `common-content/${question.id}`;
+  const data = await apiCall({ method: 'put', url, data: question });
+  return data;
+};
+
+const runAddCommonQuestion = async (question) => {
+  const url = import.meta.env.VITE_APP_API_URL + `common-content`;
+  const data = await apiCall({ method: 'post', url, data: question });
+  return data;
+};
+
+const runAddQuestion = async (question) => {
+  const url = import.meta.env.VITE_APP_API_URL + `question`;
+  const data = await apiCall({ method: 'post', url, data: question });
+  return data;
+};
+
+const runUpdateQuestion = async (question) => {
+  const url = import.meta.env.VITE_APP_API_URL + `question/${question.id}`;
+  const data = await apiCall({ method: 'put', url, data: question });
+  return data;
+};
+
 const runAddOrUpdateQuestions = async (dataIn) => {
   const url = import.meta.env.VITE_APP_API_URL + `question/create-or-update-many`;
   const data = await apiCall({ method: 'post', url, data: dataIn });
   return data;
 };
 
-export { runGetQuestionDatas, runDeleteQuestionDatas, runAddOrUpdateQuestions, runDeleteCommonQuestion };
+export {
+  runGetQuestionDatas,
+  runDeleteQuestionDatas,
+  runUpdateCommonQuestion,
+  runAddOrUpdateQuestions,
+  runDeleteCommonQuestion,
+  runAddQuestion,
+  runUpdateQuestion,
+  runAddCommonQuestion
+};
