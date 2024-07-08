@@ -27,18 +27,18 @@ import {
 } from 'ckeditor5';
 import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
-import QuestionItemForm from './QuestionItemForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
+import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
 import useNotification from './Notification';
 import { runAddCommonQuestion, runCopyCommonQuestion, runDeleteCommonQuestion, runUpdateCommonQuestion } from 'api/question';
 import { runGetSubjectOptions } from 'api/subject';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
+import QuestionItemInExam from './QuestionItemInExam';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const CommonQuestionItemForm = ({ question }) => {
+const CommonQuestionItemInExam = ({ question }) => {
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [open, setOpen] = useState(false);
@@ -50,6 +50,9 @@ const CommonQuestionItemForm = ({ question }) => {
   const dispatch = useDispatch();
   const { showNotification, NotificationComponent } = useNotification();
   const content = useRef(question?.content);
+  const exam = useSelector((state) => {
+    return state.customization.exam;
+  });
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
   });
@@ -79,20 +82,9 @@ const CommonQuestionItemForm = ({ question }) => {
   };
 
   const onRemove = () => {
-    let newData = [...listQuestion];
-    runDeleteCommonQuestion(question.id).then((data) => {
-      if (data.success) {
-        if (data.success) {
-          showNotification('Đã xóa thành công', 'success');
-          setTimeout(() => {
-            newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-          }, 2000);
-        } else {
-          showNotification('Xóa không thành công', 'error');
-        }
-      }
-    });
+    let newData = [...exam.questions];
+    newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
+    dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
   };
 
   useEffect(() => {
@@ -119,7 +111,7 @@ const CommonQuestionItemForm = ({ question }) => {
   }, [chapters]);
 
   const onAddQuestion = () => {
-    let newData = [...listQuestion];
+    let newData = [...exam.questions];
     const id = Date.now() * -1;
     newData = newData.map((item) => {
       if (item.id == question.id) {
@@ -135,6 +127,7 @@ const CommonQuestionItemForm = ({ question }) => {
               isEditing: true,
               hideEdit: false,
               type_id: 1,
+              canRemove: question.canRemove,
               choices: [{ id: -1, content: '', is_correct: true }]
             }
           ]
@@ -142,7 +135,7 @@ const CommonQuestionItemForm = ({ question }) => {
       }
       return { ...item };
     });
-    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+    dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
     dispatch({ type: SET_OBJ_EDITING, editing: { id: id, type_id: 1 } });
     dispatch({ type: SET_COMMON_DATA, commonData: { id: question.id, chapter_id: question.chapter_id, difficulty: question.difficulty } });
   };
@@ -154,21 +147,24 @@ const CommonQuestionItemForm = ({ question }) => {
 
   const onCopy = (e) => {
     e.stopPropagation();
-    const dataMap = [...listQuestion];
+    const dataMap = [...exam.questions];
     runCopyCommonQuestion(question.id).then((data) => {
       if (data.success) {
         const newData = data.data;
         dispatch({
-          type: SET_LIST_QUESTION,
-          listQuestion: [
-            {
-              ...newData,
-              subject_id: subjectController,
-              canRemove: true,
-              questions: newData.questions.map((item) => ({ ...item, canRemove: true }))
-            },
-            ...dataMap
-          ]
+          type: SET_EXAM,
+          exam: {
+            ...exam,
+            questions: [
+              {
+                ...newData,
+                subject_id: subjectController,
+                canRemove: true,
+                questions: newData.questions.map((item) => ({ ...item, canRemove: true }))
+              },
+              ...dataMap
+            ]
+          }
         });
         setTimeout(() => {
           showNotification('Sao chép thành công', 'success'), scrollToCenter(`${newData.id}-${newData.type_id}`);
@@ -200,7 +196,7 @@ const CommonQuestionItemForm = ({ question }) => {
       return;
     }
 
-    const dataMap = listQuestion.map((item) => {
+    const dataMap = exam.questions.map((item) => {
       if (item.id === question.id)
         return {
           ...item,
@@ -219,7 +215,7 @@ const CommonQuestionItemForm = ({ question }) => {
       })
         .then((data) => {
           if (data.success) {
-            const dataMap = listQuestion.map((item) => {
+            const dataMap = exam.questions.map((item) => {
               if (item.id === question.id && item.type_id === question.type_id)
                 return {
                   ...item,
@@ -233,7 +229,13 @@ const CommonQuestionItemForm = ({ question }) => {
                 ...item
               };
             });
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+            dispatch({
+              type: SET_EXAM,
+              exam: {
+                ...exam,
+                questions: dataMap
+              }
+            });
             dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 1 } });
             dispatch({
               type: SET_COMMON_DATA,
@@ -256,7 +258,7 @@ const CommonQuestionItemForm = ({ question }) => {
       })
         .then((data) => {
           if (data.success) {
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+            dispatch({ type: SET_EXAM, exam: { ...exam, questions: dataMap } });
             dispatch({ type: SET_OBJ_EDITING, editing: null });
             setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
           } else {
@@ -285,6 +287,7 @@ const CommonQuestionItemForm = ({ question }) => {
                         <>
                           <Box mx={0.5}></Box>
                           <Select
+                            disabled={true}
                             style={{ height: '25px', overflow: 'hidden' }}
                             size="small"
                             inputProps={{
@@ -483,20 +486,20 @@ const CommonQuestionItemForm = ({ question }) => {
                         </Button>
                       </Grid>
                       <Grid item xs={6}>
-                        <Button
-                          disabled={!question.canRemove}
-                          sx={{ width: '100%' }}
-                          onClick={handleClickOpen}
-                          variant="contained"
-                          color="error"
-                        >
-                          Xóa
+                        <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
+                          Copy
                         </Button>
                       </Grid>
                     </Grid>
                     <Grid item mt={1} xs={12}>
-                      <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
-                        Copy
+                      <Button
+                        disabled={!question.canRemove}
+                        sx={{ width: '100%' }}
+                        onClick={handleClickOpen}
+                        variant="contained"
+                        color="error"
+                      >
+                        Xóa khỏi đề
                       </Button>
                     </Grid>
                   </>
@@ -514,8 +517,8 @@ const CommonQuestionItemForm = ({ question }) => {
                 </Typography>
               </Grid>
               {question?.questions?.map((questionItem, index) => (
-                <React.Fragment key={index}>
-                  <QuestionItemForm parentQuestion={question} question={questionItem} />
+                <React.Fragment key={questionItem.id}>
+                  <QuestionItemInExam parentQuestion={question} question={questionItem} />
                 </React.Fragment>
               ))}
               <Grid item xs={12}>
@@ -535,4 +538,4 @@ const CommonQuestionItemForm = ({ question }) => {
   );
 };
 
-export default CommonQuestionItemForm;
+export default CommonQuestionItemInExam;

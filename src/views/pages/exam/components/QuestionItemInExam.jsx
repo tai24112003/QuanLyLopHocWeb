@@ -28,13 +28,13 @@ import generateId from 'utils/generate-id';
 import { runDeleteChoice } from 'api/choice';
 import useNotification from './Notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
+import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
 import { runGetSubjectOptions } from 'api/subject';
 import { runAddQuestion, runDeleteQuestionDatas, runUpdateQuestion } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 
-const QuestionItemForm = ({ question, parentQuestion }) => {
+const QuestionItemInExam = ({ question, parentQuestion }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [questionSelected, setQuestionSelected] = useState();
@@ -50,6 +50,9 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   const content = useRef(question?.content);
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
+  });
+  const exam = useSelector((state) => {
+    return state.customization.exam;
   });
   const editing = useSelector((state) => {
     return state.customization.editing;
@@ -98,22 +101,25 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
 
   const onCopy = (e) => {
     e.stopPropagation();
-    const dataMap = [...listQuestion];
+    const dataMap = [...exam.questions];
     runAddQuestion(question).then((data) => {
       if (data.success) {
         let newQuestion = {};
         newQuestion = data.data;
         dispatch({
-          type: SET_LIST_QUESTION,
-          listQuestion: [
-            {
-              ...newQuestion,
-              subject_id: subjectController,
-              chapters: question.chapters,
-              canRemove: true
-            },
-            ...dataMap
-          ]
+          type: SET_EXAM,
+          exam: {
+            ...exam,
+            questions: [
+              {
+                ...newQuestion,
+                subject_id: subjectController,
+                chapters: question.chapters,
+                canRemove: true
+              },
+              ...dataMap
+            ]
+          }
         });
         setTimeout(() => {
           showNotification('Sao chép thành công', 'success'), scrollToCenter(`${newQuestion.id}-${newQuestion.type_id}`);
@@ -159,23 +165,40 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   };
 
   const onRemove = () => {
-    let newData = [...listQuestion];
-    runDeleteQuestionDatas(question.id)
-      .then((data) => {
-        if (data.success) {
-          showNotification('Đã xóa thành công', 'success');
-          setTimeout(() => {
-            newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-            if (parentQuestion) location.reload();
-          }, 2000);
-        } else {
-          showNotification('Xóa không thành công', 'error');
-        }
-      })
-      .catch((e) => {
-        showNotification('Có lỗi xảy ra, liên hệ quản trị viên', 'error');
-      });
+    if (parentQuestion) {
+      let newData = [...exam.questions];
+      runDeleteQuestionDatas(question.id)
+        .then((data) => {
+          if (data.success) {
+            showNotification('Đã xóa thành công', 'success');
+            setTimeout(() => {
+              let parent = newData.find((item) => {
+                return item.id === parentQuestion.id && item.type_id === parentQuestion.type_id;
+              });
+              let newParent = {
+                ...parent,
+                questions: parent.questions.filter((item) => !(item.type_id === question.type_id && item.id === question.id))
+              };
+              newData = newData.map((item) => {
+                if (item.id === parentQuestion.id && item.type_id === parentQuestion.type_id) {
+                  return newParent;
+                }
+                return { ...item };
+              });
+              dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
+            }, 2000);
+          } else {
+            showNotification('Xóa không thành công', 'error');
+          }
+        })
+        .catch((e) => {
+          showNotification('Có lỗi xảy ra, liên hệ quản trị viên', 'error');
+        });
+    } else {
+      let newData = [...exam.questions];
+      newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
+      dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
+    }
   };
 
   const handleClickOpen = (e) => {
@@ -226,7 +249,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
     }
 
     if (question.type_id == 2) {
-      dataMap = listQuestion.map((item) => {
+      dataMap = exam.questions.map((item) => {
         if (item.id === question.id && item.type_id === question.type_id)
           return {
             ...item,
@@ -256,7 +279,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
         return { ...item };
       });
 
-      dataMap = listQuestion.map((item) => {
+      dataMap = exam.questions.map((item) => {
         if (item.id === tmp.id)
           return {
             ...tmp
@@ -279,7 +302,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
         })
           .then((data) => {
             if (data.success) {
-              dataMap = listQuestion.map((item) => {
+              dataMap = exam.questions.map((item) => {
                 if (item.id === question.id && item.type_id === question.type_id)
                   return {
                     ...item,
@@ -294,7 +317,13 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                   ...item
                 };
               });
-              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+              dispatch({
+                type: SET_EXAM,
+                exam: {
+                  ...exam,
+                  questions: dataMap
+                }
+              });
               dispatch({ type: SET_OBJ_EDITING, editing: null });
               setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
             } else {
@@ -333,7 +362,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                 return { ...item };
               });
 
-              dataMap = listQuestion.map((item) => {
+              dataMap = exam.questions.map((item) => {
                 if (item.id === tmp.id && item.type_id === tmp.type_id)
                   return {
                     ...tmp
@@ -343,12 +372,10 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                 };
               });
               setTimeout(() => {
-                dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
+                dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...dataMap] } });
                 dispatch({ type: SET_COMMON_DATA, commonData: null });
                 dispatch({ type: SET_OBJ_EDITING, editing: null });
               }, 0);
-
-              // setTimeout(() => window.location.reload(), 100);
             } else {
               setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
             }
@@ -371,7 +398,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
           .then((data) => {
             if (data.success) {
               setTimeout(() => showNotification('Lưu thành công!!!!', 'success'), 100);
-              dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
+              //   dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...] } });
               if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
               dispatch({ type: SET_OBJ_EDITING, editing: null });
             } else {
@@ -395,7 +422,13 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
             if (data.success) {
               showNotification('Lưu thành công!!!!', 'success');
               setTimeout(() => {
-                dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
+                dispatch({
+                  type: SET_EXAM,
+                  exam: {
+                    ...exam,
+                    questions: [...dataMap]
+                  }
+                });
                 if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
                 dispatch({ type: SET_OBJ_EDITING, editing: null });
               }, 100);
@@ -447,6 +480,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                                 setChapters(lstChapter);
                                 setChaptersController(-1);
                               }}
+                              disabled={true}
                               value={subjectController}
                             >
                               <MenuItem value={-1}>Chọn Môn</MenuItem>
@@ -631,7 +665,30 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                           Sửa
                         </Button>
                       </Grid>
-                      <Grid item xs={6}>
+                      {
+                        <Grid item xs={6}>
+                          <Button disabled={parentQuestion} sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
+                            Copy
+                          </Button>
+                        </Grid>
+                      }
+                    </Grid>
+                    {!parentQuestion ? (
+                      <Grid item mt={1} xs={12}>
+                        <Button
+                          sx={{ width: '100%' }}
+                          onClick={(e) => {
+                            handleClickOpen(e);
+                          }}
+                          disabled={!question.canRemove}
+                          variant="contained"
+                          color="error"
+                        >
+                          Xóa khỏi đề
+                        </Button>
+                      </Grid>
+                    ) : (
+                      <Grid item mt={1} xs={12}>
                         <Button
                           disabled={!question.canRemove}
                           sx={{ width: '100%' }}
@@ -642,13 +699,6 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                           color="error"
                         >
                           Xóa
-                        </Button>
-                      </Grid>
-                    </Grid>
-                    {!parentQuestion && (
-                      <Grid item mt={1} xs={12}>
-                        <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
-                          Copy
                         </Button>
                       </Grid>
                     )}
@@ -731,4 +781,4 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   );
 };
 
-export default QuestionItemForm;
+export default QuestionItemInExam;

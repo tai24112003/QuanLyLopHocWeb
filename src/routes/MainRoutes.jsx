@@ -9,6 +9,9 @@ import { element } from 'prop-types';
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const QuestionScreen = Loadable(lazy(() => import('views/pages/question/index')));
 const ExamScreen = Loadable(lazy(() => import('views/pages/exam')));
+const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
+const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
+const SubjectChapterScreen = Loadable(lazy(() => import('views/pages/subject-chapter')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
@@ -36,7 +39,7 @@ const MainRoutes = {
         {
           path: '',
           element: <QuestionScreen />
-        },
+        }
       ]
     },
     {
@@ -44,12 +47,25 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <ExamScreen />
+          element: <ExamListScreen />
         },
         {
           path: 'create',
           element: <ExamScreen />
         },
+        {
+          path: 'view/:id',
+          element: <ExamViewScreen />
+        }
+      ]
+    },
+    {
+      path: 'subject',
+      children: [
+        {
+          path: '',
+          element: <SubjectChapterScreen />
+        }
       ]
     },
     {

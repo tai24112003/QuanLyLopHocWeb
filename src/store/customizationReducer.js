@@ -12,7 +12,15 @@ export const initialState = {
   opened: true,
   listQuestion: [],
   editing: null,
-  trigger: 1
+  trigger: 1,
+  exam: {
+    code: '',
+    subject_id: '',
+    time: 60,
+    name: '',
+    count: 50,
+    questions: []
+  }
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -60,6 +68,11 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         trigger: action.trigger
+      };
+    case actionTypes.SET_EXAM:
+      return {
+        ...state,
+        exam: action.exam
       };
     default:
       return state;

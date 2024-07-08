@@ -10,35 +10,38 @@ import { useForm, FormProvider } from 'react-hook-form';
 // assets
 import MainCard from 'ui-component/cards/MainCard';
 import { Button, CardActions, CardContent, InputLabel, MenuItem, Select, Snackbar, TextField } from '@mui/material';
-import { runAddOrUpdateQuestions, runDeleteQuestionDatas, runGetQuestionDatas } from 'api/question';
-import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
 import useNotification from './components/Notification';
 import generateId from 'utils/generate-id';
 import PopupSearchQuestion from './components/PopupSearchQuestion';
+import { useDispatch, useSelector } from 'react-redux';
+import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
+import ListQuestionInExam from './components/ListQuestionInExam';
+import { flattenArray } from 'views/utilities/common';
+import { runCreateExam } from 'api/exam';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const ExamScreen = () => {
-  const [data, setData] = useState([]);
-  const [subjectController, setSubjectController] = useState('');
   const [subjects, setSubjects] = useState([]);
   const [search, setSearch] = useState('');
   const timeRef = useRef();
   const nameRef = useRef();
+  const dispatch = useDispatch();
   const [reloadActive, setReloadActive] = useState(false);
   const [chapterValue, setChapterValue] = useState(-1);
   const [diffValue, setDiffValue] = useState(-1);
   const [listChapterFilter, setListChapterFilter] = useState([]);
-  const [infoExam, setInfoExam] = useState({
-    code: '',
-    subject_id: '',
-    time: 60,
-    name: '',
-    count: 50,
-    questions: []
+  const infoExam = useSelector((state) => {
+    return state.customization.exam;
   });
+  const editing = useSelector((state) => {
+    return state.customization.editing;
+  });
+  const [subjectController, setSubjectController] = useState(infoExam.subject_id);
+
   const methods = useForm();
+
   const { showNotification, NotificationComponent } = useNotification();
   const [openSearchQuestion, setOpenSearchQuestion] = useState(false);
 
@@ -51,32 +54,101 @@ const ExamScreen = () => {
   };
 
   useEffect(() => {
-    runGetQuestionDatas().then((data) => {
-      setData(formatData(data.data));
-    });
-  }, [reloadActive]);
-
-  useEffect(() => {
-    infoExam.code = generateId().toUpperCase().substring(3);
-    infoExam.subject_id = subjects[0]?.id;
-    setListChapterFilter(subjects.find((item) => item.id === infoExam.subject_id)?.Chapters);
-    setSubjectController(subjects[0]?.id ?? '');
-    setInfoExam({ ...infoExam });
-  }, [subjects]);
-
-  useEffect(() => {
     runGetSubjectOptions().then((data) => {
       setSubjects(data.data);
     });
+    return () => {
+      dispatch({
+        type: SET_EXAM,
+        exam: {
+          code: '',
+          subject_id: '',
+          time: 60,
+          name: '',
+          count: 50,
+          questions: []
+        }
+      });
+      dispatch({ type: SET_OBJ_EDITING, editing: null });
+      dispatch({ type: SET_COMMON_DATA, commonData: null });
+      dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
+    };
   }, []);
 
-  const reloadList = (question) => {
-    const idx = infoExam.questions.indexOf(question);
-    if (idx > -1) {
-      infoExam.questions.splice(idx, 1);
+  useEffect(() => {
+    let newData = { ...infoExam };
+    newData.code = generateId().toUpperCase().substring(3);
+    newData.subject_id = subjects[0]?.id;
+    setListChapterFilter(subjects.find((item) => item.id === infoExam.subject_id)?.Chapters);
+    setSubjectController(subjects[0]?.id ?? '');
+    dispatch({ type: SET_EXAM, exam: { ...newData } });
+  }, [subjects]);
+
+  const onAddQuestion = () => {
+    if (infoExam.count === infoExam.questions.length) {
+      showNotification('Đề đã đủ câu không thể thêm', 'error');
+      return;
     }
-    setInfoExam({ ...infoExam });
-    setTimeout(() => showNotification('Đã xóa thành công', 'success'), 0);
+    const dataMap = [...infoExam.questions];
+    dispatch({
+      type: SET_EXAM,
+      exam: {
+        ...infoExam,
+        questions: [
+          {
+            id: -1,
+            content: '',
+            subject_id: subjectController,
+            difficulty: 1,
+            chapter_id: -1,
+            new_or_edit: true,
+            type_id: 2,
+            canRemove: true,
+            choices: [{ id: -1, content: '', is_correct: true }]
+          },
+          ...dataMap
+        ]
+      }
+    });
+    dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 2 } });
+  };
+
+  const onAddCommonQuestion = () => {
+    if (infoExam.count === infoExam.questions.length) {
+      showNotification('Đề đã đủ câu không thể thêm', 'error');
+      return;
+    }
+    const dataMap = [...infoExam.questions];
+    dispatch({
+      type: SET_EXAM,
+      exam: {
+        ...infoExam,
+        questions: [
+          {
+            id: -2,
+            content: '',
+            new_or_edit: true,
+            type_id: 1,
+            subject_id: subjectController,
+            difficulty: 1,
+            chapter_id: -1,
+            isEditing: true,
+            canRemove: true,
+            questions: [
+              {
+                id: -1,
+                content: '',
+                type_id: 1,
+                choices: [{ id: -1, content: '', is_correct: true }]
+              }
+            ],
+            choices: []
+          },
+          ...dataMap
+        ]
+      }
+    });
+    dispatch({ type: SET_OBJ_EDITING, editing: { id: -2, type_id: 1 } });
   };
 
   const formatData = (data) => {
@@ -95,7 +167,8 @@ const ExamScreen = () => {
             difficulty: question.difficulty,
             subject_id: question.subject_id,
             choices: [],
-            questions: []
+            questions: [],
+            canRemove: question.canRemove
           };
           commonQuestion.questions.push(question);
           result.push(commonQuestion);
@@ -110,34 +183,6 @@ const ExamScreen = () => {
 
   const onSubmit = () => {
     let err = false;
-    infoExam.questions.map((e) => {
-      if (e.content === '' || e.chapter_id === '') {
-        e.ref.style.border = '1px solid red';
-        err = true;
-      } else {
-        e.ref.style.border = 'none';
-      }
-      if (!err) {
-        e.choices?.forEach((element) => {
-          if (element.content === '') {
-            e.ref.style.border = '1px solid red';
-            err = true;
-          }
-        });
-        e.questions?.forEach((element) => {
-          if (element.content === '') {
-            e.ref.style.border = '1px solid red';
-            err = true;
-          }
-          element.choices?.forEach((el) => {
-            if (el.content === '') {
-              e.ref.style.border = '1px solid red';
-              err = true;
-            }
-          });
-        });
-      }
-    });
 
     if (!infoExam.time) {
       err = true;
@@ -157,6 +202,24 @@ const ExamScreen = () => {
       showNotification('Đề chưa đủ câu', 'error');
       return;
     }
+    runCreateExam({
+      ...infoExam,
+      duration: infoExam.time,
+      questionCount: infoExam.count,
+      questions: flattenArray(infoExam.questions).map((e) => {
+        return e.id;
+      })
+    })
+      .then((data) => {
+        if (data.success) {
+          showNotification('Tạo đề thành công', 'success');
+        } else {
+          showNotification('Tạo đề không thành công', 'error');
+        }
+      })
+      .catch((e) => {
+        showNotification('Tạo đề không thành công', 'error');
+      });
   };
 
   return (
@@ -176,11 +239,7 @@ const ExamScreen = () => {
                     onChange={(e) => {
                       setSubjectController(e.target.value);
                       setListChapterFilter(subjects.find((item) => item.id === e.target.value)?.Chapters ?? []);
-                      setInfoExam((prevInfoExam) => ({
-                        ...prevInfoExam,
-                        subject_id: e.target.value,
-                        questions: [] // Clear questions when subject changes
-                      }));
+                      dispatch({ type: SET_EXAM, exam: { ...infoExam, questions: [], subject_id: e.target.value } });
                     }}
                     value={subjectController}
                     sx={{ width: '100%' }}
@@ -201,8 +260,7 @@ const ExamScreen = () => {
                     ref={timeRef}
                     onChange={(e) => {
                       timeRef.current.querySelector('input').style.border = '0.2px solid #bfc0c2';
-                      infoExam.time = e.target.value;
-                      setInfoExam({ ...infoExam });
+                      dispatch({ type: SET_EXAM, exam: { ...infoExam, time: e.target.value } });
                     }}
                     value={infoExam.time}
                     sx={{ width: '100%' }}
@@ -217,8 +275,7 @@ const ExamScreen = () => {
                     ref={nameRef}
                     onChange={(e) => {
                       nameRef.current.querySelector('input').style.border = '0.2px solid #bfc0c2';
-                      infoExam.name = e.target.value;
-                      setInfoExam({ ...infoExam });
+                      dispatch({ type: SET_EXAM, exam: { ...infoExam, name: e.target.value } });
                     }}
                     value={infoExam.name}
                     placeholder="Nhập tên đề thi"
@@ -228,13 +285,14 @@ const ExamScreen = () => {
                 <Grid item xs={1}>
                   <InputLabel>Số câu</InputLabel>
                   <TextField
-                    inputProps={{ min: infoExam.questions.length }}
+                    inputProps={{ min: infoExam?.questions?.length }}
                     type="number"
                     onChange={(e) => {
-                      infoExam.count = Math.abs(e.target.value);
-                      if (Math.abs(e.target.value) < infoExam.questions.length) infoExam.count = infoExam.questions.length;
-                      if (infoExam.count < 1) infoExam.count = 1;
-                      setInfoExam({ ...infoExam });
+                      let tmpC = Math.abs(e.target.value);
+                      if (tmpC < infoExam.questions.length) tmpC = infoExam.questions.length;
+                      if (tmpC < 1) tmpC = 1;
+                      if (tmpC > 100) tmpC = 100;
+                      dispatch({ type: SET_EXAM, exam: { ...infoExam, count: tmpC } });
                     }}
                     value={infoExam.count}
                     sx={{ width: '100%' }}
@@ -293,11 +351,11 @@ const ExamScreen = () => {
             </MainCard>
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
               <Button variant="contained" onClick={handleClickOpenSearch} sx={{ margin: '10px 0px' }}>
-                Thêm câu hỏi
+                Ngân hàng câu hỏi
               </Button>
             </Grid>
           </Grid>
-          <ListQuestion reloadList={reloadList} inExam infoExam={infoExam} subjects={subjects} listQuestion={infoExam.questions} />
+          <ListQuestionInExam inExam infoExam={infoExam} subjects={subjects} listQuestion={infoExam.questions} />
           <Grid
             item
             xs={12}
@@ -315,9 +373,17 @@ const ExamScreen = () => {
             }}
           >
             <div style={{ backgroundColor: '#ffe57f', padding: 10 }}>
-              <b>Số câu: {infoExam.questions.length + '/' + infoExam.count}</b>
+              <b>Số câu: {infoExam.questions?.length + '/' + infoExam.count}</b>
             </div>
-            <Button onClick={onSubmit} variant="contained">
+            <div>
+              <Button sx={{ marginRight: 1 }} onClick={onAddQuestion} variant="contained">
+                Thêm câu hỏi mới
+              </Button>
+              <Button onClick={onAddCommonQuestion} variant="contained">
+                Thêm câu hỏi chung mới
+              </Button>
+            </div>
+            <Button disabled={editing} onClick={onSubmit} color="success" variant="contained">
               Tạo đề
             </Button>
           </Grid>

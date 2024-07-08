@@ -25,70 +25,14 @@ import {
 } from 'ckeditor5';
 import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
-import { useDispatch, useSelector } from 'react-redux';
-import { SET_EXAM } from 'store/actions';
-import useNotification from './Notification';
 import { runGetSubjectOptions } from 'api/subject';
-import QuestionItem from './QuestionItem';
+import QuestionItemInExam from './QuestionItemInExam';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const CommonQuestionItemForm = ({ question }) => {
-  const [chapters, setChapters] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-
+const CommonQuestionItemInExam = ({ question }) => {
   const thisRef = useRef();
-  const [chaptersController, setChaptersController] = useState(-1);
-  const [subjectController, setSubjectController] = useState(-1);
-  const [diffController, setDiffController] = useState(1);
-  const dispatch = useDispatch();
   const content = useRef(question?.content);
-  const { showNotification, NotificationComponent } = useNotification();
-  const exam = useSelector((state) => {
-    return state.customization.exam;
-  });
-
-  const isExits = exam.questions.find((item) => item.id === question.id && item.type_id === question.type_id);
-
-  useEffect(() => {
-    runGetSubjectOptions().then((data) => {
-      setSubjects(data.data);
-      setSubjectController(question.subject_id);
-      let arr = [];
-      arr = data.data?.find((item) => item.id === question.subject_id)?.Chapters;
-      setChapters(arr);
-      setChaptersController(question.chapter_id);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (chapters?.length == 0) {
-      setChaptersController(-1);
-      setSubjectController(-1);
-      setDiffController(1);
-    } else {
-      setChaptersController(question.chapter_id);
-      setSubjectController(question.subject_id);
-      setDiffController(question.difficulty);
-    }
-  }, [chapters]);
-
-  const addInExam = (e) => {
-    e.stopPropagation();
-    if (exam.count === exam.questions.length) {
-      showNotification('Đề đã đủ câu không thể thêm', 'error');
-      return;
-    }
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, question] } });
-  };
-
-  const removeOutExam = (e) => {
-    e.stopPropagation();
-    let newData = [...exam.questions];
-
-    newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
-  };
 
   return (
     <>
@@ -102,31 +46,25 @@ const CommonQuestionItemForm = ({ question }) => {
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b> Môn:</b>
                       <Box bgcolor="#2196f3" ml={0.5} mr={1.5} px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                        {subjects.find((item) => item.id === question.subject_id)?.name ?? ''}
+                        {question.questions[0].subject ?? ''}
                       </Box>
                       <b> Chương:</b>
                       <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                        {chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}
+                        {question.questions[0].chapter ?? ''}
                       </Box>
                       <b>Độ khó:</b>
                       <Box ml={0.5} mr={1.5} bgcolor="#ffe57f" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                         {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'Trung bình' : 'Khó'}
                       </Box>
                       <b>Trạng thái:</b>
-                      {!question.canRemove ? (
-                        <Box ml={0.5} mr={1.5} bgcolor="#f44336" px={1} borderRadius={5} textAlign={'center'} color={'#fff'}>
-                          Đã được dùng
-                        </Box>
-                      ) : (
-                        <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
-                          Chưa dùng
-                        </Box>
-                      )}
+                      <Box ml={0.5} mr={1.5} bgcolor="#f44336" px={1} borderRadius={5} textAlign={'center'} color={'#fff'}>
+                        Đã được dùng
+                      </Box>
                     </Box>
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={9.8}>
+              <Grid item xs={11}>
                 <CKEditor
                   disabled={true}
                   id={generateId()}
@@ -201,22 +139,6 @@ const CommonQuestionItemForm = ({ question }) => {
                   }}
                 />
               </Grid>
-              <Grid item xs={0.1}></Grid>
-              <Grid item xs={1.6} margin="20px 20px">
-                <>
-                  <Grid item mt={1} xs={12}>
-                    {isExits ? (
-                      <Button variant="contained" color="error" onClick={removeOutExam}>
-                        Xóa khỏi đề
-                      </Button>
-                    ) : (
-                      <Button variant="contained" onClick={addInExam}>
-                        Thêm vào đề
-                      </Button>
-                    )}
-                  </Grid>
-                </>
-              </Grid>
             </Grid>
           </AccordionSummary>
           <AccordionDetails>
@@ -228,17 +150,16 @@ const CommonQuestionItemForm = ({ question }) => {
               </Grid>
               {question?.questions?.map((questionItem, index) => (
                 <React.Fragment key={questionItem.id}>
-                  <QuestionItem parentQuestion={question} question={questionItem} />
+                  <QuestionItemInExam parentQuestion={question} question={questionItem} />
                 </React.Fragment>
               ))}
               <Grid item xs={12}></Grid>
             </Grid>
           </AccordionDetails>
         </Accordion>
-        <NotificationComponent />
       </Grid>
     </>
   );
 };
 
-export default CommonQuestionItemForm;
+export default CommonQuestionItemInExam;

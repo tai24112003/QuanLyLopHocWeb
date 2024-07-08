@@ -25,64 +25,15 @@ import {
 } from 'ckeditor5';
 import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
-import useNotification from './Notification';
-import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
-import { runGetSubjectOptions } from 'api/subject';
 
-const QuestionItem = ({ question, parentQuestion }) => {
-  const [chapters, setChapters] = useState([]);
-  const [subjects, setSubjects] = useState([]);
-  const [chaptersController, setChaptersController] = useState(-1);
-  const [subjectController, setSubjectController] = useState(-1);
+const QuestionItemInExam = ({ question, parentQuestion }) => {
   const [choiceController, setChoiceController] = useState(question?.choices ?? []);
   const thisRef = useRef();
-  const dispatch = useDispatch();
-  const { showNotification, NotificationComponent } = useNotification();
   const content = useRef(question?.content);
-  const exam = useSelector((state) => {
-    return state.customization.exam;
-  });
-
-  const isExits = exam.questions.find((item) => item.id === question.id && item.type_id === question.type_id);
-
-  useEffect(() => {
-    runGetSubjectOptions().then((data) => {
-      setSubjects(data.data);
-      setSubjectController(question.subject_id);
-      let arr = [];
-      arr = data.data?.find((item) => item.id === question.subject_id)?.Chapters;
-      setChapters(arr);
-      setChaptersController(question.chapter_id);
-      content.current = question?.content;
-      if (parentQuestion) {
-        setChoiceController(parentQuestion.questions.find((item) => item.id === question.id)?.choices);
-        setChaptersController(parentQuestion.questions.find((item) => item.id === question.id)?.chapter_id);
-        content.current = parentQuestion.questions.find((item) => item.id === question.id)?.content;
-      }
-    });
-  }, []);
-
-  const addInExam = (e) => {
-    e.stopPropagation();
-    if (exam.count === exam.questions.length) {
-      showNotification('Đề đã đủ câu không thể thêm', 'error');
-      return;
-    }
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, question] } });
-  };
-
-  const removeOutExam = (e) => {
-    e.stopPropagation();
-    let newData = [...exam.questions];
-
-    newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: newData } });
-  };
 
   return (
     <>
-      <Grid mb={2} item xs={12}>
+      <Grid item xs={12}>
         <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container>
@@ -93,26 +44,20 @@ const QuestionItem = ({ question, parentQuestion }) => {
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                         <b> Môn:</b>
                         <Box bgcolor="#4673fe" ml={0.5} mr={1.5} px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                          {subjects?.find((item) => item.id === question.subject_id)?.name ?? ''}
+                          {question.subject ?? ''}
                         </Box>
                         <b> Chương:</b>
                         <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                          {chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}
+                          {question.chapter ?? ''}
                         </Box>
                         <b>Độ khó:</b>
                         <Box ml={0.5} mr={1.5} bgcolor="#ffe57f" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                           {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'Trung bình' : 'Khó'}
                         </Box>
                         <b>Trạng thái:</b>
-                        {!question.canRemove ? (
-                          <Box ml={0.5} mr={1.5} bgcolor="#f44336" px={1} borderRadius={5} textAlign={'center'} color={'#fff'}>
-                            Đã được dùng
-                          </Box>
-                        ) : (
-                          <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
-                            Chưa dùng
-                          </Box>
-                        )}
+                        <Box ml={0.5} mr={1.5} bgcolor="#f44336" px={1} borderRadius={5} textAlign={'center'} color={'#fff'}>
+                          Đã được dùng
+                        </Box>
                       </Box>
                     </Grid>
                   </Grid>
@@ -120,7 +65,7 @@ const QuestionItem = ({ question, parentQuestion }) => {
               ) : (
                 <Grid item xs={6} />
               )}
-              <Grid item xs={9.8}>
+              <Grid item xs={11}>
                 <CKEditor
                   disabled={true}
                   id={generateId()}
@@ -195,22 +140,6 @@ const QuestionItem = ({ question, parentQuestion }) => {
                   }}
                 />
               </Grid>
-              <Grid item xs={0.1}></Grid>
-              <Grid item xs={1.6} margin="20px 20px">
-                {!parentQuestion && (
-                  <>
-                    {isExits ? (
-                      <Button variant="contained" color="error" onClick={removeOutExam}>
-                        Xóa khỏi đề
-                      </Button>
-                    ) : (
-                      <Button variant="contained" onClick={addInExam}>
-                        Thêm vào đề
-                      </Button>
-                    )}
-                  </>
-                )}
-              </Grid>
             </Grid>
           </AccordionSummary>
           <AccordionDetails>
@@ -266,10 +195,9 @@ const QuestionItem = ({ question, parentQuestion }) => {
             </Grid>
           </AccordionDetails>
         </Accordion>
-        <NotificationComponent />
       </Grid>
     </>
   );
 };
 
-export default QuestionItem;
+export default QuestionItemInExam;

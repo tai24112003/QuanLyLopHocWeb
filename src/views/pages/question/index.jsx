@@ -7,12 +7,12 @@ import Grid from '@mui/material/Grid';
 import { gapGrid, gridSpacing } from 'store/constant';
 import { useForm, FormProvider } from 'react-hook-form';
 
-import { SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
+import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
 
 // assets
 import MainCard from 'ui-component/cards/MainCard';
 import { Button, CardActions, CardContent, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
-import { runAddOrUpdateQuestions, runDeleteQuestionDatas, runGetQuestionDatas } from 'api/question';
+import { runGetQuestionDatas } from 'api/question';
 import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
 import useNotification from './components/Notification';
@@ -30,6 +30,7 @@ const QuestionScreen = () => {
   const [chapterValue, setChapterValue] = useState(-1);
   const [listChapterValue, setListChapterValue] = useState([]);
   const [search, setSearch] = useState({ q: '' });
+  const [triggerSearch, setTriggerSearch] = useState(false);
   const methods = useForm();
   const dispatch = useDispatch();
   const listQuestion = useSelector((state) => {
@@ -49,7 +50,7 @@ const QuestionScreen = () => {
 
   useEffect(() => {
     const searchParams = {
-      ...search
+      q: qValue
     };
     if (diffValue !== -1) searchParams.difficult = diffValue;
     if (chapterValue !== -1) searchParams.chapter_id = chapterValue;
@@ -57,7 +58,10 @@ const QuestionScreen = () => {
     runGetQuestionDatas(searchParams).then((data) => {
       dispatch({ type: SET_LIST_QUESTION, listQuestion: formatData(data.data) });
     });
-  }, [search]);
+    return () => {
+      dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
+    };
+  }, [triggerSearch]);
 
   // useEffect(() => {
   //   console.log(listQuestion);
@@ -74,6 +78,8 @@ const QuestionScreen = () => {
     });
     return () => {
       dispatch({ type: SET_OBJ_EDITING, editing: null });
+      dispatch({ type: SET_COMMON_DATA, commonData: null });
+      dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
     };
   }, []);
 
@@ -95,7 +101,6 @@ const QuestionScreen = () => {
             subject_id: question.subject_id,
             choices: [],
             questions: [],
-            isEditing: false,
             canRemove: question.canRemove
           };
           commonQuestion.questions.push(question);
@@ -122,6 +127,7 @@ const QuestionScreen = () => {
           chapter_id: -1,
           new_or_edit: true,
           type_id: 2,
+          canRemove: true,
           choices: [{ id: -1, content: '', is_correct: true }]
         },
         ...dataMap
@@ -171,6 +177,7 @@ const QuestionScreen = () => {
                   onChange={(e) => {
                     setQValue(e.target.value);
                   }}
+                  value={qValue}
                   placeholder="Tìm kiếm nội dung câu hỏi"
                   sx={{ width: '100%' }}
                 ></TextField>
@@ -225,7 +232,7 @@ const QuestionScreen = () => {
               <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
                 <Button
                   onClick={(e) => {
-                    setSearch({ q: qValue });
+                    setTriggerSearch(!triggerSearch);
                   }}
                   variant="contained"
                   color="warning"

@@ -16,10 +16,8 @@ const apiCall = async ({ method = 'get', url, headers = {}, data = null }) => {
 };
 
 const runGetQuestionDatas = async (searchParams = {}) => {
-  // Xây dựng URL với các tham số query
   const url = new URL(import.meta.env.VITE_APP_API_URL + 'question');
 
-  // Thêm các tham số query vào URL nếu có
   if (searchParams.q) {
     url.searchParams.append('q', searchParams.q);
   }
@@ -48,6 +46,12 @@ const runDeleteQuestionDatas = async (id) => {
 const runDeleteCommonQuestion = async (id) => {
   const url = import.meta.env.VITE_APP_API_URL + `common-content/${id}`;
   const data = await apiCall({ method: 'delete', url });
+  return data;
+};
+
+const runCopyCommonQuestion = async (id) => {
+  const url = import.meta.env.VITE_APP_API_URL + `common-content/copy/${id}`;
+  const data = await apiCall({ method: 'put', url });
   return data;
 };
 
@@ -89,5 +93,6 @@ export {
   runDeleteCommonQuestion,
   runAddQuestion,
   runUpdateQuestion,
-  runAddCommonQuestion
+  runAddCommonQuestion,
+  runCopyCommonQuestion
 };

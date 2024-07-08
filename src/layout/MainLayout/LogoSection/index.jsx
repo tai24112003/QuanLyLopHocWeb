@@ -16,7 +16,7 @@ const LogoSection = () => {
   const dispatch = useDispatch();
   return (
     <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath}>
-      <strong>Cao Thang Technical</strong>
+      <strong>Cao đẳng kỹ thuật Cao Thắng</strong>
     </ButtonBase>
   );
 };

@@ -70,7 +70,8 @@ const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
             difficulty: question.difficulty,
             subject_id: question.subject_id,
             choices: [],
-            questions: []
+            questions: [],
+            canRemove: question.canRemove
           };
           commonQuestion.questions.push(question);
           result.push(commonQuestion);
@@ -142,7 +143,7 @@ const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
             </Typography>
           </Grid>
           <Grid item xs={0.8} />
-          <Grid item xs={11}>
+          <Grid item xs={11} sx={{ overflow: 'hidden' }}>
             {(data.length === 0 || loading) && <div style={{ width: 3000, height: 3000 }}></div>}
             {!loading && <ListQuestion infoExam={infoExam} subjects={subjects} listQuestion={data} />}
           </Grid>

@@ -13,6 +13,9 @@ export default defineConfig({
   define: {
     global: 'window'
   },
+  optimizeDeps: {
+    exclude: ['chunk-SXW4SVSC.js']
+  },
   resolve: {
     // alias: [
     //   {
