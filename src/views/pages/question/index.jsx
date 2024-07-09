@@ -101,7 +101,8 @@ const QuestionScreen = () => {
             subject_id: question.subject_id,
             choices: [],
             questions: [],
-            canRemove: question.canRemove
+            canRemove: question.canRemove,
+            authorId: question.authorId
           };
           commonQuestion.questions.push(question);
           result.push(commonQuestion);
@@ -149,7 +150,7 @@ const QuestionScreen = () => {
           subject_id: 1,
           difficulty: 1,
           chapter_id: -1,
-          isEditing: true,
+          canRemove: true,
           questions: [
             {
               id: -1,

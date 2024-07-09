@@ -1,19 +1,4 @@
-import axios from 'axios';
-
-const apiCall = async ({ method = 'get', url, headers = {}, data = null }) => {
-  try {
-    const response = await axios({
-      method,
-      url,
-      headers,
-      data
-    });
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error;
-  }
-};
+import apiCall from 'utils/callApi';
 
 const runCreateExam = async (exam) => {
   const url = import.meta.env.VITE_APP_API_URL + `exam`;

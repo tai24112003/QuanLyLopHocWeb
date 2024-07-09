@@ -63,6 +63,9 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
   const trigger = useSelector((state) => {
     return state.customization.trigger;
   });
+  const user = useSelector((state) => {
+    return state.customization.user;
+  });
   let isEdit = question.id == editing?.id && question.type_id == editing?.type_id;
 
   useEffect(() => {
@@ -102,7 +105,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
   const onCopy = (e) => {
     e.stopPropagation();
     const dataMap = [...exam.questions];
-    runAddQuestion(question).then((data) => {
+    runAddQuestion({ ...question, authorId: user.id }).then((data) => {
       if (data.success) {
         let newQuestion = {};
         newQuestion = data.data;
@@ -298,7 +301,8 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
           difficulty: diffController,
           common_content_id: null,
           chapter_id: chaptersController,
-          choices: choiceController
+          choices: choiceController,
+          authorId: user.id
         })
           .then((data) => {
             if (data.success) {
@@ -340,7 +344,8 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
           difficulty: commonData.difficulty,
           common_content_id: commonData.id,
           chapter_id: commonData.chapter_id,
-          choices: choiceController
+          choices: choiceController,
+          authorId: user.id
         })
           .then((data) => {
             if (data.success) {

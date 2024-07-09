@@ -9,3 +9,4 @@ export const SET_OBJ_EDITING = '@customization/SET_OBJ_EDITING';
 export const SET_COMMON_DATA = '@customization/SET_COMMON_DATA';
 export const TRIGGER_RELOAD = '@customization/TRIGGER_RELOAD';
 export const SET_EXAM = '@customization/SET_EXAM';
+export const SET_USER = '@customization/SET_USER';
