@@ -12,13 +12,15 @@ import { Button, CardActions, CardContent, InputLabel, MenuItem, Select, Snackba
 import { useDispatch, useSelector } from 'react-redux';
 import ListQuestionInExam from './components/ListQuestionInExam';
 import { runCreateExam, runGetExam } from 'api/exam';
-import { GetApp } from '@mui/icons-material';
+import { CopyAll, GetApp } from '@mui/icons-material';
 import { runGetSubjectOptions } from 'api/subject';
+import { SET_EXAM } from 'store/actions';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const ExamViewScreen = () => {
   const [data, setData] = useState({});
+  const navigate = useNavigate();
   const [subjects, setSubjects] = useState([]);
   const [search, setSearch] = useState('');
   const timeRef = useRef();
@@ -26,6 +28,7 @@ const ExamViewScreen = () => {
   const [chapterValue, setChapterValue] = useState(-1);
   const [diffValue, setDiffValue] = useState(-1);
   const [listChapterFilter, setListChapterFilter] = useState([]);
+  const dispatch = useDispatch();
   const infoExam = useSelector((state) => {
     return state.customization.exam;
   });
@@ -88,6 +91,20 @@ const ExamViewScreen = () => {
   };
 
   const onSubmit = () => {};
+  const onCopyExam = () => {
+    dispatch({
+      type: SET_EXAM,
+      exam: {
+        id: '',
+        subject_id: data.subject_id,
+        time: data.duration,
+        name: data.name,
+        count: data.questionCount,
+        questions: data.questions?.map((item) => ({ ...item, canRemove: true }))
+      }
+    });
+    navigate('/exam/create');
+  };
 
   return (
     <>
@@ -213,6 +230,10 @@ const ExamViewScreen = () => {
           <div style={{ backgroundColor: '#ffe57f', padding: 10 }}>
             <b>Số câu: {data.questions?.length + '/' + data.questionCount}</b>
           </div>
+          <Button disabled={editing} onClick={onCopyExam} color="success" variant="contained">
+            Sao chép đề
+            <CopyAll />
+          </Button>
           <Button disabled={editing} onClick={onSubmit} color="success" variant="contained">
             <GetApp></GetApp> Tải đề
           </Button>

@@ -57,7 +57,7 @@ const ExamListScreen = () => {
       },
       {
         accessorKey: 'duration',
-        header: 'Thời gian',
+        header: 'Thời gian (phút)',
         size: 150
       }
     ],

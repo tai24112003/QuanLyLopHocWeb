@@ -9,7 +9,7 @@ import other from './other';
 // ==============================|| MENU ITEMS ||============================== //
 
 const menuItems = {
-  items: [dashboard, questionScreen, examScreen, subjectScreen, pages]
+  items: [dashboard, questionScreen, examScreen, subjectScreen]
 };
 
 export default menuItems;

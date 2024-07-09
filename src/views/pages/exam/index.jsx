@@ -25,6 +25,7 @@ import { runCreateExam } from 'api/exam';
 const ExamScreen = () => {
   const [subjects, setSubjects] = useState([]);
   const [search, setSearch] = useState('');
+  const navigate = useNavigate();
   const timeRef = useRef();
   const nameRef = useRef();
   const dispatch = useDispatch();
@@ -37,6 +38,9 @@ const ExamScreen = () => {
   });
   const editing = useSelector((state) => {
     return state.customization.editing;
+  });
+  const user = useSelector((state) => {
+    return state.customization.user;
   });
   const [subjectController, setSubjectController] = useState(infoExam.subject_id);
 
@@ -78,9 +82,9 @@ const ExamScreen = () => {
   useEffect(() => {
     let newData = { ...infoExam };
     newData.code = generateId().toUpperCase().substring(3);
-    newData.subject_id = subjects[0]?.id;
+    if (newData.subject_id === '' || newData.subject_id == undefined) newData.subject_id = subjects[0]?.id;
     setListChapterFilter(subjects.find((item) => item.id === infoExam.subject_id)?.Chapters);
-    setSubjectController(subjects[0]?.id ?? '');
+    setSubjectController(newData.subject_id ?? subjects[0]?.id);
     dispatch({ type: SET_EXAM, exam: { ...newData } });
   }, [subjects]);
 
@@ -204,6 +208,7 @@ const ExamScreen = () => {
     }
     runCreateExam({
       ...infoExam,
+      authorId: user.id,
       duration: infoExam.time,
       questionCount: infoExam.count,
       questions: flattenArray(infoExam.questions).map((e) => {
@@ -213,6 +218,7 @@ const ExamScreen = () => {
       .then((data) => {
         if (data.success) {
           showNotification('Tạo đề thành công', 'success');
+          setTimeout(() => navigate(`/exam/view/${data.data.id}`), 2000);
         } else {
           showNotification('Tạo đề không thành công', 'error');
         }

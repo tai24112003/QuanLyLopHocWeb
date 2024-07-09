@@ -13,12 +13,20 @@ import AuthCardWrapper from '../AuthCardWrapper';
 import AuthLogin from '../authentication/auth-forms/AuthLogin';
 import Logo from 'ui-component/Logo';
 import AuthFooter from 'ui-component/cards/AuthFooter';
+import { useEffect } from 'react';
+import { runGetUser } from 'api/auth';
 
 // ================================|| AUTH3 - LOGIN ||================================ //
 
 const Login = () => {
   const downMD = useMediaQuery((theme) => theme.breakpoints.down('md'));
-
+  useEffect(() => {
+    runGetUser().then((data) => {
+      if (data.status === 'success') {
+        window.location.href = '/';
+      }
+    });
+  });
   return (
     <AuthWrapper1>
       <Grid container direction="column" justifyContent="flex-end" sx={{ minHeight: '100vh' }}>
@@ -27,10 +35,8 @@ const Login = () => {
             <Grid item sx={{ m: { xs: 1, sm: 3 }, mb: 0 }}>
               <AuthCardWrapper>
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
-                  <Grid item sx={{ mb: 3 }}>
-                    <Link to="#" aria-label="logo">
-                      <Logo />
-                    </Link>
+                  <Grid item>
+                    <b style={{ fontSize: 20, color: '#0203ff' }}>Cao đẳng kĩ thuật Cao Thắng</b>
                   </Grid>
                   <Grid item xs={12}>
                     <Grid container direction={{ xs: 'column-reverse', md: 'row' }} alignItems="center" justifyContent="center">
@@ -53,11 +59,7 @@ const Login = () => {
                     <Divider />
                   </Grid>
                   <Grid item xs={12}>
-                    <Grid item container direction="column" alignItems="center" xs={12}>
-                      <Typography component={Link} to="/pages/register/register3" variant="subtitle1" sx={{ textDecoration: 'none' }}>
-                        Don&apos;t have an account?
-                      </Typography>
-                    </Grid>
+                    <Grid item container direction="column" alignItems="center" xs={12}></Grid>
                   </Grid>
                 </Grid>
               </AuthCardWrapper>

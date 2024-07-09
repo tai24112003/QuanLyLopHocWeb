@@ -106,18 +106,6 @@ const CommonQuestionItemForm = ({ question }) => {
     });
   }, []);
 
-  useEffect(() => {
-    if (chapters?.length == 0) {
-      setChaptersController(-1);
-      setSubjectController(-1);
-      setDiffController(1);
-    } else {
-      setChaptersController(question.chapter_id);
-      setSubjectController(question.subject_id);
-      setDiffController(question.difficulty);
-    }
-  }, [chapters]);
-
   const onAddQuestion = () => {
     let newData = [...listQuestion];
     const id = Date.now() * -1;
@@ -379,6 +367,11 @@ const CommonQuestionItemForm = ({ question }) => {
                         <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                           Chưa dùng
                         </Box>
+                      )}
+                      {question.authorId && (
+                        <Button variant="contained" size="small">
+                          Mở Công khai
+                        </Button>
                       )}
                     </Box>
                   </Grid>

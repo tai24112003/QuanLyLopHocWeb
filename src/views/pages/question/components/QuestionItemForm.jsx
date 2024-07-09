@@ -30,7 +30,7 @@ import useNotification from './Notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
 import { runGetSubjectOptions } from 'api/subject';
-import { runAddQuestion, runDeleteQuestionDatas, runUpdateQuestion } from 'api/question';
+import { runAddQuestion, runDeleteQuestionDatas, runSetPublic, runUpdateQuestion } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 
@@ -59,6 +59,9 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   });
   const trigger = useSelector((state) => {
     return state.customization.trigger;
+  });
+  const user = useSelector((state) => {
+    return state.customization.user;
   });
   let isEdit = question.id == editing?.id && question.type_id == editing?.type_id;
 
@@ -99,7 +102,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   const onCopy = (e) => {
     e.stopPropagation();
     const dataMap = [...listQuestion];
-    runAddQuestion(question).then((data) => {
+    runAddQuestion({ ...question, authorId: user.id }).then((data) => {
       if (data.success) {
         let newQuestion = {};
         newQuestion = data.data;
@@ -275,7 +278,8 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
           difficulty: diffController,
           common_content_id: null,
           chapter_id: chaptersController,
-          choices: choiceController
+          choices: choiceController,
+          authorId: user.id
         })
           .then((data) => {
             if (data.success) {
@@ -311,7 +315,8 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
           difficulty: commonData.difficulty,
           common_content_id: commonData.id,
           chapter_id: commonData.chapter_id,
-          choices: choiceController
+          choices: choiceController,
+          authorId: user.id
         })
           .then((data) => {
             if (data.success) {
@@ -525,6 +530,35 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                           <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                             Chưa dùng
                           </Box>
+                        )}
+                        {question.authorId && (
+                          <Button
+                            onClick={() => {
+                              runSetPublic(question.id)
+                                .then((data) => {
+                                  if (data.success) {
+                                    setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
+                                    let newData = [...listQuestion];
+                                    newData = newData.map((item) => {
+                                      if (item.id === question.id && item.type_id === question.type_id) {
+                                        return { ...item, authorId: null };
+                                      }
+                                      return { ...item };
+                                    });
+                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                  } else {
+                                    showNotification('Công khai không thành công', 'error');
+                                  }
+                                })
+                                .catch((e) => {
+                                  showNotification('Công khai không thành công', 'error');
+                                });
+                            }}
+                            variant="contained"
+                            size="small"
+                          >
+                            Mở Công khai
+                          </Button>
                         )}
                       </Box>
                     </Grid>

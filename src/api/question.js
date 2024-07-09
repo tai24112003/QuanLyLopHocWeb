@@ -1,19 +1,4 @@
-import axios from 'axios';
-
-const apiCall = async ({ method = 'get', url, headers = {}, data = null }) => {
-  try {
-    const response = await axios({
-      method,
-      url,
-      headers,
-      data
-    });
-    return response.data;
-  } catch (error) {
-    console.error('API Error:', error);
-    throw error; // Ném lỗi để component xử lý
-  }
-};
+import apiCall from 'utils/callApi';
 
 const runGetQuestionDatas = async (searchParams = {}) => {
   const url = new URL(import.meta.env.VITE_APP_API_URL + 'question');
@@ -79,6 +64,12 @@ const runUpdateQuestion = async (question) => {
   return data;
 };
 
+const runSetPublic = async (id) => {
+  const url = import.meta.env.VITE_APP_API_URL + `question/public/${id}`;
+  const data = await apiCall({ method: 'put', url });
+  return data;
+};
+
 const runAddOrUpdateQuestions = async (dataIn) => {
   const url = import.meta.env.VITE_APP_API_URL + `question/create-or-update-many`;
   const data = await apiCall({ method: 'post', url, data: dataIn });
@@ -94,5 +85,6 @@ export {
   runAddQuestion,
   runUpdateQuestion,
   runAddCommonQuestion,
-  runCopyCommonQuestion
+  runCopyCommonQuestion,
+  runSetPublic
 };

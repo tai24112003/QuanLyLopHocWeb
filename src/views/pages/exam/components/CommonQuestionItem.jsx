@@ -79,7 +79,7 @@ const CommonQuestionItemForm = ({ question }) => {
       showNotification('Đề đã đủ câu không thể thêm', 'error');
       return;
     }
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, question] } });
+    dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, { ...question, canRemove: true }] } });
   };
 
   const removeOutExam = (e) => {

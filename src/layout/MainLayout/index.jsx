@@ -13,11 +13,13 @@ import Header from './Header';
 import Sidebar from './Sidebar';
 import Customization from '../Customization';
 import Breadcrumbs from 'ui-component/extended/Breadcrumbs';
-import { SET_MENU } from 'store/actions';
+import { SET_MENU, SET_USER } from 'store/actions';
 import { drawerWidth } from 'store/constant';
 
 // assets
 import { IconChevronRight } from '@tabler/icons-react';
+import { useEffect } from 'react';
+import { runGetUser } from 'api/auth';
 
 const Main = styled('main', { shouldForwardProp: (prop) => prop !== 'open' && prop !== 'theme' })(({ theme, open }) => ({
   ...theme.typography.mainContent,
@@ -63,7 +65,29 @@ const MainLayout = () => {
   const handleLeftDrawerToggle = () => {
     dispatch({ type: SET_MENU, opened: !leftDrawerOpened });
   };
-
+  useEffect(() => {
+    runGetUser()
+      .then((data) => {
+        if (data.status === 'false') {
+          window.location.href = '/login';
+        } else {
+          console.log(data.data[0].name);
+          dispatch({
+            type: SET_USER,
+            user: {
+              id: data.data[0].user_id,
+              name: data.data[0].name,
+              email: data.data[0].email,
+              phone: data.data[0].phone,
+              role: data.data[0].role
+            }
+          });
+        }
+      })
+      .catch((e) => {
+        window.location.href = '/login';
+      });
+  }, []);
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
@@ -92,7 +116,7 @@ const MainLayout = () => {
         <Breadcrumbs separator={IconChevronRight} navigation={navigation} icon title rightAlign />
         <Outlet />
       </Main>
-      {/* <Customization /> Bât/tắt custom theme*/} 
+      {/* <Customization /> Bât/tắt custom theme*/}
     </Box>
   );
 };

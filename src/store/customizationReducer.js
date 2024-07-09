@@ -20,7 +20,8 @@ export const initialState = {
     name: '',
     count: 50,
     questions: []
-  }
+  },
+  user: {}
 };
 
 // ==============================|| CUSTOMIZATION REDUCER ||============================== //
@@ -73,6 +74,11 @@ const customizationReducer = (state = initialState, action) => {
       return {
         ...state,
         exam: action.exam
+      };
+    case actionTypes.SET_USER:
+      return {
+        ...state,
+        user: action.user
       };
     default:
       return state;

@@ -8,17 +8,10 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 const ConfirmationDialog = ({ open, handleClose, handleConfirm }) => {
   return (
-    <Dialog
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-    >
-      <DialogTitle id="alert-dialog-title">{"Xác nhận xóa"}</DialogTitle>
+    <Dialog open={open} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
+      <DialogTitle id="alert-dialog-title">{'Xác nhận xóa'}</DialogTitle>
       <DialogContent>
-        <DialogContentText id="alert-dialog-description">
-          Bạn chắc chắn muốn xóa câu hỏi này?
-        </DialogContentText>
+        <DialogContentText id="alert-dialog-description">Bạn chắc chắn muốn xóa?</DialogContentText>
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
@@ -54,11 +47,7 @@ const App = () => {
       <Button variant="contained" color="error" onClick={handleClickOpen}>
         Delete Item
       </Button>
-      <ConfirmationDialog
-        open={open}
-        handleClose={handleClose}
-        handleConfirm={handleConfirm}
-      />
+      <ConfirmationDialog open={open} handleClose={handleClose} handleConfirm={handleConfirm} />
     </div>
   );
 };
