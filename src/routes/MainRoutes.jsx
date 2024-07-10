@@ -11,6 +11,7 @@ const QuestionScreen = Loadable(lazy(() => import('views/pages/question/index'))
 const ExamScreen = Loadable(lazy(() => import('views/pages/exam')));
 const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
+const AccountListScreen = Loadable(lazy(() => import('views/pages/account-list')));
 const SubjectChapterScreen = Loadable(lazy(() => import('views/pages/subject-chapter')));
 
 // utilities routing
@@ -69,32 +70,14 @@ const MainRoutes = {
       ]
     },
     {
-      path: 'utils',
+      path: 'account',
       children: [
         {
-          path: 'util-typography',
-          element: <UtilsTypography />
+          path: '',
+          element: <AccountListScreen />
         }
       ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-color',
-          element: <UtilsColor />
-        }
-      ]
-    },
-    {
-      path: 'utils',
-      children: [
-        {
-          path: 'util-shadow',
-          element: <UtilsShadow />
-        }
-      ]
-    },
+    }
     // {
     //   path: 'icons',
     //   children: [
@@ -113,10 +96,6 @@ const MainRoutes = {
     //     }
     //   ]
     // },
-    {
-      path: 'sample-page',
-      element: <SamplePage />
-    }
   ]
 };
 

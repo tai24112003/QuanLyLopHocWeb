@@ -25,6 +25,7 @@ import {
 } from 'ckeditor5';
 import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
+import Cookies from 'js-cookie';
 
 const QuestionItemInExam = ({ question, parentQuestion }) => {
   const [choiceController, setChoiceController] = useState(question?.choices ?? []);
@@ -90,7 +91,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {

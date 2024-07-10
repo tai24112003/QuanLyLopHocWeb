@@ -29,6 +29,8 @@ import useNotification from './Notification';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
 import { runGetSubjectOptions } from 'api/subject';
+import Cookies from 'js-cookie';
+import { runAddQuestion } from 'api/question';
 
 const QuestionItem = ({ question, parentQuestion }) => {
   const [chapters, setChapters] = useState([]);
@@ -42,6 +44,9 @@ const QuestionItem = ({ question, parentQuestion }) => {
   const content = useRef(question?.content);
   const exam = useSelector((state) => {
     return state.customization.exam;
+  });
+  const user = useSelector((state) => {
+    return state.customization.user;
   });
 
   const isExits = exam.questions.find((item) => item.id === question.id && item.type_id === question.type_id);
@@ -69,7 +74,21 @@ const QuestionItem = ({ question, parentQuestion }) => {
       showNotification('Đề đã đủ câu không thể thêm', 'error');
       return;
     }
-    dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, { ...question, canRemove: true }] } });
+    if (question.authorId !== user.id) {
+      runAddQuestion({ ...question, authorId: user.id })
+        .then((data) => {
+          setTimeout(() => showNotification('Copy thành công'), 10);
+          dispatch({
+            type: SET_EXAM,
+            exam: { ...exam, questions: [...exam.questions, { ...question, canRemove: true, id: data.data.id }] }
+          });
+        })
+        .catch((error) => {
+          setTimeout(() => showNotification('Copy thành công'), 10);
+        });
+    } else {
+      dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...exam.questions, { ...question, canRemove: true }] } });
+    }
   };
 
   const removeOutExam = (e) => {
@@ -83,7 +102,7 @@ const QuestionItem = ({ question, parentQuestion }) => {
   return (
     <>
       <Grid mb={2} item xs={12}>
-        <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
+        <Accordion sx={{ marginBottom: 3 }} id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container>
               {question.type_id === 2 ? (
@@ -112,6 +131,14 @@ const QuestionItem = ({ question, parentQuestion }) => {
                           <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                             Chưa dùng
                           </Box>
+                        )}
+                        {question.authorId !== user.id && (
+                          <>
+                            <b>Chủ sở hữu:</b>
+                            <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
+                              {question.author?.name ?? ''}
+                            </Box>
+                          </>
                         )}
                       </Box>
                     </Grid>
@@ -145,7 +172,7 @@ const QuestionItem = ({ question, parentQuestion }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {
@@ -205,7 +232,7 @@ const QuestionItem = ({ question, parentQuestion }) => {
                       </Button>
                     ) : (
                       <Button variant="contained" onClick={addInExam}>
-                        Thêm vào đề
+                        {question.authorId === user.id ? 'Thêm vào đề' : 'Copy vào đề'}
                       </Button>
                     )}
                   </>
