@@ -27,6 +27,7 @@ import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
 import { runGetSubjectOptions } from 'api/subject';
 import QuestionItemInExam from './QuestionItemInExam';
+import Cookies from 'js-cookie';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -89,7 +90,7 @@ const CommonQuestionItemInExam = ({ question }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {

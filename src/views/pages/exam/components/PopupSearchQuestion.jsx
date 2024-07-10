@@ -71,7 +71,10 @@ const PopupSearchQuestion = ({ chapters, handleClose, open, infoExam }) => {
             subject_id: question.subject_id,
             choices: [],
             questions: [],
-            canRemove: question.canRemove
+            canRemove: question.canRemove,
+            authorId: question.authorId,
+            shared: question.shared,
+            author: question.author
           };
           commonQuestion.questions.push(question);
           result.push(commonQuestion);

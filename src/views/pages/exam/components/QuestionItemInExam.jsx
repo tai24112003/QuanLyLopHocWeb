@@ -33,6 +33,7 @@ import { runGetSubjectOptions } from 'api/subject';
 import { runAddQuestion, runDeleteQuestionDatas, runUpdateQuestion } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
+import Cookies from 'js-cookie';
 
 const QuestionItemInExam = ({ question, parentQuestion }) => {
   const [reload, setReload] = useState(false);
@@ -597,7 +598,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {

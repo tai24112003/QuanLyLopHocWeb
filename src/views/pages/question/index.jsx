@@ -36,8 +36,8 @@ const QuestionScreen = () => {
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
   });
-  const reload = useSelector((state) => {
-    return state.customization.trigger;
+  const user = useSelector((state) => {
+    return state.customization.user;
   });
 
   const {
@@ -102,7 +102,9 @@ const QuestionScreen = () => {
             choices: [],
             questions: [],
             canRemove: question.canRemove,
-            authorId: question.authorId
+            authorId: question.authorId,
+            shared: question.shared,
+            author: question.author
           };
           commonQuestion.questions.push(question);
           result.push(commonQuestion);
@@ -129,6 +131,8 @@ const QuestionScreen = () => {
           new_or_edit: true,
           type_id: 2,
           canRemove: true,
+          authorId: user.id,
+          shared: null,
           choices: [{ id: -1, content: '', is_correct: true }]
         },
         ...dataMap

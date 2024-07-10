@@ -35,6 +35,7 @@ import { runGetSubjectOptions } from 'api/subject';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 import QuestionItemInExam from './QuestionItemInExam';
+import Cookies from 'js-cookie';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -412,7 +413,7 @@ const CommonQuestionItemInExam = ({ question }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {

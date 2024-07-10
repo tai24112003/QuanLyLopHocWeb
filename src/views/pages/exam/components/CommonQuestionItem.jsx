@@ -30,6 +30,7 @@ import { SET_EXAM } from 'store/actions';
 import useNotification from './Notification';
 import { runGetSubjectOptions } from 'api/subject';
 import QuestionItem from './QuestionItem';
+import Cookies from 'js-cookie';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -46,6 +47,9 @@ const CommonQuestionItemForm = ({ question }) => {
   const { showNotification, NotificationComponent } = useNotification();
   const exam = useSelector((state) => {
     return state.customization.exam;
+  });
+  const user = useSelector((state) => {
+    return state.customization.user;
   });
 
   const isExits = exam.questions.find((item) => item.id === question.id && item.type_id === question.type_id);
@@ -93,7 +97,7 @@ const CommonQuestionItemForm = ({ question }) => {
   return (
     <>
       <Grid item xs={12}>
-        <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
+        <Accordion sx={{ marginBottom: 3 }} id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container>
               <Grid item xs={10} mb={1}>
@@ -121,6 +125,14 @@ const CommonQuestionItemForm = ({ question }) => {
                         <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
                           Chưa dùng
                         </Box>
+                      )}
+                      {question.authorId !== user.id && (
+                        <>
+                          <b>Chủ sở hữu:</b>
+                          <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
+                            {question.author?.name ?? ''}
+                          </Box>
+                        </>
                       )}
                     </Box>
                   </Grid>
@@ -151,7 +163,7 @@ const CommonQuestionItemForm = ({ question }) => {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
                         'X-CSRF-TOKEN': 'CSRF-Token',
-                        Authorization: 'Bearer <JSON Web Token>'
+                        Authorization: `Bearer ${Cookies.get('asset_token')}`
                       }
                     },
                     image: {
@@ -211,7 +223,7 @@ const CommonQuestionItemForm = ({ question }) => {
                       </Button>
                     ) : (
                       <Button variant="contained" onClick={addInExam}>
-                        Thêm vào đề
+                        {question.authorId === user.id ? 'Thêm vào đề' : 'Copy vào đề'}
                       </Button>
                     )}
                   </Grid>

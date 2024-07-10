@@ -17,4 +17,14 @@ const flattenArray = (arr) => {
   });
 };
 
-export { scrollToCenter, flattenArray };
+const isPhoneNumberValid = (phone) => {
+  const phoneRegex = /^(09|08|03|07|05)\d{8}$/;
+  return phoneRegex.test(phone);
+};
+
+const isEmailValid = (email) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+export { scrollToCenter, flattenArray, isPhoneNumberValid, isEmailValid };

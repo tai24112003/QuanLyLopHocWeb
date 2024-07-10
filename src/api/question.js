@@ -70,6 +70,24 @@ const runSetPublic = async (id) => {
   return data;
 };
 
+const runSetPrivate = async (id) => {
+  const url = import.meta.env.VITE_APP_API_URL + `question/private/${id}`;
+  const data = await apiCall({ method: 'put', url });
+  return data;
+};
+
+const runSetPublicCommon = async (id) => {
+  const url = import.meta.env.VITE_APP_API_URL + `common-content/public/${id}`;
+  const data = await apiCall({ method: 'put', url });
+  return data;
+};
+
+const runSetPrivateCommon = async (id) => {
+  const url = import.meta.env.VITE_APP_API_URL + `common-content/private/${id}`;
+  const data = await apiCall({ method: 'put', url });
+  return data;
+};
+
 const runAddOrUpdateQuestions = async (dataIn) => {
   const url = import.meta.env.VITE_APP_API_URL + `question/create-or-update-many`;
   const data = await apiCall({ method: 'post', url, data: dataIn });
@@ -86,5 +104,8 @@ export {
   runUpdateQuestion,
   runAddCommonQuestion,
   runCopyCommonQuestion,
-  runSetPublic
+  runSetPublic,
+  runSetPrivate,
+  runSetPublicCommon,
+  runSetPrivateCommon
 };
