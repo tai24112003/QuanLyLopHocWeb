@@ -121,11 +121,11 @@ const CommonQuestionItemForm = ({ question }) => {
     let newData = [...listQuestion];
     const id = Date.now() * -1;
     newData = newData.map((item) => {
-      if (item.id == question.id) {
+      if (item.id == question.id && item.type_id === question.type_id) {
         return {
           ...item,
           questions: [
-            ...item.questions,
+            ...item?.questions,
             {
               id: id,
               content: '',

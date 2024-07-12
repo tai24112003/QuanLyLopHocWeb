@@ -19,7 +19,8 @@ const dashboard = {
       icon: icons.IconDashboard,
       breadcrumbs: false
     }
-  ]
+  ],
+  role: ['admin', 'hs', 'gv']
 };
 
 export default dashboard;

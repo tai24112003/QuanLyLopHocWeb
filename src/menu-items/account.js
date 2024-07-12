@@ -19,7 +19,8 @@ const accountScreen = {
       icon: icons.IconList,
       breadcrumbs: true
     }
-  ]
+  ],
+  role: ['admin']
 };
 
 export default accountScreen;

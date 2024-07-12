@@ -71,7 +71,6 @@ const MainLayout = () => {
         if (data.status === 'false') {
           window.location.href = '/login';
         } else {
-          console.log(data.data[0].name);
           dispatch({
             type: SET_USER,
             user: {

@@ -40,7 +40,8 @@ const utilities = {
       icon: icons.IconShadow,
       breadcrumbs: false
     }
-  ]
+  ],
+  role: ['admin', 'gv']
 };
 
 export default utilities;

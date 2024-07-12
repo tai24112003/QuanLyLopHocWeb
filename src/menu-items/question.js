@@ -1,8 +1,8 @@
 // assets
-import { IconDashboard,IconList } from '@tabler/icons-react';
+import { IconDashboard, IconList } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard,IconList };
+const icons = { IconDashboard, IconList };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -19,7 +19,8 @@ const questionScreen = {
       icon: icons.IconList,
       breadcrumbs: true
     }
-  ]
+  ],
+  role: ['admin', 'gv']
 };
 
 export default questionScreen;

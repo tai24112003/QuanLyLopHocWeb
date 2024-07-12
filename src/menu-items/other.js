@@ -27,7 +27,8 @@ const other = {
       external: true,
       target: true
     }
-  ]
+  ],
+  role: ['admin', 'gv']
 };
 
 export default other;

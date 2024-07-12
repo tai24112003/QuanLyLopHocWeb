@@ -1,8 +1,8 @@
 // assets
-import { IconDashboard,IconList,IconEdit } from '@tabler/icons-react';
+import { IconDashboard, IconList, IconEdit } from '@tabler/icons-react';
 
 // constant
-const icons = { IconDashboard,IconEdit,IconList };
+const icons = { IconDashboard, IconEdit, IconList };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
@@ -20,14 +20,15 @@ const examScreen = {
       breadcrumbs: true
     },
     {
-        id: 'create-exam',
-        title: 'Tạo đề thi',
-        type: 'item',
-        url: '/exam/create',
-        icon: icons.IconEdit,
-        breadcrumbs: true
-      }
-  ]
+      id: 'create-exam',
+      title: 'Tạo đề thi',
+      type: 'item',
+      url: '/exam/create',
+      icon: icons.IconEdit,
+      breadcrumbs: true
+    }
+  ],
+  role: ['admin', 'gv']
 };
 
 export default examScreen;
