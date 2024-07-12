@@ -19,7 +19,8 @@ const subjectScreen = {
       icon: icons.IconList,
       breadcrumbs: true
     }
-  ]
+  ],
+  role: ['admin', 'gv']
 };
 
 export default subjectScreen;

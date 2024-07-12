@@ -35,6 +35,9 @@ const ExamViewScreen = () => {
   const editing = useSelector((state) => {
     return state.customization.editing;
   });
+  const user = useSelector((state) => {
+    return state.customization.user;
+  });
   const [subjectController, setSubjectController] = useState(infoExam.subject_id);
 
   const { id } = useParams();
@@ -230,10 +233,12 @@ const ExamViewScreen = () => {
           <div style={{ backgroundColor: '#ffe57f', padding: 10 }}>
             <b>Số câu: {data.questions?.length + '/' + data.questionCount}</b>
           </div>
-          <Button disabled={editing} onClick={onCopyExam} color="success" variant="contained">
-            Sao chép đề
-            <CopyAll />
-          </Button>
+          {data.authorId === user.id && (
+            <Button disabled={editing} onClick={onCopyExam} color="success" variant="contained">
+              Sao chép đề
+              <CopyAll />
+            </Button>
+          )}
           <Button disabled={editing} onClick={onSubmit} color="success" variant="contained">
             <GetApp></GetApp> Tải đề
           </Button>

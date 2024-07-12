@@ -37,7 +37,8 @@ const pages = {
         }
       ]
     }
-  ]
+  ],
+  role: ['admin', 'gv']
 };
 
 export default pages;
