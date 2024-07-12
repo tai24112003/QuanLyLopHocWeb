@@ -133,6 +133,8 @@ const CommonQuestionItemForm = ({ question }) => {
               difficulty: question.difficulty,
               isEditing: true,
               hideEdit: false,
+              authorId: user.id,
+              canRemove: true,
               type_id: 1,
               choices: [{ id: -1, content: '', is_correct: true }]
             }

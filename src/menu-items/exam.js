@@ -28,7 +28,7 @@ const examScreen = {
       breadcrumbs: true
     }
   ],
-  role: ['admin', 'gv']
+  role: ['admin', 'GV', 'PK', 'TK']
 };
 
 export default examScreen;

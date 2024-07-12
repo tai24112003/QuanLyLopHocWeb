@@ -20,7 +20,7 @@ const questionScreen = {
       breadcrumbs: true
     }
   ],
-  role: ['admin', 'gv']
+  role: ['admin', 'GV', 'TK', 'PK']
 };
 
 export default questionScreen;
