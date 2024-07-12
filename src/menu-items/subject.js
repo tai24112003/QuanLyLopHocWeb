@@ -20,7 +20,7 @@ const subjectScreen = {
       breadcrumbs: true
     }
   ],
-  role: ['admin', 'gv']
+  role: ['admin', 'GV', 'TK', 'PK']
 };
 
 export default subjectScreen;

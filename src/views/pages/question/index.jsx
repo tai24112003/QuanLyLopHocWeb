@@ -155,11 +155,15 @@ const QuestionScreen = () => {
           difficulty: 1,
           chapter_id: -1,
           canRemove: true,
+          authorId: user.id,
+          shared: null,
           questions: [
             {
               id: -1,
               content: '',
               type_id: 1,
+              authorId: user.id,
+              canRemove: true,
               choices: [{ id: -1, content: '', is_correct: true }]
             }
           ],

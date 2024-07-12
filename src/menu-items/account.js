@@ -20,7 +20,7 @@ const accountScreen = {
       breadcrumbs: true
     }
   ],
-  role: ['admin']
+  role: ['admin', 'TK', 'PK']
 };
 
 export default accountScreen;
