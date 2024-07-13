@@ -10,6 +10,8 @@ const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const QuestionScreen = Loadable(lazy(() => import('views/pages/question/index')));
 const ExamScreen = Loadable(lazy(() => import('views/pages/exam')));
 const RoomScreen = Loadable(lazy(() => import('views/pages/room')));
+const ManageStudentcreen = Loadable(lazy(() => import('views/pages/manage-student')));
+const RoomDetailScreen = Loadable(lazy(() => import('views/pages/room-detail')));
 const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
 const AccountListScreen = Loadable(lazy(() => import('views/pages/account-list')));
@@ -85,9 +87,22 @@ const MainRoutes = {
         {
           path: '',
           element: <RoomScreen />
+        },
+        {
+          path: ':id',
+          element: <RoomDetailScreen />
         }
       ]
     },
+    {
+      path: 'student',
+      children: [
+        {
+          path: '',
+          element: <ManageStudentcreen />
+        }
+      ]
+    }
     // {
     //   path: 'icons',
     //   children: [

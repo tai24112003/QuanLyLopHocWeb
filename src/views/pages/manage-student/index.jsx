@@ -8,8 +8,10 @@ import PopupWithTextField from './components/popupRoom';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
 import { Link } from 'react-router-dom';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 
-const RoomListScreen = () => {
+const ManageStudentScreen = () => {
   const [data, setData] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState(null);
@@ -17,6 +19,7 @@ const RoomListScreen = () => {
   const [roomToDelete, setRoomToDelete] = useState(null);
   const [computers, setComputers] = useState([]);
   const { showNotification, NotificationComponent } = useNotification();
+  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
     const fetchRooms = async () => {
@@ -37,7 +40,7 @@ const RoomListScreen = () => {
     () => [
       {
         accessorKey: 'RoomName',
-        header: 'Tên phòng',
+        header: 'MSSV',
         size: 150,
         Cell: ({ row }) => (
           <Link to={`/room/${row.original.RoomID}`} underline="none" color="primary">
@@ -47,7 +50,7 @@ const RoomListScreen = () => {
       },
       {
         accessorKey: 'StandardHDD',
-        header: 'Bộ nhớ cứng',
+        header: 'Họ',
         size: 150,
         Cell: ({ cell }) => (
           <div>
@@ -62,7 +65,7 @@ const RoomListScreen = () => {
       },
       {
         accessorKey: 'StandardCPU',
-        header: 'Vi xử lí',
+        header: 'Tên',
         size: 150,
         Cell: ({ cell }) => (
           <div>
@@ -77,7 +80,7 @@ const RoomListScreen = () => {
       },
       {
         accessorKey: 'StandardRAM',
-        header: 'Bộ nhớ mềm',
+        header: 'Trạng thái',
         size: 150,
         Cell: ({ cell }) => (
           <div>
@@ -89,16 +92,6 @@ const RoomListScreen = () => {
               ))}
           </div>
         )
-      },
-      {
-        accessorKey: 'NumberOfComputers',
-        header: 'Số lượng máy',
-        size: 150
-      },
-      {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
-        size: 150
       },
       {
         accessorKey: 'actions',
@@ -180,9 +173,20 @@ const RoomListScreen = () => {
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={() => setOpenPopUp(true)} startIcon={<IconPlus />}>
-            Thêm phòng
-          </Button>
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <DatePicker
+                  label="Chọn ngày"
+                  value={selectedDate}
+                  onChange={(newValue) => setSelectedDate(newValue)}
+                  renderInput={(params) => <TextField {...params} />}
+                />
+              </Grid>
+            </Grid>
+          </LocalizationProvider>
+        </Grid>
+        <Grid item xs={12}>
           <PopupWithTextField
             open={openPopup}
             handleClose={() => {
@@ -197,28 +201,6 @@ const RoomListScreen = () => {
           <MaterialReactTable table={table} />
         </Grid>
       </Grid>
-
-      {/* Computers List */}
-      {computers.length > 0 && (
-        <Grid item xs={12}>
-          <h3>Danh sách máy trong phòng {selectedRoom?.RoomName}</h3>
-          <MaterialReactTable
-            columns={[
-              {
-                accessorKey: 'ComputerName',
-                header: 'Tên máy',
-                size: 150
-              },
-              {
-                accessorKey: 'Status',
-                header: 'Trạng thái',
-                size: 150
-              }
-            ]}
-            data={computers}
-          />
-        </Grid>
-      )}
 
       {/* Confirm Delete Dialog */}
       <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
@@ -240,4 +222,4 @@ const RoomListScreen = () => {
   );
 };
 
-export default RoomListScreen;
+export default ManageStudentScreen;

@@ -1,52 +1,64 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
-import { getAllRoom, deleteRoom, updateRoom, addRoom } from 'api/room';
+import { getAllRoom, deleteRoom, updateRoom, addRoom, getRoomByID } from 'api/room';
 import { Delete, EditNote } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupRoom';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import MainCard from 'ui-component/cards/MainCard';
+import { addComputer, deleteComputer, getComputerByRoomID, updateComputer } from 'api/computer';
 
-const RoomListScreen = () => {
+const RoomDetailScreen = () => {
   const [data, setData] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
+  const [nameRoom, setNameRoom] = useState('');
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [openConfirm, setOpenConfirm] = useState(false);
   const [roomToDelete, setRoomToDelete] = useState(null);
   const [computers, setComputers] = useState([]);
   const { showNotification, NotificationComponent } = useNotification();
+  const { id } = useParams();
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await getAllRoom();
-        if (response.status === 'success') {
-          setData(response.data);
-        }
-      } catch (error) {
-        console.error(error);
+    getComputerByRoomID(id).then((data) => {
+      if (data.data) {
+        setData(data.data);
+        console.log(data.data);
       }
-    };
-
-    fetchRooms();
+    });
+    getRoomByID(id).then((data) => {
+      setNameRoom(data.data);
+    });
   }, []);
 
   const columns = useMemo(
     () => [
       {
-        accessorKey: 'RoomName',
-        header: 'Tên phòng',
+        accessorKey: 'ID',
+        header: '#',
         size: 150,
-        Cell: ({ row }) => (
-          <Link to={`/room/${row.original.RoomID}`} underline="none" color="primary">
-            {row.original.RoomName}
-          </Link>
+        Cell: ({ cell }) => <Link to="">{cell.getValue()}</Link>
+      },
+      {
+        accessorKey: 'ComputerName',
+        header: 'Tên máy',
+        size: 150,
+        Cell: ({ cell }) => (
+          <div>
+            {cell
+              .getValue()
+              .split('|')
+              .map((ram, index) => (
+                <div key={index}>{ram.toUpperCase()}</div>
+              ))}
+          </div>
         )
       },
       {
-        accessorKey: 'StandardHDD',
+        accessorKey: 'HDD',
         header: 'Bộ nhớ cứng',
         size: 150,
         Cell: ({ cell }) => (
@@ -61,7 +73,7 @@ const RoomListScreen = () => {
         )
       },
       {
-        accessorKey: 'StandardCPU',
+        accessorKey: 'CPU',
         header: 'Vi xử lí',
         size: 150,
         Cell: ({ cell }) => (
@@ -76,7 +88,7 @@ const RoomListScreen = () => {
         )
       },
       {
-        accessorKey: 'StandardRAM',
+        accessorKey: 'RAM',
         header: 'Bộ nhớ mềm',
         size: 150,
         Cell: ({ cell }) => (
@@ -89,16 +101,6 @@ const RoomListScreen = () => {
               ))}
           </div>
         )
-      },
-      {
-        accessorKey: 'NumberOfComputers',
-        header: 'Số lượng máy',
-        size: 150
-      },
-      {
-        accessorKey: 'Status',
-        header: 'Trạng thái',
-        size: 150
       },
       {
         accessorKey: 'actions',
@@ -120,7 +122,7 @@ const RoomListScreen = () => {
             </Button>
             <Button
               onClick={() => {
-                setRoomToDelete(row.original.RoomID);
+                setRoomToDelete(row.original);
                 setOpenConfirm(true);
               }}
               sx={{ margin: 0.5 }}
@@ -140,13 +142,13 @@ const RoomListScreen = () => {
   const handleSave = async (room) => {
     try {
       if (selectedRoom) {
-        await updateRoom(room);
-        setData((prevData) => prevData.map((item) => (item.RoomName === room.RoomName ? room : item)));
+        await updateComputer(room);
+        setData((prevData) => prevData.map((item) => (item.ID === room.ID ? room : item)));
       } else {
-        const newRoom = { ...room, Status: 'Trống' };
-        const res = await addRoom(newRoom);
+        const newRoom = { ...room, RoomID: nameRoom[0]?.RoomID };
+        const res = await addComputer(newRoom);
         if (res.success) {
-          setData([...data, { ...res.data }]);
+          setData([{ ...res.data }, ...data]);
           setTimeout(() => showNotification('Thêm thành công', 'success'), 10);
         }
       }
@@ -159,9 +161,9 @@ const RoomListScreen = () => {
 
   const handleDelete = async () => {
     try {
-      const res = await deleteRoom(roomToDelete);
+      const res = await deleteComputer({ idRoom: roomToDelete.RoomID, computerID: roomToDelete.ID });
       if (res.status === 'success') {
-        setData((prevData) => [...prevData.filter((item) => item.RoomID !== roomToDelete)]);
+        setData((prevData) => [...prevData.filter((item) => item.ID !== roomToDelete.ID)]);
         setTimeout(() => showNotification('Xóa thành công', 'success'), 10);
       }
       setOpenConfirm(false);
@@ -180,9 +182,22 @@ const RoomListScreen = () => {
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" onClick={() => setOpenPopUp(true)} startIcon={<IconPlus />}>
-            Thêm phòng
-          </Button>
+          <MainCard>
+            <Grid container>
+              <Grid item xs={6}>
+                <Typography>
+                  <b>{`Phòng: ` + nameRoom[0]?.RoomName}</b>
+                </Typography>
+              </Grid>
+              <Grid item xs={6} sx={{ display: 'flex', justifyContent: 'end' }}>
+                <Button variant="contained" onClick={() => setOpenPopUp(true)}>
+                  Thêm máy
+                </Button>
+              </Grid>
+            </Grid>
+          </MainCard>
+        </Grid>
+        <Grid item xs={12}>
           <PopupWithTextField
             open={openPopup}
             handleClose={() => {
@@ -240,4 +255,4 @@ const RoomListScreen = () => {
   );
 };
 
-export default RoomListScreen;
+export default RoomDetailScreen;
