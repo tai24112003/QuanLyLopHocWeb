@@ -8,6 +8,7 @@ import useNotification from './Notification';
 import QuestionItemForm from './QuestionItemForm';
 import CommonQuestionItemForm from './CommonQuestionItemForm';
 import { useSelector } from 'react-redux';
+import generateId from 'utils/generate-id';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
@@ -23,12 +24,12 @@ const ListQuestion = ({ subjects, arrChapter }) => {
     <>
       {listQuestion?.map((question, index) => {
         return question.type_id === 2 ? (
-          <React.Fragment key={`${question.id}-${question.type_id}`}>
-            <QuestionItemForm question={question} />
+          <React.Fragment key={generateId()}>
+            <QuestionItemForm arrChapter={arrChapter[question.subject_id]} subjects={subjects} question={question} />
           </React.Fragment>
         ) : (
-          <React.Fragment key={`${question.id}-${question.type_id}`}>
-            <CommonQuestionItemForm question={question} />
+          <React.Fragment key={generateId()}>
+            <CommonQuestionItemForm arrChapter={arrChapter[question.subject_id]} subjects={subjects} question={question} />
           </React.Fragment>
         );
       })}

@@ -63,9 +63,9 @@ const QuestionScreen = () => {
     };
   }, [triggerSearch]);
 
-  // useEffect(() => {
-  //   console.log(listQuestion);
-  // }, [listQuestion]);
+  useEffect(() => {
+    console.log(listQuestion);
+  }, [listQuestion]);
 
   useEffect(() => {
     runGetSubjectOptions().then((data) => {
@@ -147,7 +147,7 @@ const QuestionScreen = () => {
       type: SET_LIST_QUESTION,
       listQuestion: [
         {
-          id: -2,
+          id: Date.now() * -1,
           content: '',
           new_or_edit: true,
           type_id: 1,

@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
-import ReactHtmlParser from 'react-html-parser';
-
 import 'ckeditor5/ckeditor5.css';
 import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, MenuItem, Select, TextField, Typography } from '@mui/material';
@@ -216,14 +214,14 @@ const CommonQuestionItemForm = ({ question }) => {
         ...item
       };
     });
-    if (question.id == -2) {
+    if (question.id < 0) {
       runAddCommonQuestion({
         content: content.current
       })
         .then((data) => {
           if (data.success) {
-            const dataMap = listQuestion.map((item) => {
-              if (item.id === question.id && item.type_id === question.type_id)
+            dataMap = listQuestion.map((item) => {
+              if (item.id === question.id)
                 return {
                   ...item,
                   id: data.data[0].id,

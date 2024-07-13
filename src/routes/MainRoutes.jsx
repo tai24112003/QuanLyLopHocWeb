@@ -9,6 +9,7 @@ import { element } from 'prop-types';
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const QuestionScreen = Loadable(lazy(() => import('views/pages/question/index')));
 const ExamScreen = Loadable(lazy(() => import('views/pages/exam')));
+const RoomScreen = Loadable(lazy(() => import('views/pages/room')));
 const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
 const AccountListScreen = Loadable(lazy(() => import('views/pages/account-list')));
@@ -77,7 +78,16 @@ const MainRoutes = {
           element: <AccountListScreen />
         }
       ]
-    }
+    },
+    {
+      path: 'room',
+      children: [
+        {
+          path: '',
+          element: <RoomScreen />
+        }
+      ]
+    },
     // {
     //   path: 'icons',
     //   children: [
