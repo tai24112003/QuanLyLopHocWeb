@@ -201,7 +201,7 @@ const CommonQuestionItemForm = ({ question }) => {
       return;
     }
 
-    const dataMap = listQuestion.map((item) => {
+    let dataMap = listQuestion.map((item) => {
       if (item.id === question.id)
         return {
           ...item,

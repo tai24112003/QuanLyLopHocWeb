@@ -3,8 +3,6 @@ import React, { useEffect, useRef, useState } from 'react';
 // material-ui
 import Grid from '@mui/material/Grid';
 
-import ReactHtmlParser from 'react-html-parser';
-
 import 'ckeditor5/ckeditor5.css';
 import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
 import { Accordion, AccordionDetails, AccordionSummary, Box, Button, MenuItem, Select, TextField, Typography } from '@mui/material';
