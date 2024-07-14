@@ -8,22 +8,65 @@ import TextField from '@mui/material/TextField';
 import { Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import { isEmailValid, isPhoneNumberValid } from 'views/utilities/common';
+import { Password } from '@mui/icons-material';
 
 const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
   const [data, setData] = useState({
     name: '',
     email: '',
     phone: '',
-    role: 'hs'
+    password: '',
+    passwordConfirm: '',
+    role: 'GV'
   });
   const [error, setError] = useState({
     name: '',
     email: '',
-    phone: ''
+    phone: '',
+    passwordConfirm: '',
+    password: ''
   });
   useEffect(() => {
-    // if (open) setData(subjectEdit?.name ?? '');
+    if (open) {
+      setData(subjectEdit ? subjectEdit : { name: '', email: '', phone: '', password: '', passwordConfirm: '', role: 'GV' });
+      setError({
+        name: '',
+        email: '',
+        phone: '',
+        passwordConfirm: '',
+        password: ''
+      });
+    }
   }, [open]);
+
+  const onSubmit = () => {
+    if (data.name === '') {
+      setError({ ...error, name: 'Tên không bỏ trống' });
+      return;
+    }
+    if (data.email === '') {
+      setError({ ...error, email: 'Email không bỏ trống' });
+      return;
+    }
+    if (data.phone === '') {
+      setError({ ...error, phone: 'Số điện thoại không bỏ trống' });
+      return;
+    }
+    if (data.passwordConfirm !== data.password) {
+      setError({ ...error, passwordConfirm: 'Mật khẩu xác nhận không khớp' });
+      return;
+    }
+    if (data.password && data.password.length < 8) {
+      setError({ ...error, password: 'Mật khẩu phải trên 8 kí tự' });
+      return;
+    }
+    if (!subjectEdit && data.password === '') {
+      setError({ ...error, password: 'Mật khẩu không bỏ trống' });
+      return;
+    }
+    if (error.name === '' && error.password === '' && error.email === '' && error.passwordConfirm === '' && error.phone === '')
+      handleSave(data);
+  };
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
@@ -79,12 +122,41 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
             />
             <Typography sx={{ fontSize: 10, color: 'red' }}>{error.phone}</Typography>
           </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6}>
+            <TextField
+              margin="dense"
+              label="Mật khẩu"
+              type="password"
+              fullWidth
+              value={data.password}
+              onChange={(e) => {
+                setError({ ...error, password: '' });
+                setData({ ...data, password: e.target.value });
+              }}
+            />
+            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.password}</Typography>
+          </Grid>
+          <Grid item xs={12} sm={12} md={6} lg={6}>
+            <TextField
+              margin="dense"
+              label="Xác nhận mật khẩu"
+              type="password"
+              fullWidth
+              value={data.passwordConfirm}
+              onChange={(e) => {
+                setError({ ...error, passwordConfirm: '' });
+                setData({ ...data, passwordConfirm: e.target.value });
+              }}
+            />
+            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.passwordConfirm}</Typography>
+          </Grid>
           <Grid item xs={12} sm={6} md={3} lg={3}>
             <InputLabel>Vai trò</InputLabel>
-            <Select value={data.role} fullWidth>
+            <Select onChange={(e) => setData({ ...data, role: e.target.value })} value={data.role} fullWidth>
               <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="gv">Giáo viên</MenuItem>
-              <MenuItem value="hs">Học sinh</MenuItem>
+              <MenuItem value="GV">Giáo viên</MenuItem>
+              <MenuItem value="TK">Trưởng khoa</MenuItem>
+              <MenuItem value="PK">Phó khoa</MenuItem>
             </Select>
           </Grid>
         </Grid>
@@ -95,7 +167,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
         </Button>
         <Button
           onClick={() => {
-            handleSave(text);
+            onSubmit();
           }}
           color="primary"
         >

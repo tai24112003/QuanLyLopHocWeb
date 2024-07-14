@@ -8,17 +8,24 @@ import { gapGrid, gridSpacing } from 'store/constant';
 import { useMemo } from 'react';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { runGetExams } from 'api/exam';
-import { runGetAllUser } from 'api/user';
+import { runAddUser, runGetAllUser, runToggleUserStatus, runUpdateUser } from 'api/user';
 import { Button } from '@mui/material';
-import { Delete, EditNote, Lock } from '@mui/icons-material';
+import { Delete, EditNote, Lock, Undo } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupAccount';
+import useNotification from '../exam/components/Notification';
+import { useSelector } from 'react-redux';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const AccountListScreen = () => {
   const [data, setData] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
+  const [reload, setReload] = useState(1);
   const [selectId, setSelectId] = useState();
+  const { showNotification, NotificationComponent } = useNotification();
+  const user = useSelector((state) => {
+    return state.customization.user;
+  });
 
   useEffect(() => {
     runGetAllUser()
@@ -26,7 +33,7 @@ const AccountListScreen = () => {
         if (data.success) setData(data.data);
       })
       .catch((e) => console.log(e));
-  }, []);
+  }, [reload]);
 
   const columns = useMemo(
     () => [
@@ -58,11 +65,11 @@ const AccountListScreen = () => {
         size: 200,
         Cell: ({ row }) => {
           let styleRole =
-            row.original.role === 'admin'
+            row.original.role === 'TK'
               ? { backgroundColor: '#00e676', color: 'white' }
-              : row.original.role === 'gv'
-                ? { backgroundColor: '#ffe57f', color: 'black' }
-                : { backgroundColor: 'gray', color: 'white' };
+              : row.original.role === 'PK'
+                ? { backgroundColor: 'green', color: 'white' }
+                : { backgroundColor: '#ffe57f', color: 'black' };
           return <div style={{ ...styleRole, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}>{row.original.role}</div>;
         }
       },
@@ -76,7 +83,6 @@ const AccountListScreen = () => {
               <Button
                 size="small"
                 onClick={(e) => {
-                  setSelectChapterId(null);
                   setSelectId(row.original);
                   setOpenPopUp(true);
                 }}
@@ -86,18 +92,21 @@ const AccountListScreen = () => {
               >
                 <EditNote />
               </Button>
-              {row.original.role !== 'admin' && (
+              {row.original.id !== user.id && (
                 <Button
                   onClick={(e) => {
-                    setSelectChapterId(null);
-                    handleClickOpen(row.original.id);
+                    runToggleUserStatus(row.original.id).then((res) => {
+                      setReload((prev) => prev + 1);
+                      if (res.success) {
+                      }
+                    });
                   }}
                   sx={{ margin: 0.5 }}
                   size="small"
                   color="error"
                   variant="contained"
                 >
-                  <Lock />
+                  {!row.original.status ? <Lock /> : <Undo />}
                 </Button>
               )}
             </>
@@ -109,10 +118,43 @@ const AccountListScreen = () => {
   );
 
   const handleClosePopup = () => {
+    setSelectId(null);
     setOpenPopUp(false);
   };
 
-  const handleSave = () => {};
+  const handleSave = (user) => {
+    if (selectId) {
+      runUpdateUser(user)
+        .then((res) => {
+          if (res.success) {
+            setData([
+              ...data.map((item) => {
+                if (item.id === res.data.id) return { ...res.data, password: '' };
+                return item;
+              })
+            ]);
+            setOpenPopUp(false);
+            setTimeout(() => showNotification('Cập nhật thành công', 'success'), 10);
+          }
+        })
+        .catch((err) => {
+          showNotification('Cập nhật không thành công', 'error');
+        });
+    } else {
+      runAddUser(user)
+        .then((res) => {
+          if (res.success) {
+            setData([...data, res.data]);
+            setOpenPopUp(false);
+            setTimeout(() => showNotification('Cập nhật thành công', 'success'), 10);
+          }
+        })
+        .catch((err) => {
+          showNotification('email đã tồn tại', 'error');
+        });
+    }
+    setSelectId(null);
+  };
 
   const table = useMaterialReactTable({
     columns,
@@ -133,6 +175,7 @@ const AccountListScreen = () => {
         </Grid>
         <PopupWithTextField subjectEdit={selectId} handleSave={handleSave} handleClose={handleClosePopup} open={openPopup} id={selectId} />
       </Grid>
+      <NotificationComponent />
     </>
   );
 };

@@ -1,167 +1,108 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
+import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Select, MenuItem } from '@mui/material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { getAllRoom, deleteRoom, updateRoom, addRoom } from 'api/room';
 import { Delete, EditNote } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
-import PopupWithTextField from './components/popupRoom';
+import PopupWithTextField from './components/popupStatus';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
 import { Link } from 'react-router-dom';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { getClassesByUserId } from 'api/class';
+import { getAttendance, updateAttendance } from 'api/attendance';
+import generateId from 'utils/generate-id';
 
 const ManageStudentScreen = () => {
   const [data, setData] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [openConfirm, setOpenConfirm] = useState(false);
-  const [roomToDelete, setRoomToDelete] = useState(null);
-  const [computers, setComputers] = useState([]);
+  const [reload, setReload] = useState(1);
+  const [classController, setClassController] = useState('-1');
+  const [sesstionSelect, setSesstionSelect] = useState(null);
   const { showNotification, NotificationComponent } = useNotification();
-  const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    const fetchRooms = async () => {
-      try {
-        const response = await getAllRoom();
-        if (response.status === 'success') {
-          setData(response.data);
-        }
-      } catch (error) {
-        console.error(error);
+    getClassesByUserId().then((data) => {
+      if (data.success) {
+        setClasses(data.data);
+        setClassController(data?.data[0]?.ClassID);
       }
-    };
-
-    fetchRooms();
+    });
   }, []);
 
-  const columns = useMemo(
-    () => [
-      {
-        accessorKey: 'RoomName',
-        header: 'MSSV',
-        size: 150,
-        Cell: ({ row }) => (
-          <Link to={`/room/${row.original.RoomID}`} underline="none" color="primary">
-            {row.original.RoomName}
-          </Link>
-        )
-      },
-      {
-        accessorKey: 'StandardHDD',
-        header: 'Họ',
-        size: 150,
-        Cell: ({ cell }) => (
-          <div>
-            {cell
-              .getValue()
-              .split('|')
-              .map((ram, index) => (
-                <div key={index}>{ram.toUpperCase()}</div>
-              ))}
-          </div>
-        )
-      },
-      {
-        accessorKey: 'StandardCPU',
-        header: 'Tên',
-        size: 150,
-        Cell: ({ cell }) => (
-          <div>
-            {cell
-              .getValue()
-              .split('|')
-              .map((ram, index) => (
-                <div key={index}>{ram.toUpperCase()}</div>
-              ))}
-          </div>
-        )
-      },
-      {
-        accessorKey: 'StandardRAM',
-        header: 'Trạng thái',
-        size: 150,
-        Cell: ({ cell }) => (
-          <div>
-            {cell
-              .getValue()
-              .split('|')
-              .map((ram, index) => (
-                <div key={index}>{ram.toUpperCase()}</div>
-              ))}
-          </div>
-        )
-      },
-      {
-        accessorKey: 'actions',
-        header: 'Thao tác',
-        size: 150,
-        Cell: ({ row }) => (
-          <>
-            <Button
-              size="small"
-              onClick={() => {
-                setSelectedRoom(row.original);
-                setOpenPopUp(true);
-              }}
-              color="warning"
-              sx={{ margin: 0.5 }}
-              variant="contained"
-            >
-              <EditNote />
-            </Button>
-            <Button
-              onClick={() => {
-                setRoomToDelete(row.original.RoomID);
-                setOpenConfirm(true);
-              }}
-              sx={{ margin: 0.5 }}
-              size="small"
-              color="error"
-              variant="contained"
-            >
-              <Delete />
-            </Button>
-          </>
-        )
+  useEffect(() => {
+    getAttendance(classController).then((data) => {
+      if (data.status === 'success') {
+        setData(formatAttendanceForUI(data.data));
       }
-    ],
-    []
-  );
-
-  const handleSave = async (room) => {
-    try {
-      if (selectedRoom) {
-        await updateRoom(room);
-        setData((prevData) => prevData.map((item) => (item.RoomName === room.RoomName ? room : item)));
-      } else {
-        const newRoom = { ...room, Status: 'Trống' };
-        const res = await addRoom(newRoom);
-        if (res.success) {
-          setData([...data, { ...res.data }]);
-          setTimeout(() => showNotification('Thêm thành công', 'success'), 10);
-        }
-      }
-      setOpenPopUp(false);
-      setSelectedRoom(null);
-    } catch (error) {
-      console.error(error);
+    });
+  }, [classController, reload]);
+  const columns = [
+    {
+      accessorKey: 'id',
+      header: 'MSSV',
+      size: 50
+    },
+    {
+      accessorKey: 'name',
+      header: 'Họ và tên',
+      size: 100
     }
-  };
+  ];
 
-  const handleDelete = async () => {
-    try {
-      const res = await deleteRoom(roomToDelete);
-      if (res.status === 'success') {
-        setData((prevData) => [...prevData.filter((item) => item.RoomID !== roomToDelete)]);
-        setTimeout(() => showNotification('Xóa thành công', 'success'), 10);
+  data[0]?.date?.forEach((item) => {
+    columns.push({
+      accessorKey: item,
+      header: item,
+      size: 50,
+      Cell: ({ row }) => {
+        let styleStatus =
+          row.original[item] === 'c'
+            ? { backgroundColor: '#00e676', color: 'white' }
+            : row.original[item] === 'cp'
+              ? { backgroundColor: '#ffe57f', color: 'black' }
+              : { backgroundColor: '#f44336', color: 'white' };
+        let content = row.original[item] === 'c' ? 'Có' : row.original[item] === 'cp' ? 'Có phép' : 'Vắng';
+        return (
+          <div
+            key={generateId()}
+            onClick={(e) => {
+              setSesstionSelect({ mssv: row.original.id, sessionId: row.original.SessionID, currentStatus: row.original[item] });
+              setOpenPopUp(true);
+            }}
+            style={{ ...styleStatus, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}
+          >
+            {content}
+          </div>
+        );
       }
-      setOpenConfirm(false);
-      setRoomToDelete(null);
-    } catch (error) {
-      console.error(error);
-    }
+    });
+  });
+
+  const formatAttendanceForUI = (attendanceData) => {
+    const studentMap = {};
+
+    attendanceData.forEach(({ StudentID, FirstName, LastName, Present, StartTime, SessionID }) => {
+      const date = new Date(StartTime).toLocaleDateString(); // Extract date
+
+      if (!studentMap[StudentID]) {
+        studentMap[StudentID] = {
+          id: StudentID,
+          SessionID,
+          name: `${LastName} ${FirstName}`,
+          date: []
+        };
+      }
+      if (!studentMap[StudentID].date.includes(date)) {
+        studentMap[StudentID].date.push(date);
+      }
+
+      studentMap[StudentID][date] = Present;
+    });
+
+    return Object.values(studentMap);
   };
 
   const table = useMaterialReactTable({
@@ -169,55 +110,55 @@ const ManageStudentScreen = () => {
     data
   });
 
+  const handleClose = () => {
+    setOpenPopUp(false);
+  };
+
+  const handleSave = (data) => {
+    console.log(data);
+    updateAttendance({ StudentID: data.mssv, SessionID: data.sessionId, Present: data.currentStatus }).then((data) => {
+      if (data.status === 'success') {
+        setReload((prev) => {
+          return prev + 1;
+        });
+
+        setTimeout(() => showNotification('cập nhật thành công', 'success'), 0);
+      }
+    });
+    setOpenPopUp(false);
+  };
+
   return (
     <>
       <Grid container spacing={gridSpacing}>
-        <Grid item xs={12}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <DatePicker
-                  label="Chọn ngày"
-                  value={selectedDate}
-                  onChange={(newValue) => setSelectedDate(newValue)}
-                  renderInput={(params) => <TextField {...params} />}
-                />
-              </Grid>
-            </Grid>
-          </LocalizationProvider>
-        </Grid>
-        <Grid item xs={12}>
-          <PopupWithTextField
-            open={openPopup}
-            handleClose={() => {
-              setOpenPopUp(false);
-              setSelectedRoom(null);
+        <Grid item xs={12} md={6} sm={0} lg={3}>
+          <Select
+            value={classController}
+            onChange={(e) => {
+              setClassController(e.target.value);
             }}
-            handleSave={handleSave}
-            roomEdit={selectedRoom}
-          />
+            sx={{ width: '100%' }}
+          >
+            <MenuItem value="-1">Chọn lớp</MenuItem>
+            {classes.map((item) => (
+              <MenuItem key={item.ClassID} value={item.ClassID}>
+                {item.ClassName}
+              </MenuItem>
+            ))}
+          </Select>
         </Grid>
+        <Grid item xs={0} md={6} sm={0} lg={9}></Grid>
         <Grid item xs={12}>
           <MaterialReactTable table={table} />
         </Grid>
       </Grid>
-
-      {/* Confirm Delete Dialog */}
-      <Dialog open={openConfirm} onClose={() => setOpenConfirm(false)}>
-        <DialogTitle>Xác nhận xóa</DialogTitle>
-        <DialogContent>
-          <div>Bạn có chắc chắn muốn xóa phòng này không?</div>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenConfirm(false)} color="primary">
-            Hủy
-          </Button>
-          <Button onClick={handleDelete} color="error">
-            Xóa
-          </Button>
-        </DialogActions>
-      </Dialog>
       <NotificationComponent></NotificationComponent>
+      <PopupWithTextField
+        handleSave={handleSave}
+        sessionEdit={sesstionSelect}
+        open={openPopup}
+        handleClose={handleClose}
+      ></PopupWithTextField>
     </>
   );
 };

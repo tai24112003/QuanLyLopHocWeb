@@ -74,7 +74,7 @@ const MainLayout = () => {
           dispatch({
             type: SET_USER,
             user: {
-              id: data.data[0].user_id,
+              id: data.data[0].id,
               name: data.data[0].name,
               email: data.data[0].email,
               phone: data.data[0].phone,
