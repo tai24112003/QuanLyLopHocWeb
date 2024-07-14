@@ -165,7 +165,7 @@ const ExamViewScreen = () => {
           </MainCard>
         </Grid>
         <Grid item xs={12}>
-          <MainCard>
+          {/* <MainCard>
             <Grid container spacing={1}>
               <Grid item xs={5.5}>
                 <TextField
@@ -210,7 +210,7 @@ const ExamViewScreen = () => {
                 </Button>
               </Grid>
             </Grid>
-          </MainCard>
+          </MainCard> */}
           <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}></Grid>
         </Grid>
         <ListQuestionInExam inExam infoExam={infoExam} subjects={subjects} listQuestion={data.questions} />

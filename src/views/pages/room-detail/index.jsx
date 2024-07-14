@@ -26,7 +26,6 @@ const RoomDetailScreen = () => {
     getComputerByRoomID(id).then((data) => {
       if (data.data) {
         setData(data.data);
-        console.log(data.data);
       }
     });
     getRoomByID(id).then((data) => {

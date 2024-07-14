@@ -240,7 +240,7 @@ const CommonQuestionItemInExam = ({ question }) => {
               type: SET_COMMON_DATA,
               commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
             });
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
+            setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
           }
@@ -259,7 +259,7 @@ const CommonQuestionItemInExam = ({ question }) => {
           if (data.success) {
             dispatch({ type: SET_EXAM, exam: { ...exam, questions: dataMap } });
             dispatch({ type: SET_OBJ_EDITING, editing: null });
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
+            setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
           }

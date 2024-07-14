@@ -89,6 +89,7 @@ const ExamScreen = () => {
   }, [subjects]);
 
   const onAddQuestion = () => {
+    if (editing) return;
     if (infoExam.count === infoExam.questions.length) {
       showNotification('Đề đã đủ câu không thể thêm', 'error');
       return;
@@ -118,6 +119,7 @@ const ExamScreen = () => {
   };
 
   const onAddCommonQuestion = () => {
+    if (editing) return;
     if (infoExam.count === infoExam.questions.length) {
       showNotification('Đề đã đủ câu không thể thêm', 'error');
       return;
@@ -155,35 +157,35 @@ const ExamScreen = () => {
     dispatch({ type: SET_OBJ_EDITING, editing: { id: -2, type_id: 1 } });
   };
 
-  const formatData = (data) => {
-    return data?.reduce((result, question) => {
-      let isCommon = question.type_id === 1;
-      if (isCommon) {
-        let isExits = result.find((item) => item.id === question.common_content_id && item.type_id === 1);
-        if (isExits) {
-          isExits.questions.push(question);
-        } else {
-          let commonQuestion = {
-            id: question.common_content_id,
-            content: question.common_content,
-            type_id: 1,
-            chapter_id: question.chapter_id,
-            difficulty: question.difficulty,
-            subject_id: question.subject_id,
-            choices: [],
-            questions: [],
-            canRemove: question.canRemove
-          };
-          commonQuestion.questions.push(question);
-          result.push(commonQuestion);
-        }
-      } else {
-        result.push(question);
-      }
+  // const formatData = (data) => {
+  //   return data?.reduce((result, question) => {
+  //     let isCommon = question.type_id === 1;
+  //     if (isCommon) {
+  //       let isExits = result.find((item) => item.id === question.common_content_id && item.type_id === 1);
+  //       if (isExits) {
+  //         isExits.questions.push(question);
+  //       } else {
+  //         let commonQuestion = {
+  //           id: question.common_content_id,
+  //           content: question.common_content,
+  //           type_id: 1,
+  //           chapter_id: question.chapter_id,
+  //           difficulty: question.difficulty,
+  //           subject_id: question.subject_id,
+  //           choices: [],
+  //           questions: [],
+  //           canRemove: question.canRemove
+  //         };
+  //         commonQuestion.questions.push(question);
+  //         result.push(commonQuestion);
+  //       }
+  //     } else {
+  //       result.push(question);
+  //     }
 
-      return result;
-    }, []);
-  };
+  //     return result;
+  //   }, []);
+  // };
 
   const onSubmit = () => {
     let err = false;
@@ -309,7 +311,7 @@ const ExamScreen = () => {
             </MainCard>
           </Grid>
           <Grid item xs={12}>
-            <MainCard>
+            {/* <MainCard>
               <Grid container spacing={1}>
                 <Grid item xs={5.5}>
                   <TextField
@@ -354,7 +356,7 @@ const ExamScreen = () => {
                   </Button>
                 </Grid>
               </Grid>
-            </MainCard>
+            </MainCard> */}
             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'end' }}>
               <Button variant="contained" onClick={handleClickOpenSearch} sx={{ margin: '10px 0px' }}>
                 Ngân hàng câu hỏi

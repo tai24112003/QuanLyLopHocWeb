@@ -44,7 +44,7 @@ import Cookies from 'js-cookie';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const CommonQuestionItemForm = ({ question }) => {
+const CommonQuestionItemForm = ({ question, lstSubject }) => {
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [open, setOpen] = useState(false);
@@ -67,11 +67,6 @@ const CommonQuestionItemForm = ({ question }) => {
   });
 
   let isEdit = question.id == editing?.id && question.type_id == editing?.type_id;
-
-  const onDeleteQuestion = (event) => {
-    event.stopPropagation();
-    onDestroy(question);
-  };
 
   const handleClickOpen = (e) => {
     e.stopPropagation();
@@ -105,14 +100,16 @@ const CommonQuestionItemForm = ({ question }) => {
   };
 
   useEffect(() => {
-    runGetSubjectOptions().then((data) => {
-      setSubjects(data.data);
-      setSubjectController(question.subject_id);
-      let arr = [];
-      arr = data.data?.find((item) => item.id === question.subject_id)?.Chapters;
-      setChapters(arr);
-      setChaptersController(question.chapter_id);
-    });
+    // console.log(lstSubject);
+    // runGetSubjectOptions().then((data) => {
+    // });
+
+    setSubjects(lstSubject);
+    setSubjectController(question.subject_id);
+    let arr = [];
+    arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
+    setChapters(arr);
+    setChaptersController(question.chapter_id);
   }, []);
 
   const onAddQuestion = () => {
@@ -220,27 +217,29 @@ const CommonQuestionItemForm = ({ question }) => {
       })
         .then((data) => {
           if (data.success) {
-            dataMap = listQuestion.map((item) => {
-              if (item.id === question.id)
+            setTimeout(() => {
+              dataMap = listQuestion.map((item) => {
+                if (item.id === question.id)
+                  return {
+                    ...item,
+                    id: data.data[0].id,
+                    subject_id: subjectController,
+                    chapter_id: chaptersController,
+                    difficulty: diffController,
+                    content: content.current
+                  };
                 return {
-                  ...item,
-                  id: data.data[0].id,
-                  subject_id: subjectController,
-                  chapter_id: chaptersController,
-                  difficulty: diffController,
-                  content: content.current
+                  ...item
                 };
-              return {
-                ...item
-              };
-            });
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
-            dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 1 } });
-            dispatch({
-              type: SET_COMMON_DATA,
-              commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
-            });
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
+              });
+              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+              dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 1 } });
+              dispatch({
+                type: SET_COMMON_DATA,
+                commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
+              });
+            }, 10);
+            setTimeout(() => showNotification('Lưu thành công!', 'success'), 5);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
           }
@@ -259,7 +258,7 @@ const CommonQuestionItemForm = ({ question }) => {
           if (data.success) {
             dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
             dispatch({ type: SET_OBJ_EDITING, editing: null });
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
+            setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
           }
@@ -390,14 +389,16 @@ const CommonQuestionItemForm = ({ question }) => {
                                 .then((data) => {
                                   if (data.success) {
                                     setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                    let newData = [...listQuestion];
-                                    newData = newData.map((item) => {
-                                      if (item.id === question.id && item.type_id === question.type_id) {
-                                        return { ...item, shared: null };
-                                      }
-                                      return { ...item };
-                                    });
-                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                    setTimeout(() => {
+                                      let newData = [...listQuestion];
+                                      newData = newData.map((item) => {
+                                        if (item.id === question.id && item.type_id === question.type_id) {
+                                          return { ...item, shared: null };
+                                        }
+                                        return { ...item };
+                                      });
+                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                    }, 20);
                                   } else {
                                     showNotification('Công khai không thành công', 'error');
                                   }
@@ -419,14 +420,16 @@ const CommonQuestionItemForm = ({ question }) => {
                                 .then((data) => {
                                   if (data.success) {
                                     setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                    let newData = [...listQuestion];
-                                    newData = newData.map((item) => {
-                                      if (item.id === question.id && item.type_id === question.type_id) {
-                                        return { ...item, shared: 1 };
-                                      }
-                                      return { ...item };
-                                    });
-                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                    setTimeout(() => {
+                                      let newData = [...listQuestion];
+                                      newData = newData.map((item) => {
+                                        if (item.id === question.id && item.type_id === question.type_id) {
+                                          return { ...item, shared: 1 };
+                                        }
+                                        return { ...item };
+                                      });
+                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                    }, 20);
                                   } else {
                                     showNotification('Công khai không thành công', 'error');
                                   }
