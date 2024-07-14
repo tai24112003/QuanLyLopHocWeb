@@ -36,6 +36,9 @@ const QuestionScreen = () => {
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
   });
+  const editing = useSelector((state) => {
+    return state.customization.editing;
+  });
   const user = useSelector((state) => {
     return state.customization.user;
   });
@@ -63,9 +66,9 @@ const QuestionScreen = () => {
     };
   }, [triggerSearch]);
 
-  useEffect(() => {
-    console.log(listQuestion);
-  }, [listQuestion]);
+  // useEffect(() => {
+  //   console.log(listQuestion);
+  // }, [listQuestion]);
 
   useEffect(() => {
     runGetSubjectOptions().then((data) => {
@@ -118,6 +121,7 @@ const QuestionScreen = () => {
   };
 
   const onAddQuestion = () => {
+    if (editing) return;
     const dataMap = [...listQuestion];
     dispatch({
       type: SET_LIST_QUESTION,
@@ -142,12 +146,14 @@ const QuestionScreen = () => {
   };
 
   const onAddCommonQuestion = () => {
+    if (editing) return;
     const dataMap = [...listQuestion];
+    const idTmp = Date.now() * -1;
     dispatch({
       type: SET_LIST_QUESTION,
       listQuestion: [
         {
-          id: Date.now() * -1,
+          id: idTmp,
           content: '',
           new_or_edit: true,
           type_id: 1,
@@ -172,7 +178,7 @@ const QuestionScreen = () => {
         ...dataMap
       ]
     });
-    dispatch({ type: SET_OBJ_EDITING, editing: { id: -2, type_id: 1 } });
+    dispatch({ type: SET_OBJ_EDITING, editing: { id: idTmp, type_id: 1 } });
   };
 
   return (

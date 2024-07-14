@@ -35,7 +35,7 @@ import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 import Cookies from 'js-cookie';
 
-const QuestionItemForm = ({ question, parentQuestion }) => {
+const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [questionSelected, setQuestionSelected] = useState();
@@ -67,20 +67,19 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
   let isEdit = question.id == editing?.id && question.type_id == editing?.type_id;
 
   useEffect(() => {
-    runGetSubjectOptions().then((data) => {
-      setSubjects(data.data);
-      setSubjectController(question.subject_id);
-      let arr = [];
-      arr = data.data?.find((item) => item.id === question.subject_id)?.Chapters;
-      setChapters(arr);
-      setChaptersController(question.chapter_id);
-      content.current = question?.content;
-      if (parentQuestion) {
-        setChoiceController(parentQuestion.questions.find((item) => item.id === question.id)?.choices);
-        setChaptersController(parentQuestion.questions.find((item) => item.id === question.id)?.chapter_id);
-        content.current = parentQuestion.questions.find((item) => item.id === question.id)?.content;
-      }
-    });
+    // runGetSubjectOptions().then((data) => {});
+    setSubjects(lstSubject);
+    setSubjectController(question.subject_id);
+    let arr = [];
+    arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
+    setChapters(arr);
+    setChaptersController(question.chapter_id);
+    content.current = question?.content;
+    if (parentQuestion) {
+      setChoiceController(parentQuestion.questions.find((item) => item.id === question.id)?.choices);
+      setChaptersController(parentQuestion.questions.find((item) => item.id === question.id)?.chapter_id);
+      content.current = parentQuestion.questions.find((item) => item.id === question.id)?.content;
+    }
   }, []);
 
   const addChoice = () => {
@@ -299,9 +298,11 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                   ...item
                 };
               });
-              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
-              dispatch({ type: SET_OBJ_EDITING, editing: null });
               setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
+              setTimeout(() => {
+                dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+                dispatch({ type: SET_OBJ_EDITING, editing: null });
+              }, 2000);
             } else {
               setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
             }
@@ -352,7 +353,7 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                 dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
                 dispatch({ type: SET_COMMON_DATA, commonData: null });
                 dispatch({ type: SET_OBJ_EDITING, editing: null });
-              }, 0);
+              }, 1000);
 
               // setTimeout(() => window.location.reload(), 100);
             } else {
@@ -399,11 +400,11 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
         })
           .then((data) => {
             if (data.success) {
-              showNotification('Lưu thành công!!!!', 'success');
+              dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
+              if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
+              dispatch({ type: SET_OBJ_EDITING, editing: null });
               setTimeout(() => {
-                dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
-                if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
-                dispatch({ type: SET_OBJ_EDITING, editing: null });
+                showNotification('Lưu thành công!!!!', 'success');
               }, 100);
             } else {
               setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
@@ -541,14 +542,16 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                                   .then((data) => {
                                     if (data.success) {
                                       setTimeout(() => showNotification('Đã đặt câu hỏi sang riêng tư', 'success'), 10);
-                                      let newData = [...listQuestion];
-                                      newData = newData.map((item) => {
-                                        if (item.id === question.id && item.type_id === question.type_id) {
-                                          return { ...item, shared: null };
-                                        }
-                                        return { ...item };
-                                      });
-                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      setTimeout(() => {
+                                        let newData = [...listQuestion];
+                                        newData = newData.map((item) => {
+                                          if (item.id === question.id && item.type_id === question.type_id) {
+                                            return { ...item, shared: null };
+                                          }
+                                          return { ...item };
+                                        });
+                                        dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      }, 20);
                                     } else {
                                       showNotification('Cập nhật không thành công', 'error');
                                     }
@@ -570,14 +573,16 @@ const QuestionItemForm = ({ question, parentQuestion }) => {
                                   .then((data) => {
                                     if (data.success) {
                                       setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                      let newData = [...listQuestion];
-                                      newData = newData.map((item) => {
-                                        if (item.id === question.id && item.type_id === question.type_id) {
-                                          return { ...item, shared: 1 };
-                                        }
-                                        return { ...item };
-                                      });
-                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      setTimeout(() => {
+                                        let newData = [...listQuestion];
+                                        newData = newData.map((item) => {
+                                          if (item.id === question.id && item.type_id === question.type_id) {
+                                            return { ...item, shared: 1 };
+                                          }
+                                          return { ...item };
+                                        });
+                                        dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      }, 20);
                                     } else {
                                       showNotification('Công khai không thành công', 'error');
                                     }

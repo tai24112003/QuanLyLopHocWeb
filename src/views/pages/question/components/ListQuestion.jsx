@@ -14,7 +14,6 @@ import generateId from 'utils/generate-id';
 
 const ListQuestion = ({ subjects, arrChapter }) => {
   const [open, setOpen] = useState(false);
-  const [questionSelected, setQuestionSelected] = useState();
   const { showNotification, NotificationComponent } = useNotification();
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
@@ -25,11 +24,11 @@ const ListQuestion = ({ subjects, arrChapter }) => {
       {listQuestion?.map((question, index) => {
         return question.type_id === 2 ? (
           <React.Fragment key={generateId()}>
-            <QuestionItemForm arrChapter={arrChapter[question.subject_id]} subjects={subjects} question={question} />
+            <QuestionItemForm arrChapter={arrChapter[question.subject_id]} lstSubject={subjects} question={question} />
           </React.Fragment>
         ) : (
           <React.Fragment key={generateId()}>
-            <CommonQuestionItemForm arrChapter={arrChapter[question.subject_id]} subjects={subjects} question={question} />
+            <CommonQuestionItemForm arrChapter={arrChapter[question.subject_id]} lstSubject={subjects} question={question} />
           </React.Fragment>
         );
       })}
