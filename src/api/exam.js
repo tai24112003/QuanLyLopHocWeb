@@ -21,4 +21,11 @@ const runGetExam = async (id) => {
   return data;
 };
 
-export { runCreateExam, runGetExams, runGetExam };
+const toggleExamSharing = async (examId) => {
+  const url = import.meta.env.VITE_APP_API_URL + `exam/${examId}`;
+  const data = await apiCall({ method: 'put', url });
+
+  return data;
+};
+
+export { runCreateExam, runGetExams, runGetExam, toggleExamSharing };

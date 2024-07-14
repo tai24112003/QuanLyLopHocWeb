@@ -7,11 +7,17 @@ import Grid from '@mui/material/Grid';
 import { gapGrid, gridSpacing } from 'store/constant';
 import { useMemo } from 'react';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
-import { runGetExams } from 'api/exam';
+import { runGetExams, toggleExamSharing } from 'api/exam';
+import { Button } from '@mui/material';
+import { useSelector } from 'react-redux';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const ExamListScreen = () => {
   const [data, setData] = useState([]);
+  const [reload, setReload] = useState(1);
+  const user = useSelector((state) => {
+    return state.customization.user;
+  });
 
   useEffect(() => {
     runGetExams()
@@ -19,7 +25,7 @@ const ExamListScreen = () => {
         if (data.success) setData(data.data);
       })
       .catch((e) => console.log(e));
-  }, []);
+  }, [reload]);
 
   const columns = useMemo(
     () => [
@@ -59,6 +65,29 @@ const ExamListScreen = () => {
         accessorKey: 'duration',
         header: 'Thời gian (phút)',
         size: 150
+      },
+      {
+        accessorKey: 'actions',
+        header: 'Công khai đề',
+        size: 150,
+        Cell: ({ row }) => {
+          return (
+            row.original.authorId === user.id && (
+              <Button
+                onClick={(e) => {
+                  toggleExamSharing(row.original.id).then((data) => {
+                    if (data.success) {
+                      setReload((prev) => prev + 1);
+                    }
+                  });
+                }}
+                variant="contained"
+              >
+                {!row.original.shared ? 'Công khai' : 'Thu hồi'}
+              </Button>
+            )
+          );
+        }
       }
     ],
     []
