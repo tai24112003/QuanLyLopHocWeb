@@ -17,11 +17,12 @@ import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
 import useNotification from './components/Notification';
 import { useDispatch, useSelector } from 'react-redux';
+import { formatData } from 'views/utilities/common';
+import Loading from 'ui-component/loading/loading';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const QuestionScreen = () => {
-  const [data, setData] = useState([]);
   const [arrChapter, setArrChapter] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [qValue, setQValue] = useState('');
@@ -29,10 +30,9 @@ const QuestionScreen = () => {
   const [diffValue, setDiffValue] = useState(-1);
   const [chapterValue, setChapterValue] = useState(-1);
   const [listChapterValue, setListChapterValue] = useState([]);
-  const [search, setSearch] = useState({ q: '' });
-  const [triggerSearch, setTriggerSearch] = useState(false);
   const methods = useForm();
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState(true);
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
   });
@@ -51,27 +51,23 @@ const QuestionScreen = () => {
   } = methods;
   const { showNotification, NotificationComponent } = useNotification();
 
-  useEffect(() => {
-    const searchParams = {
-      q: qValue
-    };
-    if (diffValue !== -1) searchParams.difficult = diffValue;
-    if (chapterValue !== -1) searchParams.chapter_id = chapterValue;
-    if (subjectValue !== -1) searchParams.subject_id = subjectValue;
-    runGetQuestionDatas(searchParams).then((data) => {
-      dispatch({ type: SET_LIST_QUESTION, listQuestion: formatData(data.data) });
-    });
-    return () => {
-      dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
-    };
-  }, [triggerSearch]);
-
   // useEffect(() => {
   //   console.log(listQuestion);
   // }, [listQuestion]);
 
   useEffect(() => {
-    runGetSubjectOptions().then((data) => {
+    runGetQuestionDatas({}).then((data) => {
+      dispatch({ type: SET_LIST_QUESTION, listQuestion: formatData(data.data) });
+      setTimeout(() => setLoading(false), 500);
+    });
+    return () => {
+      dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
+      setLoading(true);
+    };
+  }, []);
+
+  useEffect(() => {
+    runGetSubjectOptions().then(async (data) => {
       setSubjects(data.data);
       let arr = [];
       data.data?.forEach((item) => {
@@ -85,40 +81,6 @@ const QuestionScreen = () => {
       dispatch({ type: SET_LIST_QUESTION, listQuestion: [] });
     };
   }, []);
-
-  const formatData = (data) => {
-    return data?.reduce((result, question) => {
-      question.isEditing = false;
-      let isCommon = question.type_id === 1;
-      if (isCommon) {
-        let isExits = result.find((item) => item.id === question.common_content_id && item.type_id === 1);
-        if (isExits) {
-          isExits.questions.push(question);
-        } else {
-          let commonQuestion = {
-            id: question.common_content_id,
-            content: question.common_content,
-            type_id: 1,
-            chapter_id: question.chapter_id,
-            difficulty: question.difficulty,
-            subject_id: question.subject_id,
-            choices: [],
-            questions: [],
-            canRemove: question.canRemove,
-            authorId: question.authorId,
-            shared: question.shared,
-            author: question.author
-          };
-          commonQuestion.questions.push(question);
-          result.push(commonQuestion);
-        }
-      } else {
-        result.push(question);
-      }
-
-      return result;
-    }, []);
-  };
 
   const onAddQuestion = () => {
     if (editing) return;
@@ -180,14 +142,15 @@ const QuestionScreen = () => {
     });
     dispatch({ type: SET_OBJ_EDITING, editing: { id: idTmp, type_id: 1 } });
   };
-
-  return (
+  return loading ? (
+    <Loading></Loading>
+  ) : (
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
           <MainCard>
             <Grid container spacing={1}>
-              <Grid item xs={4.5}>
+              <Grid item xs={12} md={12} lg={4.5}>
                 <TextField
                   onChange={(e) => {
                     setQValue(e.target.value);
@@ -197,7 +160,7 @@ const QuestionScreen = () => {
                   sx={{ width: '100%' }}
                 ></TextField>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={6} md={4} lg={2}>
                 <Select
                   onChange={(e) => {
                     setSubjectValue(Number(e.target.value));
@@ -214,7 +177,7 @@ const QuestionScreen = () => {
                   ))}
                 </Select>
               </Grid>
-              <Grid item xs={2}>
+              <Grid item xs={6} md={4} lg={2}>
                 <Select
                   onChange={(e) => {
                     setChapterValue(Number(e.target.value));
@@ -230,7 +193,7 @@ const QuestionScreen = () => {
                   ))}
                 </Select>
               </Grid>
-              <Grid item xs={1.5}>
+              <Grid item xs={6} md={4} lg={1.5}>
                 <Select
                   onChange={(e) => {
                     setDiffValue(Number(e.target.value));
@@ -244,10 +207,20 @@ const QuestionScreen = () => {
                   <MenuItem value={3}>Khó</MenuItem>
                 </Select>
               </Grid>
-              <Grid item xs={2} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
+              <Grid item xs={6} md={4} lg={2} sx={{ display: 'flex', justifyContent: 'start', alignItems: 'center' }}>
                 <Button
                   onClick={(e) => {
-                    setTriggerSearch(!triggerSearch);
+                    setLoading(true);
+                    const searchParams = {
+                      q: qValue
+                    };
+                    if (diffValue !== -1) searchParams.difficult = diffValue;
+                    if (chapterValue !== -1) searchParams.chapter_id = chapterValue;
+                    if (subjectValue !== -1) searchParams.subject_id = subjectValue;
+                    runGetQuestionDatas(searchParams).then((data) => {
+                      dispatch({ type: SET_LIST_QUESTION, listQuestion: formatData(data.data) });
+                      setTimeout(() => setLoading(false), 100);
+                    });
                   }}
                   variant="contained"
                   color="warning"
@@ -257,7 +230,7 @@ const QuestionScreen = () => {
               </Grid>
               <Grid item xs={12}>
                 <Typography>
-                  Có <b>{listQuestion.length}</b> kết quả cho "{search.q}"
+                  Có <b>{listQuestion.length}</b> kết quả {qValue !== '' ? `cho "${qValue}"` : ''}
                 </Typography>
               </Grid>
             </Grid>
@@ -272,8 +245,8 @@ const QuestionScreen = () => {
               </Button>
             </Grid>
           </Grid>
+          <ListQuestion arrChapter={arrChapter} subjects={subjects} register={register} errors={errors} />
         </Grid>
-        <ListQuestion arrChapter={arrChapter} subjects={subjects} listQuestion={data} register={register} errors={errors} />
       </Grid>
       <NotificationComponent />
     </>

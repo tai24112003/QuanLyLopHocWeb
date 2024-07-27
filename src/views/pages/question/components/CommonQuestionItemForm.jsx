@@ -37,7 +37,6 @@ import {
   runSetPublicCommon,
   runUpdateCommonQuestion
 } from 'api/question';
-import { runGetSubjectOptions } from 'api/subject';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 import Cookies from 'js-cookie';
@@ -100,17 +99,13 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
   };
 
   useEffect(() => {
-    // console.log(lstSubject);
-    // runGetSubjectOptions().then((data) => {
-    // });
-
     setSubjects(lstSubject);
     setSubjectController(question.subject_id);
     let arr = [];
     arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
     setChapters(arr);
     setChaptersController(question.chapter_id);
-  }, []);
+  }, [lstSubject]);
 
   const onAddQuestion = () => {
     let newData = [...listQuestion];
@@ -238,7 +233,7 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                 type: SET_COMMON_DATA,
                 commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
               });
-            }, 10);
+            }, 500);
             setTimeout(() => showNotification('Lưu thành công!', 'success'), 5);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
@@ -256,9 +251,11 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
       })
         .then((data) => {
           if (data.success) {
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
-            dispatch({ type: SET_OBJ_EDITING, editing: null });
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 100);
+            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
+            setTimeout(() => {
+              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+              dispatch({ type: SET_OBJ_EDITING, editing: null });
+            }, 500);
           } else {
             setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
           }
@@ -272,13 +269,13 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid container xs={12} sx={{ overflowX: 'scroll' }}>
         <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
-            <Grid container>
+            <Grid container gap={1}>
               <Grid item xs={11} mb={1}>
-                <Grid container>
-                  <Grid item xs={12} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                <Grid container gap={1}>
+                  <Grid item xs={12} md={12} lg={6} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b> Môn:</b>
                       {isEdit ? (
@@ -345,6 +342,10 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                           {chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}
                         </Box>
                       )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={3.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b>Độ khó:</b>
                       {isEdit ? (
                         <>
@@ -380,83 +381,85 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                           Chưa dùng
                         </Box>
                       )}
-                      {question.authorId == user.id ? (
-                        question.shared !== null ? (
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              runSetPrivateCommon(question.id)
-                                .then((data) => {
-                                  if (data.success) {
-                                    setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                    setTimeout(() => {
-                                      let newData = [...listQuestion];
-                                      newData = newData.map((item) => {
-                                        if (item.id === question.id && item.type_id === question.type_id) {
-                                          return { ...item, shared: null };
-                                        }
-                                        return { ...item };
-                                      });
-                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-                                    }, 20);
-                                  } else {
-                                    showNotification('Công khai không thành công', 'error');
-                                  }
-                                })
-                                .catch((e) => {
-                                  showNotification('Công khai không thành công', 'error');
-                                });
-                            }}
-                            variant="contained"
-                            size="small"
-                          >
-                            Thu hồi
-                          </Button>
-                        ) : (
-                          <Button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              runSetPublicCommon(question.id)
-                                .then((data) => {
-                                  if (data.success) {
-                                    setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                    setTimeout(() => {
-                                      let newData = [...listQuestion];
-                                      newData = newData.map((item) => {
-                                        if (item.id === question.id && item.type_id === question.type_id) {
-                                          return { ...item, shared: 1 };
-                                        }
-                                        return { ...item };
-                                      });
-                                      dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-                                    }, 20);
-                                  } else {
-                                    showNotification('Công khai không thành công', 'error');
-                                  }
-                                })
-                                .catch((e) => {
-                                  showNotification('Công khai không thành công', 'error');
-                                });
-                            }}
-                            variant="contained"
-                            size="small"
-                          >
-                            Mở Công khai
-                          </Button>
-                        )
-                      ) : (
-                        <>
-                          <b>Chủ sở hữu:</b>
-                          <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                            {question.author?.name ?? ''}
-                          </Box>
-                        </>
-                      )}
                     </Box>
+                  </Grid>
+                  <Grid item xs={12} md={12} lg={2}>
+                    {question.authorId == user.id ? (
+                      question.shared !== null ? (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            runSetPrivateCommon(question.id)
+                              .then((data) => {
+                                if (data.success) {
+                                  setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
+                                  setTimeout(() => {
+                                    let newData = [...listQuestion];
+                                    newData = newData.map((item) => {
+                                      if (item.id === question.id && item.type_id === question.type_id) {
+                                        return { ...item, shared: null };
+                                      }
+                                      return { ...item };
+                                    });
+                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                  }, 20);
+                                } else {
+                                  showNotification('Công khai không thành công', 'error');
+                                }
+                              })
+                              .catch((e) => {
+                                showNotification('Công khai không thành công', 'error');
+                              });
+                          }}
+                          variant="contained"
+                          size="small"
+                        >
+                          Thu hồi
+                        </Button>
+                      ) : (
+                        <Button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            runSetPublicCommon(question.id)
+                              .then((data) => {
+                                if (data.success) {
+                                  setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
+                                  setTimeout(() => {
+                                    let newData = [...listQuestion];
+                                    newData = newData.map((item) => {
+                                      if (item.id === question.id && item.type_id === question.type_id) {
+                                        return { ...item, shared: 1 };
+                                      }
+                                      return { ...item };
+                                    });
+                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                  }, 20);
+                                } else {
+                                  showNotification('Công khai không thành công', 'error');
+                                }
+                              })
+                              .catch((e) => {
+                                showNotification('Công khai không thành công', 'error');
+                              });
+                          }}
+                          variant="contained"
+                          size="small"
+                        >
+                          Mở Công khai
+                        </Button>
+                      )
+                    ) : (
+                      <>
+                        <b>Chủ sở hữu:</b>
+                        <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
+                          {question.author?.name ?? ''}
+                        </Box>
+                      </>
+                    )}
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={9.8}>
+              <Grid item xs={12} md={12} lg={9.8}>
                 <CKEditor
                   disabled={!isEdit}
                   id={generateId()}
@@ -532,41 +535,38 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                   }}
                 />
               </Grid>
-              <Grid item xs={0.1}></Grid>
-              <Grid item xs={1.6} margin="0px 20px">
+              <Grid container gap={1} xs={4} md={12} lg={1.6} margin="0px 0px">
                 {isEdit ? (
-                  <>
+                  <Grid xs={12} md={3.8} lg={5}>
                     <Button onClick={onChangeModeView} variant="contained" color="success">
                       Lưu
                     </Button>
-                  </>
+                  </Grid>
                 ) : editing === null ? (
                   <>
-                    <Grid container spacing={1}>
-                      <Grid item xs={6}>
-                        <Button
-                          sx={{ width: '100%' }}
-                          disabled={!question.canRemove || question.authorId !== user.id}
-                          onClick={onChangeModeEdit}
-                          variant="contained"
-                          color="warning"
-                        >
-                          Sửa
-                        </Button>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Button
-                          disabled={!question.canRemove || question.authorId !== user.id}
-                          sx={{ width: '100%' }}
-                          onClick={handleClickOpen}
-                          variant="contained"
-                          color="error"
-                        >
-                          Xóa
-                        </Button>
-                      </Grid>
+                    <Grid item xs={12} md={3.8} lg={5}>
+                      <Button
+                        sx={{ width: '100%' }}
+                        disabled={!question.canRemove || question.authorId !== user.id}
+                        onClick={onChangeModeEdit}
+                        variant="contained"
+                        color="warning"
+                      >
+                        Sửa
+                      </Button>
                     </Grid>
-                    <Grid item mt={1} xs={12}>
+                    <Grid item xs={12} md={3.8} lg={5}>
+                      <Button
+                        disabled={!question.canRemove || question.authorId !== user.id}
+                        sx={{ width: '100%' }}
+                        onClick={handleClickOpen}
+                        variant="contained"
+                        color="error"
+                      >
+                        Xóa
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} md={3.8} lg={11}>
                       <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
                         Copy
                       </Button>
