@@ -35,10 +35,9 @@ import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 import Cookies from 'js-cookie';
 
-const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
+const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
-  const [questionSelected, setQuestionSelected] = useState();
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [chaptersController, setChaptersController] = useState(-1);
@@ -67,19 +66,25 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
   let isEdit = question.id == editing?.id && question.type_id == editing?.type_id;
 
   useEffect(() => {
-    // runGetSubjectOptions().then((data) => {});
     setSubjects(lstSubject);
-    setSubjectController(question.subject_id);
-    let arr = [];
-    arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
-    setChapters(arr);
-    setChaptersController(question.chapter_id);
+    if (!chapters) {
+      let arr = [];
+      arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
+      setChapters(arr);
+    }
     content.current = question?.content;
     if (parentQuestion) {
       setChoiceController(parentQuestion.questions.find((item) => item.id === question.id)?.choices);
       setChaptersController(parentQuestion.questions.find((item) => item.id === question.id)?.chapter_id);
       content.current = parentQuestion.questions.find((item) => item.id === question.id)?.content;
     }
+  }, [lstSubject]);
+  useEffect(() => {
+    let arr = [];
+    arr = lstSubject?.find((item) => item.id === question.subject_id)?.Chapters;
+    setChapters(arr);
+    setSubjectController(question.subject_id);
+    setChaptersController(question.chapter_id);
   }, []);
 
   const addChoice = () => {
@@ -424,10 +429,10 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
 
   return (
     <>
-      <Grid item xs={12}>
+      <Grid container xs={12} sx={{ overflowX: 'scroll' }}>
         <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
-            <Grid container>
+            <Grid container gap={1}>
               {question.type_id === 2 ? (
                 <Grid item xs={11} mb={1}>
                   <Grid container>
@@ -612,7 +617,7 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
               ) : (
                 <Grid item xs={6} />
               )}
-              <Grid item xs={9.8}>
+              <Grid item xs={12} md={12} lg={9.8}>
                 <CKEditor
                   disabled={!isEdit}
                   id={generateId()}
@@ -688,8 +693,7 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
                   }}
                 />
               </Grid>
-              <Grid item xs={0.1}></Grid>
-              <Grid item xs={1.6} margin="0px 20px">
+              <Grid item xs={4} md={12} lg={1.6} margin="0px 0px" container gap={1}>
                 {isEdit ? (
                   <>
                     <Button onClick={onChangeModeView} variant="contained" color="success">
@@ -698,34 +702,32 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
                   </>
                 ) : editing === null ? (
                   <>
-                    <Grid container spacing={1}>
-                      <Grid item xs={6}>
-                        <Button
-                          sx={{ width: '100%' }}
-                          disabled={!question.canRemove || question.authorId !== user.id}
-                          onClick={onChangeModeEdit}
-                          variant="contained"
-                          color="warning"
-                        >
-                          Sửa
-                        </Button>
-                      </Grid>
-                      <Grid item xs={6}>
-                        <Button
-                          disabled={!question.canRemove || question.authorId !== user.id}
-                          sx={{ width: '100%' }}
-                          onClick={(e) => {
-                            handleClickOpen(e);
-                          }}
-                          variant="contained"
-                          color="error"
-                        >
-                          Xóa
-                        </Button>
-                      </Grid>
+                    <Grid item xs={12} md={3.8} lg={5}>
+                      <Button
+                        sx={{ width: '100%' }}
+                        disabled={!question.canRemove || question.authorId !== user.id}
+                        onClick={onChangeModeEdit}
+                        variant="contained"
+                        color="warning"
+                      >
+                        Sửa
+                      </Button>
+                    </Grid>
+                    <Grid item xs={12} md={3.8} lg={5}>
+                      <Button
+                        disabled={!question.canRemove || question.authorId !== user.id}
+                        sx={{ width: '100%' }}
+                        onClick={(e) => {
+                          handleClickOpen(e);
+                        }}
+                        variant="contained"
+                        color="error"
+                      >
+                        Xóa
+                      </Button>
                     </Grid>
                     {!parentQuestion && (
-                      <Grid item mt={1} xs={12}>
+                      <Grid item xs={12} md={3.8} lg={11}>
                         <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
                           Copy
                         </Button>
@@ -808,6 +810,6 @@ const QuestionItemForm = ({ question, parentQuestion, lstSubject }) => {
       </Grid>
     </>
   );
-};
+});
 
 export default QuestionItemForm;

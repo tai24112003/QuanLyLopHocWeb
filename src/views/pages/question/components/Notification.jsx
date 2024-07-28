@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Snackbar } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
 
@@ -27,7 +27,7 @@ const useNotification = () => {
     });
   };
 
-  const NotificationComponent = () => (
+  const NotificationComponent = React.memo(() => (
     <Snackbar
       open={notification.open}
       autoHideDuration={2000}
@@ -38,7 +38,7 @@ const useNotification = () => {
         {notification.message}
       </MuiAlert>
     </Snackbar>
-  );
+  ));
 
   return {
     showNotification,

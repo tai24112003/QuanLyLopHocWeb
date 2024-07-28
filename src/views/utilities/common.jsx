@@ -27,4 +27,38 @@ const isEmailValid = (email) => {
   return emailRegex.test(email);
 };
 
-export { scrollToCenter, flattenArray, isPhoneNumberValid, isEmailValid };
+const formatData = (data) => {
+  return data?.reduce((result, question) => {
+    question.isEditing = false;
+    let isCommon = question.type_id === 1;
+    if (isCommon) {
+      let isExits = result.find((item) => item.id === question.common_content_id && item.type_id === 1);
+      if (isExits) {
+        isExits.questions.push(question);
+      } else {
+        let commonQuestion = {
+          id: question.common_content_id,
+          content: question.common_content,
+          type_id: 1,
+          chapter_id: question.chapter_id,
+          difficulty: question.difficulty,
+          subject_id: question.subject_id,
+          choices: [],
+          questions: [],
+          canRemove: question.canRemove,
+          authorId: question.authorId,
+          shared: question.shared,
+          author: question.author
+        };
+        commonQuestion.questions.push(question);
+        result.push(commonQuestion);
+      }
+    } else {
+      result.push(question);
+    }
+
+    return result;
+  }, []);
+};
+
+export { scrollToCenter, flattenArray, isPhoneNumberValid, isEmailValid, formatData };
