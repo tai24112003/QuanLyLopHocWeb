@@ -9,15 +9,17 @@ import DialogTitle from '@mui/material/DialogTitle';
 const ConfirmationDialog = ({ open, handleClose, handleConfirm }) => {
   return (
     <Dialog open={open} onClose={handleClose} aria-labelledby="alert-dialog-title" aria-describedby="alert-dialog-description">
-      <DialogTitle id="alert-dialog-title">{'Xác nhận xóa'}</DialogTitle>
+      <DialogTitle id="alert-dialog-title">
+        <span style={{ fontSize: 15 }}>{'Xác nhận xóa'}</span>
+      </DialogTitle>
       <DialogContent>
         <DialogContentText id="alert-dialog-description">Bạn chắc chắn muốn xóa?</DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="primary">
+        <Button onClick={handleClose} size="small" color="primary">
           Không
         </Button>
-        <Button onClick={handleConfirm} color="error" autoFocus>
+        <Button onClick={handleConfirm} size="small" color="error" autoFocus>
           Xóa
         </Button>
       </DialogActions>

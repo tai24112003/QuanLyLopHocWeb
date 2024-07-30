@@ -30,6 +30,7 @@ import VisibilityOff from '@mui/icons-material/VisibilityOff';
 
 import Google from 'assets/images/icons/social-google.svg';
 import { login } from 'api/auth';
+import config from 'config';
 
 // ============================|| FIREBASE - LOGIN ||============================ //
 
@@ -52,7 +53,7 @@ const AuthLogin = ({ ...others }) => {
       login(values)
         .then((data) => {
           Cookies.set('asset_token', data.data.token, { expires: 7 });
-          window.location.href = '/';
+          window.location.href = config.defaultPath;
         })
         .catch((e) => {
           setErrors({ submit: e.response.data.error });

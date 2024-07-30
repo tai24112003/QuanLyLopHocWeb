@@ -5,8 +5,24 @@ import Grid from '@mui/material/Grid';
 
 import 'ckeditor5/ckeditor5.css';
 import 'ckeditor5-premium-features/ckeditor5-premium-features.css';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, MenuItem, Select, TextField, Typography } from '@mui/material';
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Button,
+  MenuItem,
+  Select,
+  TextField,
+  Tooltip,
+  Typography
+} from '@mui/material';
 import { ExpandMore } from '@mui/icons-material';
+import BorderColorRoundedIcon from '@mui/icons-material/BorderColorRounded';
+import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
+import ContentCopyRoundedIcon from '@mui/icons-material/ContentCopyRounded';
+import SaveIcon from '@mui/icons-material/Save';
+import ShareRoundedIcon from '@mui/icons-material/ShareRounded';
 import { CKEditor } from '@ckeditor/ckeditor5-react';
 import {
   Bold,
@@ -28,7 +44,6 @@ import generateId from 'utils/generate-id';
 import QuestionItemForm from './QuestionItemForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
-import useNotification from './Notification';
 import {
   runAddCommonQuestion,
   runCopyCommonQuestion,
@@ -43,17 +58,15 @@ import Cookies from 'js-cookie';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
-const CommonQuestionItemForm = ({ question, lstSubject }) => {
+const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [open, setOpen] = useState(false);
-
   const thisRef = useRef();
   const [chaptersController, setChaptersController] = useState(-1);
   const [subjectController, setSubjectController] = useState(-1);
   const [diffController, setDiffController] = useState(1);
   const dispatch = useDispatch();
-  const { showNotification, NotificationComponent } = useNotification();
   const content = useRef(question?.content);
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
@@ -87,10 +100,8 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
       if (data.success) {
         if (data.success) {
           showNotification('Đã xóa thành công', 'success');
-          setTimeout(() => {
-            newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
-            dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-          }, 2000);
+          newData = newData.filter((item) => !(item.type_id === question.type_id && item.id === question.id));
+          dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
         } else {
           showNotification('Xóa không thành công', 'error');
         }
@@ -140,6 +151,7 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
 
   const onChangeModeEdit = (e) => {
     e.stopPropagation();
+    thisRef.current.style.border = '1px solid blue';
     dispatch({ type: SET_OBJ_EDITING, editing: { id: question.id, type_id: question.type_id } });
   };
 
@@ -163,9 +175,10 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
             ...dataMap
           ]
         });
+        showNotification('Sao chép thành công', 'success');
         setTimeout(() => {
-          showNotification('Sao chép thành công', 'success'), scrollToCenter(`${newData.id}-${newData.type_id}`);
-        }, 100);
+          scrollToCenter(`${newData.id}-${newData.type_id}`);
+        }, 0);
       }
     });
   };
@@ -212,35 +225,34 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
       })
         .then((data) => {
           if (data.success) {
-            setTimeout(() => {
-              dataMap = listQuestion.map((item) => {
-                if (item.id === question.id)
-                  return {
-                    ...item,
-                    id: data.data[0].id,
-                    subject_id: subjectController,
-                    chapter_id: chaptersController,
-                    difficulty: diffController,
-                    content: content.current
-                  };
+            dataMap = listQuestion.map((item) => {
+              if (item.id === question.id)
                 return {
-                  ...item
+                  ...item,
+                  id: data.data[0].id,
+                  subject_id: subjectController,
+                  chapter_id: chaptersController,
+                  difficulty: diffController,
+                  content: content.current
                 };
-              });
-              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
-              dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 1 } });
-              dispatch({
-                type: SET_COMMON_DATA,
-                commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
-              });
-            }, 500);
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 5);
+              return {
+                ...item
+              };
+            });
+            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+            dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 1 } });
+            dispatch({
+              type: SET_COMMON_DATA,
+              commonData: { id: data.data[0].id, chapter_id: chaptersController, difficulty: diffController }
+            });
+
+            showNotification('Lưu thành công!', 'success');
           } else {
-            setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
+            showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error');
           }
         })
         .catch((e) => {
-          setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
+          showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error');
         });
     } else {
       runUpdateCommonQuestion({
@@ -251,31 +263,36 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
       })
         .then((data) => {
           if (data.success) {
-            setTimeout(() => showNotification('Lưu thành công!', 'success'), 0);
-            setTimeout(() => {
-              dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
-              dispatch({ type: SET_OBJ_EDITING, editing: null });
-            }, 500);
+            showNotification('Lưu thành công!', 'success');
+            dispatch({ type: SET_LIST_QUESTION, listQuestion: dataMap });
+            dispatch({ type: SET_OBJ_EDITING, editing: null });
           } else {
-            setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
+            showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error');
           }
         })
         .catch((e) => {
-          setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
+          showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error');
         });
     }
     thisRef.current.style.border = 'none';
   };
 
   return (
-    <>
-      <Grid container xs={12} sx={{ overflowX: 'scroll' }}>
-        <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
+    <Grid item xs={12}>
+      <Grid container sx={{ width: '100%' }}>
+        <Accordion
+          sx={{
+            border: isEdit ? '1px solid blue' : 'none',
+            width: '100%'
+          }}
+          id={`${question.id}-${question.type_id}`}
+          ref={thisRef}
+        >
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
-            <Grid container gap={1}>
-              <Grid item xs={11} mb={1}>
-                <Grid container gap={1}>
-                  <Grid item xs={12} md={12} lg={6} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+            <Grid container spacing={1}>
+              <Grid item xs={7} md={8} lg={9} mb={1}>
+                <Grid container spacing={1}>
+                  <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b> Môn:</b>
                       {isEdit ? (
@@ -310,10 +327,29 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                           <Box mx={2}></Box>
                         </>
                       ) : (
-                        <Box bgcolor="#2196f3" ml={0.5} mr={1.5} px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                          {subjects.find((item) => item.id === question.subject_id)?.name ?? ''}
-                        </Box>
+                        <Tooltip title={subjects.find((item) => item.id === question.subject_id)?.name ?? ''}>
+                          <Box
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                            bgcolor="#4673fe"
+                            ml={0.5}
+                            mr={1.5}
+                            px={1}
+                            borderRadius={5}
+                            textAlign={'center'}
+                            color={'#ffff'}
+                          >
+                            {subjects.find((item) => item.id === question.subject_id)?.name ?? ''}
+                          </Box>
+                        </Tooltip>
                       )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b> Chương:</b>
                       {isEdit ? (
                         <>
@@ -338,18 +374,32 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                           <Box mx={2}></Box>
                         </>
                       ) : (
-                        <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
-                          {chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}
-                        </Box>
+                        <Tooltip title={chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}>
+                          <Box
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                            ml={0.5}
+                            mr={1.5}
+                            bgcolor="#00e676"
+                            px={1}
+                            borderRadius={5}
+                            textAlign={'center'}
+                            color={'#ffff'}
+                          >
+                            {chapters?.find((item) => item.id === question.chapter_id)?.name ?? ''}
+                          </Box>
+                        </Tooltip>
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={12} lg={3.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                  <Grid item xs={12} md={5.5} lg={2.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b>Độ khó:</b>
                       {isEdit ? (
                         <>
-                          <Box mx={0.5}></Box>
                           <Select
                             style={{ height: '25px', overflow: 'hidden' }}
                             size="small"
@@ -371,95 +421,199 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                           {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'Trung bình' : 'Khó'}
                         </Box>
                       )}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b>Trạng thái:</b>
                       {!question.canRemove ? (
-                        <Box ml={0.5} mr={1.5} bgcolor="#f44336" px={1} borderRadius={5} textAlign={'center'} color={'#fff'}>
-                          Đã được dùng
-                        </Box>
+                        <Tooltip title="Đã được dùng">
+                          <Box
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                            ml={0.5}
+                            mr={1.5}
+                            bgcolor="#f44336"
+                            px={0.5}
+                            borderRadius={5}
+                            textAlign={'center'}
+                            color={'#fff'}
+                          >
+                            Đã được dùng
+                          </Box>
+                        </Tooltip>
                       ) : (
-                        <Box ml={0.5} mr={1.5} bgcolor="#e0e0e0" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
-                          Chưa dùng
-                        </Box>
+                        <Tooltip title="Chưa dùng">
+                          <Box
+                            style={{
+                              overflow: 'hidden',
+                              textOverflow: 'ellipsis',
+                              whiteSpace: 'nowrap'
+                            }}
+                            ml={0.5}
+                            mr={1.5}
+                            bgcolor="#e0e0e0"
+                            px={0.5}
+                            borderRadius={5}
+                            textAlign={'center'}
+                            color={'#000000'}
+                          >
+                            Chưa dùng
+                          </Box>
+                        </Tooltip>
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={12} lg={2}>
-                    {question.authorId == user.id ? (
-                      question.shared !== null ? (
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            runSetPrivateCommon(question.id)
-                              .then((data) => {
-                                if (data.success) {
-                                  setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                  setTimeout(() => {
-                                    let newData = [...listQuestion];
-                                    newData = newData.map((item) => {
-                                      if (item.id === question.id && item.type_id === question.type_id) {
-                                        return { ...item, shared: null };
-                                      }
-                                      return { ...item };
-                                    });
-                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-                                  }, 20);
-                                } else {
-                                  showNotification('Công khai không thành công', 'error');
-                                }
-                              })
-                              .catch((e) => {
-                                showNotification('Công khai không thành công', 'error');
-                              });
+                  <Grid item xs={12} md={12} lg={5}>
+                    {question.authorId !== user.id && (
+                      <Box width="100%" display="flex" flexDirection="row" alignItems="center">
+                        <b>Tác giả:</b>
+                        <Box
+                          style={{
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
                           }}
-                          variant="contained"
-                          size="small"
+                          ml={0.5}
+                          bgcolor="#00e676"
+                          px={1}
+                          borderRadius={5}
+                          textAlign="center"
+                          color="#fff"
                         >
-                          Thu hồi
-                        </Button>
-                      ) : (
-                        <Button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            runSetPublicCommon(question.id)
-                              .then((data) => {
-                                if (data.success) {
-                                  setTimeout(() => showNotification('Đã công khai câu hỏi', 'success'), 10);
-                                  setTimeout(() => {
-                                    let newData = [...listQuestion];
-                                    newData = newData.map((item) => {
-                                      if (item.id === question.id && item.type_id === question.type_id) {
-                                        return { ...item, shared: 1 };
-                                      }
-                                      return { ...item };
-                                    });
-                                    dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
-                                  }, 20);
-                                } else {
-                                  showNotification('Công khai không thành công', 'error');
-                                }
-                              })
-                              .catch((e) => {
-                                showNotification('Công khai không thành công', 'error');
-                              });
-                          }}
-                          variant="contained"
-                          size="small"
-                        >
-                          Mở Công khai
-                        </Button>
-                      )
-                    ) : (
-                      <>
-                        <b>Chủ sở hữu:</b>
-                        <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
                           {question.author?.name ?? ''}
                         </Box>
-                      </>
+                      </Box>
                     )}
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={12} md={12} lg={9.8}>
+              <Grid item xs={5} md={4} lg={3} sx={{ display: 'flex', alignItems: 'start' }}>
+                <Grid container>
+                  {isEdit ? (
+                    <Grid item sx={{ display: 'flex', alignItems: 'end', justifyContent: 'flex-end' }} xs={12}>
+                      <Tooltip title="Lưu">
+                        <Button onClick={onChangeModeView} variant="contained" color="success">
+                          <SaveIcon />
+                        </Button>
+                      </Tooltip>
+                    </Grid>
+                  ) : editing === null ? (
+                    <>
+                      <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        {question.authorId == user.id ? (
+                          question.shared !== null ? (
+                            <Tooltip title="Thu hồi câu hỏi">
+                              <Button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runSetPrivateCommon(question.id)
+                                    .then((data) => {
+                                      if (data.success) {
+                                        showNotification('Đã đặt câu hỏi sang riêng tư', 'success');
+                                        let newData = [...listQuestion];
+                                        newData = newData.map((item) => {
+                                          if (item.id === question.id && item.type_id === question.type_id) {
+                                            return { ...item, shared: null };
+                                          }
+                                          return { ...item };
+                                        });
+                                        dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      } else {
+                                        showNotification('Công khai không thành công', 'error');
+                                      }
+                                    })
+                                    .catch((e) => {
+                                      showNotification('Công khai không thành công', 'error');
+                                    });
+                                }}
+                                size="small"
+                              >
+                                <ShareRoundedIcon />
+                              </Button>
+                            </Tooltip>
+                          ) : (
+                            <Tooltip title="Chia sẻ câu hỏi">
+                              <Button
+                                variant="contained"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  runSetPublicCommon(question.id)
+                                    .then((data) => {
+                                      if (data.success) {
+                                        showNotification('Đã công khai câu hỏi', 'success');
+                                        let newData = [...listQuestion];
+                                        newData = newData.map((item) => {
+                                          if (item.id === question.id && item.type_id === question.type_id) {
+                                            return { ...item, shared: 1 };
+                                          }
+                                          return { ...item };
+                                        });
+                                        dispatch({ type: SET_LIST_QUESTION, listQuestion: newData });
+                                      } else {
+                                        showNotification('Công khai không thành công', 'error');
+                                      }
+                                    })
+                                    .catch((e) => {
+                                      showNotification('Công khai không thành công', 'error');
+                                    });
+                                }}
+                                size="small"
+                              >
+                                <ShareRoundedIcon />
+                              </Button>
+                            </Tooltip>
+                          )
+                        ) : (
+                          <Button disabled size="small">
+                            <ShareRoundedIcon />
+                          </Button>
+                        )}
+                      </Grid>
+                      <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip title="Chỉnh sửa">
+                          <div>
+                            <Button
+                              disabled={!question.canRemove || question.authorId !== user.id}
+                              onClick={onChangeModeEdit}
+                              sx={{ maxWidth: '100%' }}
+                              color="primary"
+                            >
+                              <BorderColorRoundedIcon />
+                            </Button>
+                          </div>
+                        </Tooltip>
+                      </Grid>
+                      <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip title="Sao chép câu hỏi">
+                          <Button onClick={onCopy} color="primary">
+                            <ContentCopyRoundedIcon />
+                          </Button>
+                        </Tooltip>
+                      </Grid>
+                      <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Tooltip title="Xóa">
+                          <div>
+                            <Button disabled={!question.canRemove || question.authorId !== user.id} onClick={handleClickOpen} color="error">
+                              <DeleteForeverRoundedIcon />
+                            </Button>
+                          </div>
+                        </Tooltip>
+                      </Grid>
+                    </>
+                  ) : (
+                    <Grid item sx={{ display: 'flex', alignItems: 'end', justifyContent: 'flex-end' }} xs={12}>
+                      <Tooltip title="Lưu">
+                        <div></div>
+                      </Tooltip>
+                    </Grid>
+                  )}
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={12} lg={12}>
                 <CKEditor
                   disabled={!isEdit}
                   id={generateId()}
@@ -523,7 +677,7 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                   }}
                   data={content.current}
                   onChange={(event, editor) => {
-                    thisRef.current.style.border = 'none';
+                    thisRef.current.style.border = '1px solid blue';
                     const data = editor.getData();
                     content.current = data;
                   }}
@@ -535,60 +689,19 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
                   }}
                 />
               </Grid>
-              <Grid container gap={1} xs={4} md={12} lg={1.6} margin="0px 0px">
-                {isEdit ? (
-                  <Grid xs={12} md={3.8} lg={5}>
-                    <Button onClick={onChangeModeView} variant="contained" color="success">
-                      Lưu
-                    </Button>
-                  </Grid>
-                ) : editing === null ? (
-                  <>
-                    <Grid item xs={12} md={3.8} lg={5}>
-                      <Button
-                        sx={{ width: '100%' }}
-                        disabled={!question.canRemove || question.authorId !== user.id}
-                        onClick={onChangeModeEdit}
-                        variant="contained"
-                        color="warning"
-                      >
-                        Sửa
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} md={3.8} lg={5}>
-                      <Button
-                        disabled={!question.canRemove || question.authorId !== user.id}
-                        sx={{ width: '100%' }}
-                        onClick={handleClickOpen}
-                        variant="contained"
-                        color="error"
-                      >
-                        Xóa
-                      </Button>
-                    </Grid>
-                    <Grid item xs={12} md={3.8} lg={11}>
-                      <Button sx={{ width: '100%' }} onClick={onCopy} variant="contained" color="success">
-                        Copy
-                      </Button>
-                    </Grid>
-                  </>
-                ) : (
-                  <></>
-                )}
-              </Grid>
             </Grid>
           </AccordionSummary>
           <AccordionDetails>
-            <Grid container spacing={gridSpacing}>
-              <Grid item xs={12} sx={{ marginBottom: -3 }}>
+            <Grid container>
+              <Grid item xs={12}>
                 <Typography>
                   <b>Các câu hỏi:</b>
                 </Typography>
               </Grid>
               {question?.questions?.map((questionItem, index) => (
-                <React.Fragment key={index}>
-                  <QuestionItemForm parentQuestion={question} question={questionItem} />
-                </React.Fragment>
+                <Grid item xs={12} key={questionItem.id + '&' + questionItem.type_id}>
+                  <QuestionItemForm showNotification={showNotification} parentQuestion={question} question={questionItem} />
+                </Grid>
               ))}
               <Grid item xs={12}>
                 {isEdit && question.id > 0 && (
@@ -602,8 +715,7 @@ const CommonQuestionItemForm = ({ question, lstSubject }) => {
         </Accordion>
       </Grid>
       <ConfirmationDialog open={open} handleClose={handleClose} handleConfirm={handleConfirm} />
-      <NotificationComponent />
-    </>
+    </Grid>
   );
 };
 

@@ -15,6 +15,7 @@ import Logo from 'ui-component/Logo';
 import AuthFooter from 'ui-component/cards/AuthFooter';
 import { useEffect } from 'react';
 import { runGetUser } from 'api/auth';
+import config from 'config';
 
 // ================================|| AUTH3 - LOGIN ||================================ //
 
@@ -23,7 +24,7 @@ const Login = () => {
   useEffect(() => {
     runGetUser().then((data) => {
       if (data.status === 'success') {
-        window.location.href = '/';
+        window.location.href = config.defaultPath;
       }
     });
   });
@@ -43,10 +44,10 @@ const Login = () => {
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color="secondary.main" gutterBottom variant={downMD ? 'h3' : 'h2'}>
-                            Hi, Welcome Back
+                            Chào mừng đã quay lại
                           </Typography>
                           <Typography variant="caption" fontSize="16px" textAlign={{ xs: 'center', md: 'inherit' }}>
-                            Enter your credentials to continue
+                            Vui lòng nhập thông tin để đăng nhập
                           </Typography>
                         </Stack>
                       </Grid>
