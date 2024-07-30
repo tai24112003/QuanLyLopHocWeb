@@ -1,22 +1,19 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 // material-ui
 import Grid from '@mui/material/Grid';
+import { Button, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { gridSpacing } from 'store/constant';
 
-import { gapGrid, gridSpacing } from 'store/constant';
-import { useForm, FormProvider } from 'react-hook-form';
-
+// redux
+import { useDispatch, useSelector } from 'react-redux';
 import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
 
 // assets
 import MainCard from 'ui-component/cards/MainCard';
-import { Button, CardActions, CardContent, MenuItem, Select, Snackbar, TextField, Typography } from '@mui/material';
 import { runGetQuestionDatas } from 'api/question';
 import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
-import useNotification from './components/Notification';
-import { useDispatch, useSelector } from 'react-redux';
 import { formatData } from 'views/utilities/common';
 import Loading from 'ui-component/loading/loading';
 
@@ -30,7 +27,6 @@ const QuestionScreen = () => {
   const [diffValue, setDiffValue] = useState(-1);
   const [chapterValue, setChapterValue] = useState(-1);
   const [listChapterValue, setListChapterValue] = useState([]);
-  const methods = useForm();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
   const listQuestion = useSelector((state) => {
@@ -42,14 +38,6 @@ const QuestionScreen = () => {
   const user = useSelector((state) => {
     return state.customization.user;
   });
-
-  const {
-    register,
-    handleSubmit,
-    setValue,
-    formState: { errors }
-  } = methods;
-  const { showNotification, NotificationComponent } = useNotification();
 
   // useEffect(() => {
   //   console.log(listQuestion);
@@ -245,10 +233,9 @@ const QuestionScreen = () => {
               </Button>
             </Grid>
           </Grid>
-          <ListQuestion arrChapter={arrChapter} subjects={subjects} register={register} errors={errors} />
+          <ListQuestion arrChapter={arrChapter} subjects={subjects} />
         </Grid>
       </Grid>
-      <NotificationComponent />
     </>
   );
 };

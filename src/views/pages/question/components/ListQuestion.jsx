@@ -13,24 +13,27 @@ import { Grid } from '@mui/material';
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const ListQuestion = React.memo(({ subjects, arrChapter }) => {
-  const dispatch = useDispatch();
+  const { showNotification, NotificationComponent } = useNotification();
+
   const listQuestion = useSelector((state) => {
     return state.customization.listQuestion;
   });
 
   return (
-    <Grid container xs={12} md={12} lg={12} mt={3} gap={5}>
+    <Grid container mt={3} gap={5}>
       {listQuestion?.map((question) => {
         const Component = question.type_id === 2 ? QuestionItemForm : CommonQuestionItemForm;
         return (
           <Component
-            key={question.id + '' + question.type_id}
+            showNotification={showNotification}
+            key={question.id + ' ' + question.type_id}
             arrChapter={arrChapter[question.subject_id]}
             lstSubject={subjects}
             question={question}
           />
         );
       })}
+      <NotificationComponent />
     </Grid>
   );
 });
