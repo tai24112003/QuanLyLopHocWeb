@@ -19,6 +19,7 @@ import { IconChevronRight, IconTallymark1 } from '@tabler/icons-react';
 import AccountTreeTwoToneIcon from '@mui/icons-material/AccountTreeTwoTone';
 import HomeIcon from '@mui/icons-material/Home';
 import HomeTwoToneIcon from '@mui/icons-material/HomeTwoTone';
+import config from 'config';
 
 // ==============================|| BREADCRUMBS TITLE ||============================== //
 
@@ -193,7 +194,7 @@ const Breadcrumbs = ({
         separator={separatorIcon}
         sx={{ '& .MuiBreadcrumbs-separator': { width: 16, ml: 1.25, mr: 1.25 } }}
       >
-        <Typography component={Link} to="/" color="textSecondary" variant="subtitle1" sx={linkSX}>
+        <Typography component={Link} to={config.defaultPath} color="textSecondary" variant="subtitle1" sx={linkSX}>
           {icons && <HomeTwoToneIcon style={iconSX} />}
           {icon && !icons && <HomeIcon style={{ ...iconSX, marginRight: 0 }} />}
           {(!icon || icons) && 'Dashboard'}

@@ -572,7 +572,16 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         )}
                       </Box>
                     </Grid>
-                    <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Grid
+                      item
+                      xs={12}
+                      md={5.5}
+                      lg={3}
+                      display={{ xs: 'none', md: 'flex' }}
+                      flexDirection="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                         <b>Trạng thái:</b>
                         {!question.canRemove ? (
@@ -616,7 +625,16 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         )}
                       </Box>
                     </Grid>
-                    <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Grid
+                      item
+                      xs={12}
+                      md={5.5}
+                      lg={3}
+                      display={{ xs: 'none', md: 'flex' }}
+                      flexDirection="row"
+                      justifyContent="flex-start"
+                      alignItems="center"
+                    >
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                         {question.authorId !== user.id && (
                           <>
@@ -646,9 +664,9 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                   <>
                     {question.authorId == user.id && question.type_id === 2 ? (
                       <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', alignItems: 'start', justifyContent: 'flex-end' }}>
-                        <Tooltip title="Chia sẻ câu hỏi">
-                          <span>
-                            {question.shared !== null ? (
+                        {question.shared !== null ? (
+                          <Tooltip title="Chia sẻ câu hỏi">
+                            <div>
                               <Button
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -676,7 +694,11 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               >
                                 <ShareRoundedIcon />
                               </Button>
-                            ) : (
+                            </div>
+                          </Tooltip>
+                        ) : (
+                          <Tooltip title="Chia sẻ câu hỏi">
+                            <div>
                               <Button
                                 variant="contained"
                                 onClick={(e) => {
@@ -705,9 +727,9 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               >
                                 <ShareRoundedIcon />
                               </Button>
-                            )}
-                          </span>
-                        </Tooltip>
+                            </div>
+                          </Tooltip>
+                        )}
                       </Grid>
                     ) : (
                       <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', alignItems: 'start', justifyContent: 'flex-end' }}>
@@ -731,11 +753,11 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                     </Grid>
                     <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', alignItems: 'start', justifyContent: 'flex-end' }}>
                       <Tooltip title="Sao chép câu hỏi">
-                        <span>
+                        <div>
                           <Button disabled={!!parentQuestion} onClick={onCopy} color="primary">
                             <ContentCopyRoundedIcon />
                           </Button>
-                        </span>
+                        </div>
                       </Tooltip>
                     </Grid>
                     <Grid item xs={3} md={3} lg={3} sx={{ display: 'flex', alignItems: 'start', justifyContent: 'flex-end' }}>
@@ -845,7 +867,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                 let idF = generateId();
                 return (
                   <React.Fragment key={index}>
-                    <Grid item xs={4} style={{ paddingTop: 10 }}>
+                    <Grid item xs={5} md={5} lg={4} style={{ paddingTop: 10 }}>
                       <TextField
                         size="small"
                         name={idF}
@@ -862,7 +884,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         value={choice.content}
                       ></TextField>
                     </Grid>
-                    <Grid item xs={1.5} style={{ paddingTop: 10 }}>
+                    <Grid item xs={5} md={4} lg={1.5} style={{ paddingTop: 10 }}>
                       <Select
                         size="small"
                         inputProps={{ readOnly: !isEdit }}
@@ -880,14 +902,14 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         <MenuItem value={false}>Sai</MenuItem>
                       </Select>
                     </Grid>
-                    <Grid item xs={1} style={{ paddingTop: 10, display: 'flex', alignItems: 'center' }}>
+                    <Grid item xs={1.3} md={2} lg={6} style={{ paddingTop: 10, display: 'flex', alignItems: 'center' }}>
                       {isEdit && (
                         <Button size="small" onClick={() => onDeleteChoice(choice)} variant="contained" color="error">
                           Xóa
                         </Button>
                       )}
                     </Grid>
-                    <Grid item xs={5.5} md={0} />
+                    <Grid item xs={0.5} md={1} lg={0.5} />
                   </React.Fragment>
                 );
               })}

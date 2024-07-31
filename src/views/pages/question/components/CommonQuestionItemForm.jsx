@@ -423,7 +423,16 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                  <Grid
+                    item
+                    xs={12}
+                    md={5.5}
+                    lg={3}
+                    display={{ xs: 'none', md: 'flex' }}
+                    flexDirection="row"
+                    justifyContent="flex-start"
+                    alignItems="center"
+                  >
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b>Trạng thái:</b>
                       {!question.canRemove ? (
@@ -467,7 +476,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={12} lg={5}>
+                  <Grid item xs={12} md={12} lg={5} display={{ xs: 'none', md: 'flex' }}>
                     {question.authorId !== user.id && (
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                         <b>Tác giả:</b>
