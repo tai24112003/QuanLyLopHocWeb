@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Grid from '@mui/material/Grid';
 import { Button, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
+import AddIcon from '@mui/icons-material/Add';
 
 // redux
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,14 +15,17 @@ import MainCard from 'ui-component/cards/MainCard';
 import { runGetQuestionDatas } from 'api/question';
 import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
-import { formatData } from 'views/utilities/common';
+import { formatData, scrollToCenter } from 'views/utilities/common';
 import Loading from 'ui-component/loading/loading';
+import zIndex from '@mui/material/styles/zIndex';
+import BubbleComponent from './components/BubbleComponent';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 const QuestionScreen = () => {
   const [arrChapter, setArrChapter] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [toggleAdd, setToggleAdd] = useState(0);
   const [qValue, setQValue] = useState('');
   const [subjectValue, setSubjectValue] = useState(-1);
   const [diffValue, setDiffValue] = useState(-1);
@@ -93,6 +97,7 @@ const QuestionScreen = () => {
       ]
     });
     dispatch({ type: SET_OBJ_EDITING, editing: { id: -1, type_id: 2 } });
+    setTimeout(() => scrollToCenter(`${-1}-${2}`), 0);
   };
 
   const onAddCommonQuestion = () => {
@@ -129,6 +134,7 @@ const QuestionScreen = () => {
       ]
     });
     dispatch({ type: SET_OBJ_EDITING, editing: { id: idTmp, type_id: 1 } });
+    setTimeout(() => scrollToCenter(`${idTmp}-${1}`), 0);
   };
   return loading ? (
     <Loading></Loading>
@@ -136,7 +142,7 @@ const QuestionScreen = () => {
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
-          <MainCard>
+          <MainCard sx={{ position: { xs: 'none', md: 'sticky' }, top: 90, zIndex: 99, boxShadow: '4px 4px 10px rgba(0, 0, 0, 0.2)' }}>
             <Grid container spacing={1}>
               <Grid item xs={12} md={12} lg={4.5}>
                 <TextField
@@ -146,6 +152,7 @@ const QuestionScreen = () => {
                   value={qValue}
                   placeholder="Tìm kiếm nội dung câu hỏi"
                   sx={{ width: '100%' }}
+                  size="small"
                 ></TextField>
               </Grid>
               <Grid item xs={6} md={4} lg={2}>
@@ -155,6 +162,7 @@ const QuestionScreen = () => {
                     setListChapterValue(subjects.find((item) => item.id === Number(e.target.value))?.Chapters ?? []);
                   }}
                   value={subjectValue}
+                  size="small"
                   sx={{ width: '100%' }}
                 >
                   <MenuItem value={-1}>Chọn môn</MenuItem>
@@ -170,6 +178,7 @@ const QuestionScreen = () => {
                   onChange={(e) => {
                     setChapterValue(Number(e.target.value));
                   }}
+                  size="small"
                   value={chapterValue}
                   sx={{ width: '100%' }}
                 >
@@ -186,6 +195,7 @@ const QuestionScreen = () => {
                   onChange={(e) => {
                     setDiffValue(Number(e.target.value));
                   }}
+                  size="small"
                   value={diffValue}
                   sx={{ width: '100%' }}
                 >
@@ -224,14 +234,49 @@ const QuestionScreen = () => {
             </Grid>
           </MainCard>
           <Grid container>
-            <Grid item xs={12} sx={{ marginBottom: -3, paddingRight: 0, display: 'flex', justifyContent: 'end', alignItems: 'end' }}>
-              <Button variant="contained" onClick={onAddQuestion} sx={{ margin: '10px 0px', marginRight: '10px' }}>
-                Thêm câu hỏi
-              </Button>
-              <Button variant="contained" onClick={onAddCommonQuestion} sx={{ margin: '10px 0px' }}>
-                Thêm câu hỏi chung
-              </Button>
-            </Grid>
+            <BubbleComponent>
+              <Grid container sx={{ position: 'relative' }}>
+                <Grid
+                  item
+                  xs={12}
+                  sx={{
+                    transition: 'all .5s ease',
+                    position: 'absolute',
+                    bottom: toggleAdd,
+                    opacity: toggleAdd,
+                    width: '100%',
+                    left: 0
+                  }}
+                >
+                  <Button disabled={toggleAdd == 0} sx={{ padding: '0 10px', width: '100%' }} variant="contained" onClick={onAddQuestion}>
+                    <AddIcon /> Đơn
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                  <Button
+                    variant="contained"
+                    color="secondary"
+                    onClick={(e) => (toggleAdd == 0 ? setToggleAdd(80) : setToggleAdd(0))}
+                    sx={{ borderRadius: '100%', height: 64, width: 50, padding: 0, position: 'relative', zIndex: 99999 }}
+                  >
+                    <AddIcon />
+                  </Button>
+                </Grid>
+                <Grid
+                  sx={{
+                    transition: 'all .5s ease',
+                    position: 'absolute',
+                    top: toggleAdd,
+                    left: 0,
+                    opacity: toggleAdd
+                  }}
+                >
+                  <Button disabled={toggleAdd == 0} sx={{ padding: '0 10px' }} variant="contained" onClick={onAddCommonQuestion}>
+                    <AddIcon /> chung
+                  </Button>
+                </Grid>
+              </Grid>
+            </BubbleComponent>
           </Grid>
           <ListQuestion arrChapter={arrChapter} subjects={subjects} />
         </Grid>

@@ -16,7 +16,7 @@ const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
 const AccountListScreen = Loadable(lazy(() => import('views/pages/account-list')));
 const SubjectChapterScreen = Loadable(lazy(() => import('views/pages/subject-chapter')));
-const NotFound = Loadable(lazy(() => import('views/notfound')));
+const NotFound = Loadable(lazy(() => import('views/NotFound')));
 
 // utilities routing
 const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
