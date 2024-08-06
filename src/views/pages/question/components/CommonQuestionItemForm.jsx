@@ -39,7 +39,6 @@ import {
   Paragraph,
   SimpleUploadAdapter
 } from 'ckeditor5';
-import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
 import QuestionItemForm from './QuestionItemForm';
 import { useDispatch, useSelector } from 'react-redux';
@@ -118,6 +117,11 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
     setChaptersController(question.chapter_id);
   }, [lstSubject]);
 
+  useEffect(() => {
+    if (isEdit) thisRef.current.style.border = '1px solid blue';
+    else thisRef.current.style.border = 'none';
+  }, [editing]);
+
   const onAddQuestion = () => {
     let newData = [...listQuestion];
     const id = Date.now() * -1;
@@ -132,8 +136,6 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
               content: '',
               chapter_id: question.chapter_id,
               difficulty: question.difficulty,
-              isEditing: true,
-              hideEdit: false,
               authorId: user.id,
               canRemove: true,
               type_id: 1,
@@ -187,7 +189,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
     e.stopPropagation();
     if (subjectController === -1) {
       thisRef.current.style.border = '1px solid red';
-      showNotification('Vui lòng chọn môn!', 'error');
+      showNotification('Vui lòng chọn Chủ đề!', 'error');
       return;
     }
     if (chaptersController === -1 || diffController === -1) {
@@ -280,21 +282,14 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
   return (
     <Grid item xs={12}>
       <Grid container sx={{ width: '100%' }}>
-        <Accordion
-          sx={{
-            border: isEdit ? '1px solid blue' : 'none',
-            width: '100%'
-          }}
-          id={`${question.id}-${question.type_id}`}
-          ref={thisRef}
-        >
+        <Accordion id={`${question.id}-${question.type_id}`} ref={thisRef}>
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container spacing={1}>
-              <Grid item xs={7} md={8} lg={9} mb={1}>
+              <Grid item xs={7} md={8} lg={9.5} mb={1}>
                 <Grid container spacing={1}>
-                  <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                  <Grid item xs={12} md={5.5} lg={4} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
-                      <b> Môn:</b>
+                      <b>Chủ đề:</b>
                       {isEdit ? (
                         <>
                           <Box mx={0.5}></Box>
@@ -317,7 +312,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                             }}
                             value={subjectController}
                           >
-                            <MenuItem value={-1}>Chọn Môn</MenuItem>
+                            <MenuItem value={-1}>Chọn Chủ đề</MenuItem>
                             {subjects?.map((subject, index) => (
                               <MenuItem key={index} value={subject.id}>
                                 {subject.name}
@@ -334,7 +329,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                               textOverflow: 'ellipsis',
                               whiteSpace: 'nowrap'
                             }}
-                            bgcolor="#4673fe"
+                            sx={{ bgcolor: 'primary.main' }}
                             ml={0.5}
                             mr={1.5}
                             px={1}
@@ -395,7 +390,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                       )}
                     </Box>
                   </Grid>
-                  <Grid item xs={12} md={5.5} lg={2.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                  <Grid item xs={12} md={5.5} lg={1.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                       <b>Độ khó:</b>
                       {isEdit ? (
@@ -418,7 +413,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                         </>
                       ) : (
                         <Box ml={0.5} mr={1.5} bgcolor="#ffe57f" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
-                          {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'Trung bình' : 'Khó'}
+                          {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'TB' : 'Khó'}
                         </Box>
                       )}
                     </Box>
@@ -500,7 +495,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                   </Grid>
                 </Grid>
               </Grid>
-              <Grid item xs={5} md={4} lg={3} sx={{ display: 'flex', alignItems: 'start' }}>
+              <Grid item xs={5} md={4} lg={2.5} sx={{ display: 'flex', alignItems: 'start' }}>
                 <Grid container>
                   {isEdit ? (
                     <Grid item sx={{ display: 'flex', alignItems: 'end', justifyContent: 'flex-end' }} xs={12}>
@@ -622,7 +617,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                   )}
                 </Grid>
               </Grid>
-              <Grid item xs={12} md={12} lg={12}>
+              <Grid className={isEdit ? '' : 'none-edit'} item xs={12} md={12} lg={12}>
                 <CKEditor
                   disabled={!isEdit}
                   id={generateId()}
@@ -642,7 +637,7 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
                       SimpleUploadAdapter,
                       List
                     ],
-                    toolbar: ['undo', 'redo', '|', 'bold', 'italic', 'bulletedList', 'numberedList', '|', 'imageUpload'],
+                    toolbar: isEdit ? ['undo', 'redo', '|', 'bold', 'italic', 'bulletedList', 'numberedList', '|', 'imageUpload'] : [],
                     simpleUpload: {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {
@@ -702,13 +697,13 @@ const CommonQuestionItemForm = ({ question, lstSubject, showNotification }) => {
           </AccordionSummary>
           <AccordionDetails>
             <Grid container>
-              <Grid item xs={12}>
+              <Grid item xs={12} mb={3}>
                 <Typography>
                   <b>Các câu hỏi:</b>
                 </Typography>
               </Grid>
               {question?.questions?.map((questionItem, index) => (
-                <Grid item xs={12} key={questionItem.id + '&' + questionItem.type_id}>
+                <Grid mb={3} className="child-question" item xs={12} key={questionItem.id + '&' + questionItem.type_id}>
                   <QuestionItemForm showNotification={showNotification} parentQuestion={question} question={questionItem} />
                 </Grid>
               ))}

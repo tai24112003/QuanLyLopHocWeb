@@ -15,6 +15,7 @@ import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupAccount';
 import useNotification from '../exam/components/Notification';
 import { useSelector } from 'react-redux';
+import CustomTable from 'ui-component/table/Table';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const AccountListScreen = () => {
@@ -171,7 +172,7 @@ const AccountListScreen = () => {
           </Button>
         </Grid>
         <Grid item xs={12}>
-          <MaterialReactTable table={table} />
+          <CustomTable data={data} columns={columns} />
         </Grid>
         <PopupWithTextField subjectEdit={selectId} handleSave={handleSave} handleClose={handleClosePopup} open={openPopup} id={selectId} />
       </Grid>

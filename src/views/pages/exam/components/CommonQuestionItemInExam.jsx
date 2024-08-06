@@ -176,7 +176,7 @@ const CommonQuestionItemInExam = ({ question }) => {
     e.stopPropagation();
     if (subjectController === -1) {
       thisRef.current.style.border = '1px solid red';
-      showNotification('Vui lòng chọn môn!', 'error');
+      showNotification('Vui lòng chọn chủ đề!', 'error');
       return;
     }
     if (chaptersController === -1 || diffController === -1) {
@@ -281,7 +281,7 @@ const CommonQuestionItemInExam = ({ question }) => {
                 <Grid container>
                   <Grid item xs={12} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                     <Box width="100%" display="flex" flexDirection="row" alignItems="center">
-                      <b> Môn:</b>
+                      <b>Chủ đề:</b>
                       {isEdit ? (
                         <>
                           <Box mx={0.5}></Box>
@@ -305,7 +305,7 @@ const CommonQuestionItemInExam = ({ question }) => {
                             }}
                             value={subjectController}
                           >
-                            <MenuItem value={-1}>Chọn Môn</MenuItem>
+                            <MenuItem value={-1}>Chọn chủ đề</MenuItem>
                             {subjects?.map((subject, index) => (
                               <MenuItem key={index} value={subject.id}>
                                 {subject.name}

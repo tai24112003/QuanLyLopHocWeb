@@ -7,17 +7,18 @@ import Grid from '@mui/material/Grid';
 import { gapGrid, gridSpacing } from 'store/constant';
 import { useMemo } from 'react';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
-import { runGetExams } from 'api/exam';
 import { Button, Typography } from '@mui/material';
-import { Delete, EditAttributes, EditCalendar, EditNote, EditNotificationsOutlined, EditRoad, EditSharp } from '@mui/icons-material';
+import { Delete, EditNote, Subject } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
 import { runAddSubject, runDeleteSubject, runGetSubjects, runUpdateSubject } from 'api/subject';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
-import useNotification from '../exam/components/Notification';
 import PopupWithTextField from './components/popupSubject';
 import { runAddChapter, runDeleteChapter, runGetChapters, runUpdateChapter } from 'api/chapter';
 import PopupWithTextFieldChapter from './components/popupChapter';
 import { useSelector } from 'react-redux';
+import NotificationComponent from 'ui-component/notification/NotificationComponent';
+import CustomTable from 'ui-component/table/Table';
+import { bgcolor, Box } from '@mui/system';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const SubjectChapterScreen = () => {
@@ -29,27 +30,24 @@ const SubjectChapterScreen = () => {
   const [reload, setReload] = useState(false);
   const [selectId, setSelectId] = useState();
   const [selectChapterId, setSelectChapterId] = useState();
-  const { showNotification, NotificationComponent } = useNotification();
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
   const user = useSelector((state) => {
     return state.customization.user;
   });
 
   useEffect(() => {
-    runGetSubjects()
-      .then((data) => {
-        if (data.success) {
-          setData(data.data);
-        }
-      })
-      .catch((e) => console.log(e));
-    runGetChapters()
-      .then((data) => {
-        if (data.success) {
-          setDataChapter(data.data);
-        }
-      })
-      .catch((e) => console.log(e));
-  }, [reload]);
+    const fetchData = async () => {
+      const subj = await runGetSubjects();
+      const chap = await runGetChapters();
+      setDataChapter(chap.data);
+      setData(subj.data);
+    };
+    fetchData();
+  }, []);
 
   const columns = useMemo(
     () => [
@@ -62,7 +60,7 @@ const SubjectChapterScreen = () => {
       },
       {
         accessorKey: 'name',
-        header: 'Tên Môn',
+        header: 'Chủ đề',
         size: 150
       },
       {
@@ -72,10 +70,12 @@ const SubjectChapterScreen = () => {
         enableSorting: false,
         Cell: ({ row }) => {
           if (row.original.canRemove)
-            return (
-              <div style={{ backgroundColor: '#e0e0e0', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Chưa dùng</div>
-            );
-          return <div style={{ backgroundColor: '#00e677', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Đang dùng</div>;
+            return <Box sx={{ bgcolor: 'disabled.main', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Chưa dùng</Box>;
+          return (
+            <Box sx={{ bgcolor: 'success.dark', color: 'primary.light', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>
+              Đang dùng
+            </Box>
+          );
         }
       },
       {
@@ -132,7 +132,7 @@ const SubjectChapterScreen = () => {
       },
       {
         accessorKey: 'Subject.name',
-        header: 'Tên Môn',
+        header: 'Chủ đề',
         size: 150
       },
       {
@@ -142,10 +142,12 @@ const SubjectChapterScreen = () => {
         enableSorting: false,
         Cell: ({ row }) => {
           if (row.original.canRemove)
-            return (
-              <div style={{ backgroundColor: '#e0e0e0', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Chưa dùng</div>
-            );
-          return <div style={{ backgroundColor: '#00e677', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Đang dùng</div>;
+            return <Box sx={{ bgcolor: 'disabled.main', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>Chưa dùng</Box>;
+          return (
+            <Box sx={{ bgcolor: 'success.dark', color: 'primary.light', display: 'inline-block', padding: '0 10px', borderRadius: 10 }}>
+              Đang dùng
+            </Box>
+          );
         }
       },
       {
@@ -209,31 +211,27 @@ const SubjectChapterScreen = () => {
       runUpdateSubject({ id: selectId.id, name: value })
         .then((data) => {
           if (data.success) {
-            setReload(!reload);
-            setTimeout(() => {
-              showNotification('Cập nhật thành công', 'success');
-            }, 100);
+            setData((prevData) => prevData.map((e) => (e.id === selectId.id ? { ...e, name: value } : e)));
+            setNotification({ open: true, message: 'Cập nhật thành công' });
           } else {
-            showNotification('Cập nhật không thành công', 'error');
+            throw new Error('Upload failed');
           }
         })
         .catch((e) => {
-          showNotification('Cập nhật không thành công', 'error');
+          setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
         });
     } else {
       runAddSubject({ name: value, authorId: user.id })
         .then((data) => {
           if (data.success) {
             setReload(!reload);
-            setTimeout(() => {
-              showNotification('Cập nhật thành công', 'success');
-            }, 100);
+            setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
           } else {
-            showNotification('Cập nhật không thành công', 'error');
+            throw new Error('Upload failed');
           }
         })
         .catch((e) => {
-          showNotification('Cập nhật không thành công', 'error');
+          setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
         });
     }
     setOpenPopUp(false);
@@ -243,33 +241,36 @@ const SubjectChapterScreen = () => {
   const handleSaveChapter = (value) => {
     if (selectChapterId) {
       runUpdateChapter({ id: selectChapterId.id, name: value.text, subject_id: value.selectedValue })
-        .then((data) => {
-          if (data.success) {
-            setReload(!reload);
-            setTimeout(() => {
-              showNotification('Cập nhật thành công', 'success');
-            }, 100);
+        .then((res) => {
+          if (res.success) {
+            setDataChapter((prevData) =>
+              prevData.map((e) =>
+                e.id === selectChapterId.id ? { ...e, name: value.text, Subject: data.find((item) => item.id === value.selectedValue) } : e
+              )
+            );
+            setNotification({ open: true, message: 'Cập nhật thành công', severity: 'success' });
           } else {
-            showNotification('Cập nhật không thành công', 'error');
+            setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
           }
         })
         .catch((e) => {
-          showNotification('Cập nhật không thành công', 'error');
+          setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
         });
     } else {
       runAddChapter({ name: value.text, subject_id: value.selectedValue })
-        .then((data) => {
-          if (data.success) {
-            setReload(!reload);
-            setTimeout(() => {
-              showNotification('Cập nhật thành công', 'success');
-            }, 100);
+        .then((res) => {
+          if (res.success) {
+            setDataChapter([
+              ...dataChapter,
+              { id: -1, name: value.text, Subject: data.filter((item) => item.id === value.selectedValue)?.[0] ?? {}, canRemove: true }
+            ]);
+            setNotification({ open: true, message: 'Cập nhật thành công', severity: 'success' });
           } else {
-            showNotification('Cập nhật không thành công', 'error');
+            setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
           }
         })
         .catch((e) => {
-          showNotification('Cập nhật không thành công', 'error');
+          setNotification({ open: true, message: 'Cập nhật không thành công', severity: 'error' });
         });
     }
     setOpenPopUpChapter(false);
@@ -281,14 +282,12 @@ const SubjectChapterScreen = () => {
       runDeleteSubject(selectId)
         .then((data) => {
           if (data.success) {
-            showNotification('Xóa thành công', 'success');
-            setTimeout(() => {
-              setReload(!reload);
-            }, 2000);
-          } else showNotification('Xóa thất bại', 'error');
+            setNotification({ open: true, message: 'Xóa thành công', severity: 'success' });
+            setData(data.filter((item) => item.id !== selectId));
+          } else setNotification({ open: true, message: 'Xóa không thành công', severity: 'error' });
         })
         .catch((e) => {
-          showNotification('Xóa thất bại', 'error');
+          setNotification({ open: true, message: 'Xóa không thành công', severity: 'error' });
         });
       setSelectId(null);
     }
@@ -296,36 +295,24 @@ const SubjectChapterScreen = () => {
       runDeleteChapter(selectChapterId)
         .then((data) => {
           if (data.success) {
-            showNotification('Xóa thành công', 'success');
-            setTimeout(() => {
-              setReload(!reload);
-            }, 2000);
-          } else showNotification('Xóa thất bại', 'error');
+            setNotification({ open: true, message: 'Xóa thành công', severity: 'success' });
+            setDataChapter(dataChapter.filter((item) => item.id !== selectChapterId));
+          } else setNotification({ open: true, message: 'Xóa không thành công', severity: 'error' });
         })
         .catch((e) => {
-          showNotification('Xóa thất bại', 'error');
+          setNotification({ open: true, message: 'Xóa không thành công', severity: 'error' });
         });
       setSelectChapterId(null);
     }
     setOpen(false);
   };
 
-  const table = useMaterialReactTable({
-    columns,
-    data
-  });
-
-  const tableChapter = useMaterialReactTable({
-    columns: columnsChapter,
-    data: dataChapter
-  });
-
   return (
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
           <Typography mb={1} bgcolor={'white'} borderRadius={2} p={1}>
-            <b style={{ fontSize: 16, marginRight: 10 }}>Danh sách môn</b>
+            <b style={{ fontSize: 16, marginRight: 10 }}>Danh sách chủ đề</b>
             <Button
               onClick={(e) => {
                 setSelectId(null);
@@ -338,7 +325,7 @@ const SubjectChapterScreen = () => {
               <IconPlus></IconPlus>
             </Button>
           </Typography>
-          <MaterialReactTable table={table} />
+          <CustomTable columns={columns} data={data} />
         </Grid>
         <Grid item xs={12}>
           <Typography sx={{ bgcolor: 'white' }} borderRadius={2} p={1} mb={1}>
@@ -354,12 +341,10 @@ const SubjectChapterScreen = () => {
               <IconPlus></IconPlus>
             </Button>
           </Typography>
-
-          <MaterialReactTable table={tableChapter} />
+          <CustomTable columns={columnsChapter} data={dataChapter} />
         </Grid>
       </Grid>
       <ConfirmationDialog open={open} handleClose={handleClose} handleConfirm={handleConfirm} />
-      <NotificationComponent />
       <PopupWithTextField subjectEdit={selectId} handleSave={handleSave} handleClose={handleClosePopup} open={openPopup} id={selectId} />
       <PopupWithTextFieldChapter
         handleSave={handleSaveChapter}
@@ -368,6 +353,7 @@ const SubjectChapterScreen = () => {
         handleClose={handleClosePopup}
         open={openPopupChapter}
       />
+      <NotificationComponent notification={notification} />
     </>
   );
 };

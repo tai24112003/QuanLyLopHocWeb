@@ -1,6 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Box, Button, Grid, Typography } from '@mui/material';
-import { height, width } from '@mui/system';
+import { Box, Grid } from '@mui/material';
 
 const BubbleComponent = ({ children }) => {
   const [position, setPosition] = useState({ x: `100vw`, y: '50vh' });

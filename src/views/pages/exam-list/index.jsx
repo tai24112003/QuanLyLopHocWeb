@@ -6,10 +6,10 @@ import Grid from '@mui/material/Grid';
 
 import { gapGrid, gridSpacing } from 'store/constant';
 import { useMemo } from 'react';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { runGetExams, toggleExamSharing } from 'api/exam';
 import { Button } from '@mui/material';
 import { useSelector } from 'react-redux';
+import CustomTable from 'ui-component/table/Table';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const ExamListScreen = () => {
@@ -49,17 +49,17 @@ const ExamListScreen = () => {
       {
         accessorKey: 'name',
         header: 'Tên đề',
-        size: 150
+        size: 250
       },
       {
         accessorKey: 'subject.name',
-        header: 'Môn',
+        header: 'Chủ đề',
         size: 200
       },
       {
         accessorKey: 'questionCount',
         header: 'Số câu',
-        size: 150
+        size: 50
       },
       {
         accessorKey: 'duration',
@@ -93,16 +93,11 @@ const ExamListScreen = () => {
     []
   );
 
-  const table = useMaterialReactTable({
-    columns,
-    data
-  });
-
   return (
     <>
       <Grid container spacing={gridSpacing}>
         <Grid item xs={12}>
-          <MaterialReactTable table={table} />
+          <CustomTable columns={columns} data={data} />
         </Grid>
       </Grid>
     </>

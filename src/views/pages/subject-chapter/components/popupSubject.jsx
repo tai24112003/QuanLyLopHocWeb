@@ -15,13 +15,24 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
-      <DialogTitle>Cập nhật môn học</DialogTitle>
+      <DialogTitle>Cập nhật chủ đề</DialogTitle>
       <DialogContent>
-        <TextField autoFocus margin="dense" label="Tên môn" type="text" fullWidth value={text} onChange={(e) => setText(e.target.value)} />
+        <TextField
+          inputProps={{
+            maxLength: 50
+          }}
+          autoFocus
+          margin="dense"
+          label="Tên Chủ đề"
+          type="text"
+          fullWidth
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="error">
-          Cancel
+          Hủy
         </Button>
         <Button
           onClick={() => {
@@ -29,7 +40,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
           }}
           color="primary"
         >
-          Save
+          Lưu
         </Button>
       </DialogActions>
     </Dialog>

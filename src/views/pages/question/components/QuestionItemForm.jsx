@@ -43,14 +43,14 @@ import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
 import { runDeleteChoice } from 'api/choice';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
+import { SET_COMMON_DATA, SET_LIST_QUESTION, SET_OBJ_EDITING } from 'store/actions';
 import { runAddQuestion, runDeleteQuestionDatas, runSetPrivate, runSetPublic, runUpdateQuestion } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { scrollToCenter } from 'views/utilities/common';
 import Cookies from 'js-cookie';
+import { borderTop } from '@mui/system';
 
 const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, showNotification }) => {
-  const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -69,9 +69,6 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
   });
   const commonData = useSelector((state) => {
     return state.customization.commonData;
-  });
-  const trigger = useSelector((state) => {
-    return state.customization.trigger;
   });
   const user = useSelector((state) => {
     return state.customization.user;
@@ -160,7 +157,6 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
             let newData = [...choiceController];
             newData.splice(idx, 1);
             setChoiceController(newData);
-            setReload(!reload);
           } else {
             showNotification('Xóa thất bại', 'error');
           }
@@ -221,7 +217,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
     let dataMap;
     if (subjectController === -1) {
       thisRef.current.style.border = '1px solid red';
-      showNotification('Vui lòng chọn môn!', 'error');
+      showNotification('Vui lòng chọn Chủ đề!', 'error');
       return;
     }
     if (chaptersController === -1 || diffController === -1) {
@@ -394,7 +390,6 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
             if (data.success) {
               showNotification('Lưu thành công!', 'success');
               dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
-              if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
               dispatch({ type: SET_OBJ_EDITING, editing: null });
             } else {
               showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error');
@@ -416,7 +411,6 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
           .then((data) => {
             if (data.success) {
               dispatch({ type: SET_LIST_QUESTION, listQuestion: [...dataMap] });
-              if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
               dispatch({ type: SET_OBJ_EDITING, editing: null });
               showNotification('Lưu thành công!!!!', 'success');
             } else {
@@ -438,11 +432,11 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
           <AccordionSummary expandIcon={<ExpandMore />} aria-controls="panel1-content" id="panel1-header">
             <Grid container spacing={1}>
               {question.type_id === 2 ? (
-                <Grid item xs={7} md={8} lg={9} mb={1}>
+                <Grid item xs={7} md={8} lg={9.5} mb={1}>
                   <Grid container spacing={1}>
-                    <Grid item xs={12} md={5.5} lg={3} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Grid item xs={12} md={5.5} lg={4} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
-                        <b> Môn:</b>
+                        <b> Chủ đề:</b>
                         {isEdit ? (
                           <>
                             <Box mx={0.5}></Box>
@@ -465,7 +459,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               }}
                               value={subjectController}
                             >
-                              <MenuItem value={-1}>Chọn Môn</MenuItem>
+                              <MenuItem value={-1}>Chọn Chủ đề</MenuItem>
                               {subjects?.map((subject, index) => (
                                 <MenuItem key={index} value={subject.id}>
                                   {subject.name}
@@ -482,7 +476,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
                               }}
-                              bgcolor="#4673fe"
+                              bgcolor="primary.main"
                               ml={0.5}
                               mr={1.5}
                               px={1}
@@ -531,7 +525,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               }}
                               ml={0.5}
                               mr={1.5}
-                              bgcolor="#00e676"
+                              bgcolor="success.dark"
                               px={1}
                               borderRadius={5}
                               textAlign={'center'}
@@ -543,7 +537,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         )}
                       </Box>
                     </Grid>
-                    <Grid item xs={12} md={5.5} lg={2.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
+                    <Grid item xs={12} md={5.5} lg={1.5} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
                         <b>Độ khó:</b>
                         {isEdit ? (
@@ -566,8 +560,8 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                             </Select>
                           </>
                         ) : (
-                          <Box ml={0.5} mr={1.5} bgcolor="#ffe57f" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
-                            {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'Trung bình' : 'Khó'}
+                          <Box ml={0.5} mr={1.5} bgcolor="warning.main" px={1} borderRadius={5} textAlign={'center'} color={'#000000'}>
+                            {question.difficulty == 1 ? 'Dễ' : question.difficulty == 2 ? 'TB' : 'Khó'}
                           </Box>
                         )}
                       </Box>
@@ -594,7 +588,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               }}
                               ml={0.5}
                               mr={1.5}
-                              bgcolor="#f44336"
+                              bgcolor="error.main"
                               px={1}
                               borderRadius={5}
                               textAlign={'center'}
@@ -613,7 +607,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                               }}
                               ml={0.5}
                               mr={1.5}
-                              bgcolor="#e0e0e0"
+                              bgcolor="disabled.main"
                               px={1}
                               borderRadius={5}
                               textAlign={'center'}
@@ -639,7 +633,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                         {question.authorId !== user.id && (
                           <>
                             <b>Tác giả:</b>
-                            <Box ml={0.5} mr={1.5} bgcolor="#00e676" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
+                            <Box ml={0.5} mr={1.5} bgcolor="success.dark" px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
                               {question.author?.name ?? ''}
                             </Box>
                           </>
@@ -649,9 +643,9 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                   </Grid>
                 </Grid>
               ) : (
-                <Grid item xs={7} md={8} lg={9} mb={1} />
+                <Grid item xs={7} md={8} lg={9.5} mb={1} />
               )}
-              <Grid item xs={5} md={4} lg={3} container>
+              <Grid item xs={5} md={4} lg={2.5} container>
                 {isEdit ? (
                   <Grid item sx={{ display: 'flex', alignItems: 'start', justifyContent: 'flex-end' }} xs={12}>
                     <Tooltip title="Lưu">
@@ -780,7 +774,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                   <></>
                 )}
               </Grid>
-              <Grid item xs={12} md={12} lg={12}>
+              <Grid className={isEdit ? '' : 'none-edit'} item xs={12} md={12} lg={12}>
                 <CKEditor
                   disabled={!isEdit}
                   id={generateId()}
@@ -800,7 +794,7 @@ const QuestionItemForm = React.memo(({ question, parentQuestion, lstSubject, sho
                       SimpleUploadAdapter,
                       List
                     ],
-                    toolbar: ['undo', 'redo', '|', 'bold', 'italic', 'bulletedList', 'numberedList', '|', 'imageUpload'],
+                    toolbar: isEdit ? ['undo', 'redo', '|', 'bold', 'italic', 'bulletedList', 'numberedList', '|', 'imageUpload'] : [],
                     simpleUpload: {
                       uploadUrl: `${import.meta.env.VITE_APP_API_URL}upload`,
                       headers: {

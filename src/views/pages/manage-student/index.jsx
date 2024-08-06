@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle, InputLabel, Select, MenuItem } from '@mui/material';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { getAllRoom, deleteRoom, updateRoom, addRoom } from 'api/room';
@@ -6,13 +6,15 @@ import { Delete, EditNote } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupStatus';
 import { gridSpacing } from 'store/constant';
-import useNotification from '../exam/components/Notification';
 import { Link } from 'react-router-dom';
 import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getClassesByUserId } from 'api/class';
 import { getAttendance, updateAttendance } from 'api/attendance';
 import generateId from 'utils/generate-id';
+import CustomTable from 'ui-component/table/Table';
+import { Box } from '@mui/system';
+import NotificationComponent from 'ui-component/notification/NotificationComponent';
 
 const ManageStudentScreen = () => {
   const [data, setData] = useState([]);
@@ -21,7 +23,11 @@ const ManageStudentScreen = () => {
   const [reload, setReload] = useState(1);
   const [classController, setClassController] = useState('-1');
   const [sesstionSelect, setSesstionSelect] = useState(null);
-  const { showNotification, NotificationComponent } = useNotification();
+  const [notification, setNotification] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
   useEffect(() => {
     getClassesByUserId().then((data) => {
@@ -60,32 +66,33 @@ const ManageStudentScreen = () => {
       Cell: ({ row }) => {
         let styleStatus =
           row.original[item] === 'c'
-            ? { backgroundColor: '#00e676', color: 'white' }
+            ? { bgcolor: 'success.dark', color: 'primary.light' }
             : row.original[item] === 'cp'
-              ? { backgroundColor: '#ffe57f', color: 'black' }
-              : { backgroundColor: '#f44336', color: 'white' };
+              ? { bgcolor: 'warning.main', color: 'text.primary' }
+              : { bgcolor: 'error.main', color: 'primary.light' };
         let content = row.original[item] === 'c' ? 'Có' : row.original[item] === 'cp' ? 'Có phép' : 'Vắng';
         return (
-          <div
+          <Box
             key={generateId()}
             onClick={(e) => {
               setSesstionSelect({ mssv: row.original.id, sessionId: row.original.SessionID, currentStatus: row.original[item] });
               setOpenPopUp(true);
             }}
-            style={{ ...styleStatus, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}
+            style={{ padding: '0 10px', display: 'inline-block', borderRadius: 10, cursor: 'pointer' }}
+            sx={styleStatus}
           >
             {content}
-          </div>
+          </Box>
         );
       }
     });
   });
 
-  const formatAttendanceForUI = (attendanceData) => {
+  const formatAttendanceForUI = useCallback((attendanceData) => {
     const studentMap = {};
 
     attendanceData.forEach(({ StudentID, FirstName, LastName, Present, StartTime, SessionID }) => {
-      const date = new Date(StartTime).toLocaleDateString(); // Extract date
+      const date = new Date(StartTime).toLocaleDateString();
 
       if (!studentMap[StudentID]) {
         studentMap[StudentID] = {
@@ -103,28 +110,27 @@ const ManageStudentScreen = () => {
     });
 
     return Object.values(studentMap);
-  };
-
-  const table = useMaterialReactTable({
-    columns,
-    data
-  });
+  }, []);
 
   const handleClose = () => {
     setOpenPopUp(false);
   };
 
   const handleSave = (data) => {
-    console.log(data);
-    updateAttendance({ StudentID: data.mssv, SessionID: data.sessionId, Present: data.currentStatus }).then((data) => {
-      if (data.status === 'success') {
-        setReload((prev) => {
-          return prev + 1;
-        });
-
-        setTimeout(() => showNotification('cập nhật thành công', 'success'), 0);
-      }
-    });
+    updateAttendance({ StudentID: data.mssv, SessionID: data.sessionId, Present: data.currentStatus })
+      .then((data) => {
+        if (data.status === 'success') {
+          setReload((prev) => {
+            return prev + 1;
+          });
+          setNotification({ open: true, message: 'Cập nhật thành công!', severity: 'success' });
+        } else {
+          throw new Error('Update faile');
+        }
+      })
+      .catch((e) => {
+        setNotification({ open: true, message: 'Cập nhật không thành công!', severity: 'error' });
+      });
     setOpenPopUp(false);
   };
 
@@ -149,16 +155,16 @@ const ManageStudentScreen = () => {
         </Grid>
         <Grid item xs={0} md={6} sm={0} lg={9}></Grid>
         <Grid item xs={12}>
-          <MaterialReactTable table={table} />
+          <CustomTable columns={columns} data={data} />
         </Grid>
       </Grid>
-      <NotificationComponent></NotificationComponent>
       <PopupWithTextField
         handleSave={handleSave}
         sessionEdit={sesstionSelect}
         open={openPopup}
         handleClose={handleClose}
       ></PopupWithTextField>
+      <NotificationComponent notification={notification} />
     </>
   );
 };

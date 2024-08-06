@@ -27,7 +27,7 @@ import { gridSpacing } from 'store/constant';
 import generateId from 'utils/generate-id';
 import useNotification from './Notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
+import { SET_EXAM } from 'store/actions';
 import { runGetSubjectOptions } from 'api/subject';
 import Cookies from 'js-cookie';
 import { runAddQuestion } from 'api/question';

@@ -56,7 +56,7 @@ const AuthLogin = ({ ...others }) => {
           window.location.href = config.defaultPath;
         })
         .catch((e) => {
-          setErrors({ submit: e.response.data.error });
+          setErrors({ submit: e.message });
         });
     } catch (error) {
       console.error('Login error:', error.message);

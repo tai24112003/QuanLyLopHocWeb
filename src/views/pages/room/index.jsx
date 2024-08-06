@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle } from '@mui/material';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { getAllRoom, deleteRoom, updateRoom, addRoom } from 'api/room';
 import { Delete, EditNote } from '@mui/icons-material';
 import { IconPlus } from '@tabler/icons-react';
@@ -8,6 +7,7 @@ import PopupWithTextField from './components/popupRoom';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
 import { Link } from 'react-router-dom';
+import CustomTable from 'ui-component/table/Table';
 
 const RoomListScreen = () => {
   const [data, setData] = useState([]);
@@ -171,11 +171,6 @@ const RoomListScreen = () => {
     }
   };
 
-  const table = useMaterialReactTable({
-    columns,
-    data
-  });
-
   return (
     <>
       <Grid container spacing={gridSpacing}>
@@ -194,7 +189,7 @@ const RoomListScreen = () => {
           />
         </Grid>
         <Grid item xs={12}>
-          <MaterialReactTable table={table} />
+          <CustomTable columns={columns} data={data} />
         </Grid>
       </Grid>
 

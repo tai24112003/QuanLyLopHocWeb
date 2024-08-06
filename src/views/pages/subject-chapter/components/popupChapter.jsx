@@ -21,10 +21,23 @@ const PopupWithTextFieldChapter = ({ open, handleClose, handleSave, chapterEdit,
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
       <DialogTitle>
-        <b>Cập nhật chương</b>
+        <h2>
+          <b>Cập nhật chương</b>
+        </h2>
       </DialogTitle>
       <DialogContent>
-        <TextField autoFocus margin="dense" label="Tên môn" type="text" fullWidth value={text} onChange={(e) => setText(e.target.value)} />
+        <TextField
+          inputProps={{
+            maxLength: 50
+          }}
+          autoFocus
+          margin="dense"
+          label="Tên Chủ đề"
+          type="text"
+          fullWidth
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
         <FormControl fullWidth margin="dense">
           <Select
             disabled={!chapterEdit?.canRemove && chapterEdit}
@@ -41,7 +54,7 @@ const PopupWithTextFieldChapter = ({ open, handleClose, handleSave, chapterEdit,
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="error">
-          Cancel
+          Hủy
         </Button>
         <Button
           onClick={() => {
@@ -49,7 +62,7 @@ const PopupWithTextFieldChapter = ({ open, handleClose, handleSave, chapterEdit,
           }}
           color="primary"
         >
-          Save
+          Lưu
         </Button>
       </DialogActions>
     </Dialog>

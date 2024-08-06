@@ -242,7 +242,7 @@ const ExamScreen = () => {
                   <TextField inputProps={{ readOnly: true }} value={infoExam.code} placeholder="KTYAS" sx={{ width: '100%' }}></TextField>
                 </Grid>
                 <Grid item xs={3}>
-                  <InputLabel>Môn</InputLabel>
+                  <InputLabel>Chủ đề</InputLabel>
                   <Select
                     onChange={(e) => {
                       setSubjectController(e.target.value);

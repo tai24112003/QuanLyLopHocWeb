@@ -137,6 +137,14 @@
   border: none !important;
 }
 
+.none-edit .ck.ck-editor__top .ck-sticky-panel .ck-sticky-panel__content{
+  border: none !important;
+}
+
+.child-question {
+  border: 1px solid var(--ck-color-base-border);
+}
+
 
 @keyframes slideInDown {
   0% {
@@ -153,3 +161,4 @@
 .fade-in {
   animation: slideInDown .3s ease-out; /* Thời gian 0.5s và chuyển động dễ dàng ra */
 }
+
