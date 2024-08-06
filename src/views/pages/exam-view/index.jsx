@@ -120,7 +120,7 @@ const ExamViewScreen = () => {
                 <TextField inputProps={{ readOnly: true }} value={data.code} placeholder="KTYAS" sx={{ width: '100%' }}></TextField>
               </Grid>
               <Grid item xs={3}>
-                <InputLabel>Môn</InputLabel>
+                <InputLabel>Chủ đề</InputLabel>
                 <TextField inputProps={{ readOnly: true }} value={data?.subject?.name}></TextField>
               </Grid>
               <Grid item xs={2}>

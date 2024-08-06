@@ -1,15 +1,14 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { Button, Grid, Dialog, DialogActions, DialogContent, DialogTitle, Typography } from '@mui/material';
-import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import { getAllRoom, deleteRoom, updateRoom, addRoom, getRoomByID } from 'api/room';
 import { Delete, EditNote } from '@mui/icons-material';
-import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupRoom';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
 import { Link, useParams } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
 import { addComputer, deleteComputer, getComputerByRoomID, updateComputer } from 'api/computer';
+import CustomTable from 'ui-component/table/Table';
 
 const RoomDetailScreen = () => {
   const [data, setData] = useState([]);
@@ -172,11 +171,6 @@ const RoomDetailScreen = () => {
     }
   };
 
-  const table = useMaterialReactTable({
-    columns,
-    data
-  });
-
   return (
     <>
       <Grid container spacing={gridSpacing}>
@@ -208,7 +202,7 @@ const RoomDetailScreen = () => {
           />
         </Grid>
         <Grid item xs={12}>
-          <MaterialReactTable table={table} />
+          <CustomTable columns={columns} data={data} />
         </Grid>
       </Grid>
 
@@ -216,7 +210,7 @@ const RoomDetailScreen = () => {
       {computers.length > 0 && (
         <Grid item xs={12}>
           <h3>Danh sách máy trong phòng {selectedRoom?.RoomName}</h3>
-          <MaterialReactTable
+          <CustomTable
             columns={[
               {
                 accessorKey: 'ComputerName',

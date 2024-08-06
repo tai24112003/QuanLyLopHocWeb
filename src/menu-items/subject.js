@@ -8,7 +8,7 @@ const icons = { IconDashboard, IconEdit, IconList };
 
 const subjectScreen = {
   id: 'subject',
-  title: 'Môn & Chương',
+  title: 'Chủ đề & Chương',
   type: 'group',
   children: [
     {

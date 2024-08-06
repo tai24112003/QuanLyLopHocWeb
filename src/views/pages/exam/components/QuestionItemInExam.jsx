@@ -28,7 +28,7 @@ import generateId from 'utils/generate-id';
 import { runDeleteChoice } from 'api/choice';
 import useNotification from './Notification';
 import { useDispatch, useSelector } from 'react-redux';
-import { SET_COMMON_DATA, SET_EXAM, SET_LIST_QUESTION, SET_OBJ_EDITING, TRIGGER_RELOAD } from 'store/actions';
+import { SET_COMMON_DATA, SET_EXAM, SET_OBJ_EDITING } from 'store/actions';
 import { runGetSubjectOptions } from 'api/subject';
 import { runAddQuestion, runDeleteQuestionDatas, runUpdateQuestion } from 'api/question';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
@@ -38,7 +38,6 @@ import Cookies from 'js-cookie';
 const QuestionItemInExam = ({ question, parentQuestion }) => {
   const [reload, setReload] = useState(false);
   const [open, setOpen] = useState(false);
-  const [questionSelected, setQuestionSelected] = useState();
   const [chapters, setChapters] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [chaptersController, setChaptersController] = useState(-1);
@@ -224,7 +223,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
     let dataMap;
     if (subjectController === -1) {
       thisRef.current.style.border = '1px solid red';
-      showNotification('Vui lòng chọn môn!', 'error');
+      showNotification('Vui lòng chọn chủ đề!', 'error');
       return;
     }
     if (chaptersController === -1 || diffController === -1) {
@@ -405,7 +404,6 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
             if (data.success) {
               setTimeout(() => showNotification('Lưu thành công!!!!', 'success'), 100);
               //   dispatch({ type: SET_EXAM, exam: { ...exam, questions: [...] } });
-              if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
               dispatch({ type: SET_OBJ_EDITING, editing: null });
             } else {
               setTimeout(() => showNotification('Lưu không thành công! Vui lòng liên hệ người quản trị', 'error'), 0);
@@ -435,7 +433,6 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                     questions: [...dataMap]
                   }
                 });
-                if (parentQuestion) dispatch({ type: TRIGGER_RELOAD, trigger: trigger + 1 });
                 dispatch({ type: SET_OBJ_EDITING, editing: null });
               }, 100);
             } else {
@@ -465,7 +462,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                   <Grid container>
                     <Grid item xs={12} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
-                        <b> Môn:</b>
+                        <b> Chủ đề:</b>
                         {isEdit ? (
                           <>
                             <Box mx={0.5}></Box>
@@ -489,7 +486,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                               disabled={true}
                               value={subjectController}
                             >
-                              <MenuItem value={-1}>Chọn Môn</MenuItem>
+                              <MenuItem value={-1}>Chọn chủ đề</MenuItem>
                               {subjects?.map((subject, index) => (
                                 <MenuItem key={index} value={subject.id}>
                                   {subject.name}

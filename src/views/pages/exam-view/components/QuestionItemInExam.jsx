@@ -43,7 +43,7 @@ const QuestionItemInExam = ({ question, parentQuestion }) => {
                   <Grid container>
                     <Grid item xs={12} display="flex" flexDirection="row" justifyContent="flex-start" alignItems="center">
                       <Box width="100%" display="flex" flexDirection="row" alignItems="center">
-                        <b> Môn:</b>
+                        <b> Chủ đề:</b>
                         <Box bgcolor="#4673fe" ml={0.5} mr={1.5} px={1} borderRadius={5} textAlign={'center'} color={'#ffff'}>
                           {question.subject ?? ''}
                         </Box>

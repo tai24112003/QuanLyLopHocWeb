@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 // material-ui
 import Grid from '@mui/material/Grid';
-import { Button, MenuItem, Select, TextField, Typography } from '@mui/material';
+import { Button, MenuItem, Select, TextField, Tooltip, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import AddIcon from '@mui/icons-material/Add';
 
@@ -17,7 +17,6 @@ import ListQuestion from './components/ListQuestion';
 import { runGetSubjectOptions } from 'api/subject';
 import { formatData, scrollToCenter } from 'views/utilities/common';
 import Loading from 'ui-component/loading/loading';
-import zIndex from '@mui/material/styles/zIndex';
 import BubbleComponent from './components/BubbleComponent';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
@@ -42,10 +41,6 @@ const QuestionScreen = () => {
   const user = useSelector((state) => {
     return state.customization.user;
   });
-
-  // useEffect(() => {
-  //   console.log(listQuestion);
-  // }, [listQuestion]);
 
   useEffect(() => {
     runGetQuestionDatas({}).then((data) => {
@@ -248,16 +243,33 @@ const QuestionScreen = () => {
                     left: 0
                   }}
                 >
-                  <Button disabled={toggleAdd == 0} sx={{ padding: '0 10px', width: '100%' }} variant="contained" onClick={onAddQuestion}>
-                    <AddIcon /> Đơn
-                  </Button>
+                  <Tooltip disableHoverListener={toggleAdd == 0} title="Thêm câu hỏi đơn" placement="top">
+                    <div>
+                      <Button
+                        disabled={toggleAdd == 0}
+                        sx={{ padding: '0 10px', width: '100%' }}
+                        variant="contained"
+                        onClick={onAddQuestion}
+                      >
+                        <AddIcon /> Đơn
+                      </Button>
+                    </div>
+                  </Tooltip>
                 </Grid>
                 <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                   <Button
                     variant="contained"
                     color="secondary"
-                    onClick={(e) => (toggleAdd == 0 ? setToggleAdd(80) : setToggleAdd(0))}
-                    sx={{ borderRadius: '100%', height: 64, width: 50, padding: 0, position: 'relative', zIndex: 99999 }}
+                    onClick={(e) => (toggleAdd == 0 ? setToggleAdd(60) : setToggleAdd(0))}
+                    sx={{
+                      borderRadius: '100%',
+                      height: 50,
+                      width: 50,
+                      minWidth: 0,
+                      padding: 0,
+                      position: 'relative',
+                      zIndex: 999
+                    }}
                   >
                     <AddIcon />
                   </Button>
@@ -271,9 +283,13 @@ const QuestionScreen = () => {
                     opacity: toggleAdd
                   }}
                 >
-                  <Button disabled={toggleAdd == 0} sx={{ padding: '0 10px' }} variant="contained" onClick={onAddCommonQuestion}>
-                    <AddIcon /> chung
-                  </Button>
+                  <Tooltip disableHoverListener={toggleAdd == 0} title="Thêm câu hỏi chung">
+                    <div>
+                      <Button disabled={toggleAdd == 0} sx={{ padding: '0 10px' }} variant="contained" onClick={onAddCommonQuestion}>
+                        <AddIcon /> chung
+                      </Button>
+                    </div>
+                  </Tooltip>
                 </Grid>
               </Grid>
             </BubbleComponent>

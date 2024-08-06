@@ -19,7 +19,7 @@ $secondary800: #4527a0;
 $successLight: #b9f6ca;
 $success200: #69f0ae;
 $successMain: #00e676;
-$successDark: #00c853;
+$successDark: #00e676;
 
 // error
 $errorLight: #ef9a9a;
@@ -45,6 +45,9 @@ $grey500: #697586;
 $grey600: #4b5565;
 $grey700: #364152;
 $grey900: #121926;
+
+//disable color
+$disable: #e0e0e0;
 
 // ==============================|| DARK THEME VARIANTS ||============================== //
 
@@ -154,4 +157,7 @@ $darkTextSecondary: #8492c4;
   darkSecondaryDark: $darkSecondaryDark;
   darkSecondary200: $darkSecondary200;
   darkSecondary800: $darkSecondary800;
+
+  //disable color
+  disabled: $disable;
 }

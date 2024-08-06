@@ -65,11 +65,6 @@ const customizationReducer = (state = initialState, action) => {
         ...state,
         commonData: action.commonData
       };
-    case actionTypes.TRIGGER_RELOAD:
-      return {
-        ...state,
-        trigger: action.trigger
-      };
     case actionTypes.SET_EXAM:
       return {
         ...state,
