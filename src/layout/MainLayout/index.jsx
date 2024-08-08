@@ -11,7 +11,6 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import { CssBaseline, styled, useTheme } from '@mui/material';
 import Header from './Header';
 import Sidebar from './Sidebar';
-import Customization from '../Customization';
 import Breadcrumbs from 'ui-component/extended/Breadcrumbs';
 import { SET_MENU, SET_USER } from 'store/actions';
 import { drawerWidth } from 'store/constant';
@@ -65,28 +64,6 @@ const MainLayout = () => {
   const handleLeftDrawerToggle = () => {
     dispatch({ type: SET_MENU, opened: !leftDrawerOpened });
   };
-  useEffect(() => {
-    runGetUser()
-      .then((data) => {
-        if (data.status === 'false') {
-          window.location.href = '/login';
-        } else {
-          dispatch({
-            type: SET_USER,
-            user: {
-              id: data.data[0].id,
-              name: data.data[0].name,
-              email: data.data[0].email,
-              phone: data.data[0].phone,
-              role: data.data[0].role
-            }
-          });
-        }
-      })
-      .catch((e) => {
-        window.location.href = '/login';
-      });
-  }, []);
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
