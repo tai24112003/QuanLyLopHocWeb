@@ -4,13 +4,15 @@ import { lazy } from 'react';
 import MainLayout from 'layout/MainLayout';
 import Loadable from 'ui-component/Loadable';
 import { element } from 'prop-types';
+import withAuth from 'utils/hoc/withAuth.jsx';
+import onlyAdmin from 'utils/hoc/onlyAdmin';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
 const QuestionScreen = Loadable(lazy(() => import('views/pages/question/index')));
 const ExamScreen = Loadable(lazy(() => import('views/pages/exam')));
 const RoomScreen = Loadable(lazy(() => import('views/pages/room')));
-const ManageStudentcreen = Loadable(lazy(() => import('views/pages/manage-student')));
+const ManageStudentScreen = Loadable(lazy(() => import('views/pages/manage-student')));
 const RoomDetailScreen = Loadable(lazy(() => import('views/pages/room-detail')));
 const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
@@ -27,6 +29,17 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
+const AuthQuestionScreen = withAuth(QuestionScreen);
+const AuthExamScreen = withAuth(ExamScreen);
+const AuthRoomScreen = withAuth(RoomScreen);
+const AuthManageStudentScreen = withAuth(ManageStudentScreen);
+const AuthRoomDetailScreen = withAuth(RoomDetailScreen);
+const AuthExamListScreen = withAuth(ExamListScreen);
+const AuthExamViewScreen = withAuth(ExamViewScreen);
+const AuthAccountListScreen = withAuth(onlyAdmin(AccountListScreen));
+const AuthSubjectChapterScreen = withAuth(SubjectChapterScreen);
+const AuthDashboardDefault = withAuth(onlyAdmin(DashboardDefault));
+const AuthNotFound = withAuth(NotFound);
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -36,14 +49,14 @@ const MainRoutes = {
   children: [
     {
       path: '/',
-      element: <DashboardDefault />
+      element: <AuthDashboardDefault />
     },
     {
       path: 'question',
       children: [
         {
           path: '',
-          element: <QuestionScreen />
+          element: <AuthQuestionScreen />
         }
       ]
     },
@@ -52,15 +65,15 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <ExamListScreen />
+          element: <AuthExamListScreen />
         },
         {
           path: 'create',
-          element: <ExamScreen />
+          element: <AuthExamScreen />
         },
         {
           path: 'view/:id',
-          element: <ExamViewScreen />
+          element: <AuthExamViewScreen />
         }
       ]
     },
@@ -69,7 +82,7 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <SubjectChapterScreen />
+          element: <AuthSubjectChapterScreen />
         }
       ]
     },
@@ -78,7 +91,7 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <AccountListScreen />
+          element: <AuthAccountListScreen />
         }
       ]
     },
@@ -87,11 +100,11 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <RoomScreen />
+          element: <AuthRoomScreen />
         },
         {
           path: ':id',
-          element: <RoomDetailScreen />
+          element: <AuthRoomDetailScreen />
         }
       ]
     },
@@ -100,32 +113,14 @@ const MainRoutes = {
       children: [
         {
           path: '',
-          element: <ManageStudentcreen />
+          element: <AuthManageStudentScreen />
         }
       ]
     },
     {
       path: '*',
-      element: <NotFound />
+      element: <AuthNotFound />
     }
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'tabler-icons',
-    //       element: <UtilsTablerIcons />
-    //     }
-    //   ]
-    // },
-    // {
-    //   path: 'icons',
-    //   children: [
-    //     {
-    //       path: 'material-icons',
-    //       element: <UtilsMaterialIcons />
-    //     }
-    //   ]
-    // },
   ]
 };
 
