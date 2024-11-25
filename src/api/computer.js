@@ -10,6 +10,13 @@ const getComputerByRoomID = async (roomID) => {
   return data;
 };
 
+const getComputerByID = async (id) => {
+  const url = BASE_URL + `/computerID/${id}`;
+  const data = await apiCall({ method: 'get', url });
+
+  return data;
+};
+
 // Thêm máy tính
 const addComputer = async (computerData) => {
   const url = BASE_URL;
@@ -34,4 +41,4 @@ const updateComputer = async (dataNew) => {
   return data;
 };
 
-export { getComputerByRoomID, addComputer, deleteComputer, updateComputer };
+export { getComputerByRoomID, addComputer, deleteComputer, updateComputer, getComputerByID };

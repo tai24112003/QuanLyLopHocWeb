@@ -1,9 +1,12 @@
+import { useTheme } from '@emotion/react';
+import { Avatar, Card, CardContent, CardHeader } from '@mui/material';
 import { Box } from '@mui/system';
 import { MaterialReactTable, useMaterialReactTable } from 'material-react-table';
 import React from 'react';
 import { noRecordString } from 'store/constant';
 
-const CustomTable = React.memo(({ data, columns }) => {
+const CustomTable = React.memo(({ data, columns, label = '', des = '' }) => {
+  const theme = useTheme();
   const table = useMaterialReactTable({
     columns,
     data,
@@ -35,7 +38,14 @@ const CustomTable = React.memo(({ data, columns }) => {
       <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60px' }}>{noRecordString}</Box>
     )
   });
-  return <MaterialReactTable table={table} />;
+  return (
+    <Card style={{ position: 'relative' }}>
+      <CardHeader title={label} subheader={des} />
+      <CardContent>
+        <MaterialReactTable columns={columns} data={data} />
+      </CardContent>
+    </Card>
+  );
 });
 
 export default CustomTable;

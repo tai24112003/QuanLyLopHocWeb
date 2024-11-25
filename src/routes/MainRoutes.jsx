@@ -6,6 +6,7 @@ import Loadable from 'ui-component/Loadable';
 import { element } from 'prop-types';
 import withAuth from 'utils/hoc/withAuth.jsx';
 import onlyAdmin from 'utils/hoc/onlyAdmin';
+import onlyMaintain from 'utils/hoc/onlyMaintain';
 
 // dashboard routing
 const DashboardDefault = Loadable(lazy(() => import('views/dashboard')));
@@ -17,6 +18,9 @@ const RoomDetailScreen = Loadable(lazy(() => import('views/pages/room-detail')))
 const ExamListScreen = Loadable(lazy(() => import('views/pages/exam-list')));
 const ExamViewScreen = Loadable(lazy(() => import('views/pages/exam-view')));
 const AccountListScreen = Loadable(lazy(() => import('views/pages/account-list')));
+const MaintainScreen = Loadable(lazy(() => import('views/pages/maintain')));
+const DetailMaintainScreen = Loadable(lazy(() => import('views/pages/detail-session')));
+const HistoryComputerScreen = Loadable(lazy(() => import('views/pages/history-computer')));
 const SubjectChapterScreen = Loadable(lazy(() => import('views/pages/subject-chapter')));
 const NotFound = Loadable(lazy(() => import('views/NotFound')));
 
@@ -29,15 +33,13 @@ const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
-const AuthQuestionScreen = withAuth(QuestionScreen);
-const AuthExamScreen = withAuth(ExamScreen);
-const AuthRoomScreen = withAuth(RoomScreen);
+const AuthRoomScreen = withAuth(onlyMaintain(RoomScreen));
 const AuthManageStudentScreen = withAuth(ManageStudentScreen);
-const AuthRoomDetailScreen = withAuth(RoomDetailScreen);
-const AuthExamListScreen = withAuth(ExamListScreen);
-const AuthExamViewScreen = withAuth(ExamViewScreen);
+const AuthRoomDetailScreen = withAuth(onlyMaintain(RoomDetailScreen));
 const AuthAccountListScreen = withAuth(onlyAdmin(AccountListScreen));
-const AuthSubjectChapterScreen = withAuth(SubjectChapterScreen);
+const AuthMaintainScreen = withAuth(onlyMaintain(MaintainScreen));
+const AuthDetailMaintainScreen = withAuth(onlyMaintain(DetailMaintainScreen));
+const AuthHistoryComputerScreen = withAuth(onlyMaintain(HistoryComputerScreen));
 const AuthDashboardDefault = withAuth(onlyAdmin(DashboardDefault));
 const AuthNotFound = withAuth(NotFound);
 
@@ -51,41 +53,41 @@ const MainRoutes = {
       path: '/',
       element: <AuthDashboardDefault />
     },
-    {
-      path: 'question',
-      children: [
-        {
-          path: '',
-          element: <AuthQuestionScreen />
-        }
-      ]
-    },
-    {
-      path: 'exam',
-      children: [
-        {
-          path: '',
-          element: <AuthExamListScreen />
-        },
-        {
-          path: 'create',
-          element: <AuthExamScreen />
-        },
-        {
-          path: 'view/:id',
-          element: <AuthExamViewScreen />
-        }
-      ]
-    },
-    {
-      path: 'subject',
-      children: [
-        {
-          path: '',
-          element: <AuthSubjectChapterScreen />
-        }
-      ]
-    },
+    // {
+    //   path: 'question',
+    //   children: [
+    //     {
+    //       path: '',
+    //       element: <AuthQuestionScreen />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'exam',
+    //   children: [
+    //     {
+    //       path: '',
+    //       element: <AuthExamListScreen />
+    //     },
+    //     {
+    //       path: 'create',
+    //       element: <AuthExamScreen />
+    //     },
+    //     {
+    //       path: 'view/:id',
+    //       element: <AuthExamViewScreen />
+    //     }
+    //   ]
+    // },
+    // {
+    //   path: 'subject',
+    //   children: [
+    //     {
+    //       path: '',
+    //       element: <AuthSubjectChapterScreen />
+    //     }
+    //   ]
+    // },
     {
       path: 'account',
       children: [
@@ -105,6 +107,28 @@ const MainRoutes = {
         {
           path: ':id',
           element: <AuthRoomDetailScreen />
+        }
+      ]
+    },
+    {
+      path: 'maintain',
+      children: [
+        {
+          path: '',
+          element: <AuthMaintainScreen />
+        },
+        {
+          path: ':id',
+          element: <AuthDetailMaintainScreen />
+        }
+      ]
+    },
+    {
+      path: 'history',
+      children: [
+        {
+          path: ':id',
+          element: <AuthHistoryComputerScreen />
         }
       ]
     },

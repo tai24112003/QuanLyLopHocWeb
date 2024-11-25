@@ -8,7 +8,7 @@ const icons = { IconDashboard, IconEdit, IconList };
 
 const accountScreen = {
   id: 'account',
-  title: 'Giáo viên',
+  title: 'Người dùng',
   type: 'group',
   children: [
     {
