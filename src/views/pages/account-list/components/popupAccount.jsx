@@ -157,6 +157,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
               <MenuItem value="GV">Giáo viên</MenuItem>
               <MenuItem value="TK">Trưởng khoa</MenuItem>
               <MenuItem value="PK">Phó khoa</MenuItem>
+              <MenuItem value="MT">Bảo trì</MenuItem>
             </Select>
           </Grid>
         </Grid>

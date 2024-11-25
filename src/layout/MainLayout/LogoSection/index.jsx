@@ -12,10 +12,16 @@ import { MENU_OPEN } from 'store/actions';
 // ==============================|| MAIN LOGO ||============================== //
 
 const LogoSection = () => {
+  const user = useSelector((state) => state.customization.user);
   const defaultId = useSelector((state) => state.customization.defaultId);
   const dispatch = useDispatch();
   return (
-    <ButtonBase disableRipple onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })} component={Link} to={config.defaultPath}>
+    <ButtonBase
+      disableRipple
+      onClick={() => dispatch({ type: MENU_OPEN, id: defaultId })}
+      component={Link}
+      to={user.role !== 'MT' ? config.defaultPath : config.secondPath}
+    >
       <strong style={{ textAlign: 'center' }}>
         Cao đẳng <br />
         Kỹ thuật Cao Thắng

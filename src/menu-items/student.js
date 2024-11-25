@@ -20,7 +20,7 @@ const studentScreen = {
       breadcrumbs: true
     }
   ],
-  role: ['admin', 'TK', 'PK', 'GV']
+  role: ['admin', 'TK', 'PK', 'GV', 'MT']
 };
 
 export default studentScreen;
