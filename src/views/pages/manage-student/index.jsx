@@ -7,14 +7,13 @@ import { IconPlus } from '@tabler/icons-react';
 import PopupWithTextField from './components/popupStatus';
 import { gridSpacing } from 'store/constant';
 import { Link } from 'react-router-dom';
-import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { getClassesByUserId } from 'api/class';
 import { getAttendance, updateAttendance } from 'api/attendance';
 import generateId from 'utils/generate-id';
 import CustomTable from 'ui-component/table/Table';
 import { Box } from '@mui/system';
 import NotificationComponent from 'ui-component/notification/NotificationComponent';
+import { parse, format } from 'date-fns';
 
 const ManageStudentScreen = () => {
   const [data, setData] = useState([]);
@@ -88,12 +87,11 @@ const ManageStudentScreen = () => {
     });
   });
 
-  const formatAttendanceForUI = useCallback((attendanceData) => {
+  const formatAttendanceForUI = (attendanceData) => {
     const studentMap = {};
-
     attendanceData.forEach(({ StudentID, FirstName, LastName, Present, StartTime, SessionID }) => {
-      const date = new Date(StartTime).toLocaleDateString();
-
+      const parsedDate = parse(StartTime, 'dd/MM/yyyy HH:mm:ss', new Date());
+      const date = format(parsedDate, 'dd/MM/yyyy');
       if (!studentMap[StudentID]) {
         studentMap[StudentID] = {
           id: StudentID,
@@ -106,11 +104,12 @@ const ManageStudentScreen = () => {
         studentMap[StudentID].date.push(date);
       }
 
-      studentMap[StudentID][date] = Present;
+      if (!studentMap[StudentID][date]) {
+        studentMap[StudentID][date] = Present;
+      }
     });
-
     return Object.values(studentMap);
-  }, []);
+  };
 
   const handleClose = () => {
     setOpenPopUp(false);

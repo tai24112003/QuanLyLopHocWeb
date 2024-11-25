@@ -9,6 +9,7 @@ import { Link, useParams } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
 import { addComputer, deleteComputer, getComputerByRoomID, updateComputer } from 'api/computer';
 import CustomTable from 'ui-component/table/Table';
+import { useTheme } from '@emotion/react';
 
 const RoomDetailScreen = () => {
   const [data, setData] = useState([]);
@@ -20,6 +21,7 @@ const RoomDetailScreen = () => {
   const [computers, setComputers] = useState([]);
   const { showNotification, NotificationComponent } = useNotification();
   const { id } = useParams();
+  const theme = useTheme();
 
   useEffect(() => {
     getComputerByRoomID(id).then((data) => {
@@ -28,6 +30,7 @@ const RoomDetailScreen = () => {
       }
     });
     getRoomByID(id).then((data) => {
+      console.log(data.data);
       setNameRoom(data.data);
     });
   }, []);
@@ -36,24 +39,21 @@ const RoomDetailScreen = () => {
     () => [
       {
         accessorKey: 'ID',
-        header: '#',
+        header: 'STT',
         size: 150,
-        Cell: ({ cell }) => <Link to="">{cell.getValue()}</Link>
+        Cell: ({ row }) => row.index + 1
       },
       {
         accessorKey: 'ComputerName',
         header: 'Tên máy',
         size: 150,
-        Cell: ({ cell }) => (
-          <div>
-            {cell
-              .getValue()
-              .split('|')
-              .map((ram, index) => (
-                <div key={index}>{ram.toUpperCase()}</div>
-              ))}
-          </div>
-        )
+        Cell: ({ row }) => {
+          return (
+            <Link to={`/history/${row.original.ID}`} style={{ color: theme.palette.error.main }}>
+              <span style={{ color: theme.palette.error.main }}>{row.original.ComputerName}</span>
+            </Link>
+          );
+        }
       },
       {
         accessorKey: 'HDD',
