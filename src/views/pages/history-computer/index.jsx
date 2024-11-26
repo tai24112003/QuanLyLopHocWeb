@@ -15,6 +15,7 @@ import { useTheme } from '@emotion/react';
 import { getComputerByID, updateComputer } from 'api/computer';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { Link, useParams } from 'react-router-dom';
+import { format } from 'date-fns';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const HistoryComputerScreen = () => {
@@ -47,6 +48,15 @@ const HistoryComputerScreen = () => {
         size: 50,
         Cell: ({ row }) => row.index + 1,
         enableSorting: false
+      },
+      {
+        accessorKey: 'createdAt',
+        header: 'Ngày',
+        size: 150,
+        Cell: ({ row }) => {
+          const date = new Date(row.original.createdAt);
+          return format(date, 'dd/MM/yyyy');
+        }
       },
       {
         accessorKey: 'Computer',
@@ -171,7 +181,7 @@ const HistoryComputerScreen = () => {
           <Card sx={{ margin: 'auto' }}>
             <CardContent>
               <Typography variant="h5" component="div">
-                Thông số của máy {computer?.ComputerName}
+                Thông số hiện tại của máy {computer?.ComputerName}
               </Typography>
               <Grid container style={{ marginTop: 10 }} spacing={gridSpacing}>
                 <Grid item xs={12}>
