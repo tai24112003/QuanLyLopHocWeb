@@ -72,7 +72,8 @@ const ProfileSection = () => {
     handleClose(event);
 
     if (route && route !== '') {
-      navigate(route);
+      // navigate(route);
+      window.location.href = route;
     }
   };
   const handleToggle = () => {
@@ -174,7 +175,7 @@ const ProfileSection = () => {
                         <ListItemButton
                           sx={{ borderRadius: `${customization.borderRadius}px` }}
                           selected={selectedIndex === 0}
-                          onClick={(event) => handleListItemClick(event, 0, '#')}
+                          onClick={(event) => handleListItemClick(event, 0, 'my-account')}
                         >
                           <ListItemIcon>
                             <IconSettings stroke={1.5} size="1.3rem" />

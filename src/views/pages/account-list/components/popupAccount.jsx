@@ -52,16 +52,16 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
       setError({ ...error, phone: 'Số điện thoại không bỏ trống' });
       return;
     }
-    if (data.passwordConfirm !== data.password) {
-      setError({ ...error, passwordConfirm: 'Mật khẩu xác nhận không khớp' });
-      return;
-    }
     if (data.password && data.password.length < 8) {
       setError({ ...error, password: 'Mật khẩu phải trên 8 kí tự' });
       return;
     }
     if (!subjectEdit && data.password === '') {
       setError({ ...error, password: 'Mật khẩu không bỏ trống' });
+      return;
+    }
+    if (data.password && data.passwordConfirm !== data.password) {
+      setError({ ...error, passwordConfirm: 'Mật khẩu xác nhận không khớp' });
       return;
     }
     if (error.name === '' && error.password === '' && error.email === '' && error.passwordConfirm === '' && error.phone === '')
@@ -164,7 +164,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="error">
-          Cancel
+          Hủy
         </Button>
         <Button
           onClick={() => {
@@ -172,7 +172,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
           }}
           color="primary"
         >
-          Save
+          Lưu
         </Button>
       </DialogActions>
     </Dialog>

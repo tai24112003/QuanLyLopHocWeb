@@ -16,8 +16,7 @@ const accountScreen = {
       title: 'Danh sách',
       type: 'item',
       url: '/account',
-      icon: icons.IconList,
-      breadcrumbs: true
+      icon: icons.IconList
     }
   ],
   role: ['admin', 'TK', 'PK']

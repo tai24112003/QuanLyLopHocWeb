@@ -16,16 +16,14 @@ const maintainScreen = {
       title: 'Thông tin có thay đổi',
       type: 'item',
       url: '/maintain',
-      icon: icons.IconList,
-      breadcrumbs: true
+      icon: icons.IconList
     },
     {
       id: 'room',
       title: 'Danh sách phòng',
       type: 'item',
       url: '/room',
-      icon: icons.IconList,
-      breadcrumbs: true
+      icon: icons.IconList
     }
   ],
   role: ['admin', 'TK', 'PK', 'MT']
