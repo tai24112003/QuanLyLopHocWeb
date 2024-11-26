@@ -97,8 +97,9 @@ const AccountListScreen = () => {
                 <Button
                   onClick={(e) => {
                     runToggleUserStatus(row.original.id).then((res) => {
-                      setReload((prev) => prev + 1);
                       if (res.success) {
+                        setReload((prev) => prev + 1);
+                        setTimeout(() => showNotification('Cập nhật thành công!', 'success'), 100);
                       }
                     });
                   }}

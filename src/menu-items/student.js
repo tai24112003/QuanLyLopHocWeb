@@ -16,8 +16,7 @@ const studentScreen = {
       title: 'Chuyên cần',
       type: 'item',
       url: '/student',
-      icon: icons.IconList,
-      breadcrumbs: true
+      icon: icons.IconList
     }
   ],
   role: ['admin', 'TK', 'PK', 'GV', 'MT']
