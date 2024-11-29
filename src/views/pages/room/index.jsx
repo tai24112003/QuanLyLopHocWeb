@@ -111,34 +111,37 @@ const RoomListScreen = () => {
         accessorKey: 'actions',
         header: 'Thao tác',
         size: 150,
-        Cell: ({ row }) => (
-          <>
-            <Button
-              size="small"
-              onClick={() => {
-                setSelectedRoom(row.original);
-                setOpenPopUp(true);
-              }}
-              color="warning"
-              sx={{ margin: 0.5 }}
-              variant="contained"
-            >
-              <EditNote />
-            </Button>
-            <Button
-              onClick={() => {
-                setRoomToDelete(row.original.RoomID);
-                setOpenConfirm(true);
-              }}
-              sx={{ margin: 0.5 }}
-              size="small"
-              color="error"
-              variant="contained"
-            >
-              <Delete />
-            </Button>
-          </>
-        )
+        Cell: ({ row }) =>
+          row.original.Status == 'Trống' ? (
+            <>
+              <Button
+                size="small"
+                onClick={() => {
+                  setSelectedRoom(row.original);
+                  setOpenPopUp(true);
+                }}
+                color="warning"
+                sx={{ margin: 0.5 }}
+                variant="contained"
+              >
+                <EditNote />
+              </Button>
+              <Button
+                onClick={() => {
+                  setRoomToDelete(row.original.RoomID);
+                  setOpenConfirm(true);
+                }}
+                sx={{ margin: 0.5 }}
+                size="small"
+                color="error"
+                variant="contained"
+              >
+                <Delete />
+              </Button>
+            </>
+          ) : (
+            <></>
+          )
       }
     ],
     []
