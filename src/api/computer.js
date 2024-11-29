@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_APP_API_URL + 'computer/';
 
 // Lấy danh sách máy theo RoomID
 const getComputerByRoomID = async (roomID) => {
-  const url = BASE_URL + `/${roomID}`;
+  const url = BASE_URL + `${roomID}`;
   const data = await apiCall({ method: 'get', url });
 
   return data;
@@ -36,7 +36,7 @@ const deleteComputer = async ({ idRoom, computerID }) => {
 // Sửa máy tính
 const updateComputer = async (dataNew) => {
   const url = BASE_URL + ``;
-  const data = await apiCall({ method: 'put', url, data: dataNew });
+  const data = await apiCall({ method: 'put', url, data: { ...dataNew, ComputerName: dataNew.Computer.ComputerName } });
 
   return data;
 };

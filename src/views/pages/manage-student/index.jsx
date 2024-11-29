@@ -64,12 +64,12 @@ const ManageStudentScreen = () => {
       size: 50,
       Cell: ({ row }) => {
         let styleStatus =
-          row.original[item] === 'c'
+          row.original[item] === 'cm'
             ? { bgcolor: 'success.dark', color: 'primary.light' }
             : row.original[item] === 'cp'
               ? { bgcolor: 'warning.main', color: 'text.primary' }
               : { bgcolor: 'error.main', color: 'primary.light' };
-        let content = row.original[item] === 'c' ? 'Có' : row.original[item] === 'cp' ? 'Có phép' : 'Vắng';
+        let content = row.original[item] === 'cm' ? 'Có' : row.original[item] === 'cp' ? 'Có phép' : 'Vắng';
         return (
           <Box
             key={generateId()}

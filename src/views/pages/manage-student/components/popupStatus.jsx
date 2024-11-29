@@ -43,7 +43,7 @@ const PopupUpdateStatus = ({ open, handleClose, handleSave, sessionEdit }) => {
           <Grid item xs={12} sm={12} md={12}>
             <FormControl fullWidth component="fieldset">
               <RadioGroup aria-label="attendance" name="attendance" value={value?.currentStatus} onChange={handleChange}>
-                <FormControlLabel key={1} value={'c'} control={<Radio />} label={'Có mặt'} />
+                <FormControlLabel key={1} value={'cm'} control={<Radio />} label={'Có mặt'} />
                 <FormControlLabel key={2} value={'cp'} control={<Radio />} label={'Vắng có phép'} />
                 <FormControlLabel key={3} value={'v'} control={<Radio />} label={'Vắng không phép'} />
               </RadioGroup>
