@@ -1,13 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Grid, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
+import HDDFields from './hddComponent';
+import RAMFields from './ramComponent';
 
 const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   const [data, setData] = useState({
     RoomName: '',
-    StandardHDD: roomEdit ? null : '',
+    StandardHDD: roomEdit
+      ? null
+      : {
+          Model: '',
+          Interface: '',
+          Size: ''
+        },
     StandardCPU: roomEdit ? null : '',
-    StandardRAM: roomEdit ? null : '',
+    StandardRAM: roomEdit
+      ? null
+      : {
+          Capacity: '',
+          Manufacturer: ''
+        },
     NumberOfComputers: '',
     additionalRAM: [],
     additionalHDD: [],
@@ -49,10 +62,35 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
+    setData((prevData) => {
+      // Kiểm tra xem có phải thuộc tính trong "StandardHDD" hay không
+      if (name.startsWith('StandardHDD.')) {
+        const key = name.split('.')[1]; // Lấy phần sau dấu "."
+        return {
+          ...prevData,
+          StandardHDD: {
+            ...prevData.StandardHDD,
+            [key]: value
+          }
+        };
+      }
+      if (name.startsWith('StandardRAM.')) {
+        const key = name.split('.')[1]; // Lấy phần sau dấu "."
+        return {
+          ...prevData,
+          StandardRAM: {
+            ...prevData.StandardRAM,
+            [key]: value
+          }
+        };
+      }
+
+      // Nếu không, xử lý các trường hợp thông thường
+      return {
+        ...prevData,
+        [name]: value
+      };
+    });
   };
 
   const handleAddRAM = () => {
@@ -76,18 +114,28 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
     }));
   };
 
-  const handleRAMChange = (index, value) => {
+  const handleRAMChange = (e, index, value) => {
     const updatedRAMs = [...data.additionalRAM];
-    updatedRAMs[index] = value;
+    const { name } = e.target;
+    // Kiểm tra xem có phải thuộc tính trong "updatedRAMs" hay không
+    if (name.startsWith('StandardHDD.')) {
+      const key = name.split('.')[1]; // Lấy phần sau dấu "."
+      updatedRAMs[index] = { ...(updatedRAMs[index] ?? { [key]: value }), [key]: value };
+    }
     setData((prevData) => ({
       ...prevData,
       additionalRAM: updatedRAMs
     }));
   };
 
-  const handleHDDChange = (index, value) => {
+  const handleHDDChange = (e, index, value) => {
     const updatedHDDs = [...data.additionalHDD];
-    updatedHDDs[index] = value;
+    const { name } = e.target;
+    // Kiểm tra xem có phải thuộc tính trong "StandardHDD" hay không
+    if (name.startsWith('StandardHDD.')) {
+      const key = name.split('.')[1]; // Lấy phần sau dấu "."
+      updatedHDDs[index] = { ...(updatedHDDs[index] ?? { [key]: value }), [key]: value };
+    }
     setData((prevData) => ({
       ...prevData,
       additionalHDD: updatedHDDs
@@ -179,9 +227,26 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   };
 
   const handleSaveClick = () => {
-    if (validate()) {
-      const combinedRAM = [...data.additionalRAM, data.StandardRAM].join('|').replaceAll(' ', '');
-      const combinedHDD = [...data.additionalHDD, data.StandardHDD].join('|').replaceAll(' ', '');
+    if (true) {
+      const combinedRAM = [
+        ...data.additionalRAM.map(
+          (item) => `Capacity:&&${item.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${item.Manufacturer.replaceAll(' ', '&&')}`
+        ),
+        `Capacity:&&${data.StandardRAM.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${data.StandardRAM.Manufacturer.replaceAll(' ', '&&')}`
+      ]
+        .join('|')
+        .replaceAll(' ', '')
+        .replaceAll('&&', ' ');
+      const combinedHDD = [
+        ...data.additionalHDD.map(
+          (item) =>
+            `Model:&&${item.Model.replaceAll(' ', '&&')}&&Interface:&&${item.Interface.replaceAll(' ', '&&')}&&Size:&&${item.Size.replaceAll(' ', '&&')}`
+        ),
+        `Model:&&${data.StandardHDD.Model.replaceAll(' ', '&&')}&&Interface:&&${data.StandardHDD.Interface.replaceAll(' ', '&&')}&&Size:&&${data.StandardHDD.Size.replaceAll(' ', '&&')}`
+      ]
+        .join('|')
+        .replaceAll(' ', '')
+        .replaceAll('&&', ' ');
       const combinedCPU = [...data.additionalCPU, data.StandardCPU].join('|').replaceAll(' ', '');
 
       handleSave({
@@ -197,48 +262,35 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
     <Dialog open={open} onClose={handleClose}>
       <DialogTitle sx={{ fontSize: 20 }}>Nhập thông tin phòng</DialogTitle>
       <DialogContent>
-        <Grid container spacing={gridSpacing}>
-          <Grid item xs={12}>
-            <TextField
-              disabled={roomEdit}
-              autoFocus
-              margin="dense"
-              label="Room Name"
-              name="RoomName"
-              type="text"
-              fullWidth
-              value={data.RoomName}
-              onChange={handleChange}
-              onBlur={() => {
-                if (!data.RoomName) setError((prev) => ({ ...prev, RoomName: 'Room Name không để trống' }));
-              }}
-            />
-            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.RoomName}</Typography>
+        <Grid container spacing={1}>
+          <Grid container xs={12}>
+            <Grid item xs={12} className="p-5">
+              <TextField
+                disabled={roomEdit}
+                autoFocus
+                margin="dense"
+                label="Room Name"
+                name="RoomName"
+                type="text"
+                fullWidth
+                value={data.RoomName}
+                onChange={handleChange}
+                onBlur={() => {
+                  if (!data.RoomName) setError((prev) => ({ ...prev, RoomName: 'Room Name không để trống' }));
+                }}
+              />
+              <Typography sx={{ fontSize: 10, color: 'red' }}>{error.RoomName}</Typography>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={12} md={6}>
-            <TextField
-              margin="dense"
-              label="HDD"
-              name="StandardHDD"
-              type="text"
-              fullWidth
-              value={data.StandardHDD}
-              onChange={handleChange}
-            />
-            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.StandardHDD}</Typography>
+          <Grid item container spacing={1} xs={12} sm={12} md={12}>
+            <HDDFields data={data.StandardHDD} handleChange={handleChange} error={error.StandardHDD} />
             {data.additionalHDD.map((hdd, index) => (
               <Grid container key={index} alignItems="center">
-                <Grid item xs={12}>
-                  <TextField
-                    margin="dense"
-                    label={`HDD thêm ${index + 1}`}
-                    type="text"
-                    fullWidth
-                    value={hdd}
-                    onChange={(e) => handleHDDChange(index, e.target.value)}
-                  />
-                  <Typography sx={{ fontSize: 10, color: 'red' }}>{error[`additionalHDD_${index}`]}</Typography>
-                </Grid>
+                <HDDFields
+                  data={hdd}
+                  handleChange={(e) => handleHDDChange(e, index, e.target.value)}
+                  error={error[`additionalHDD_${index}`]}
+                />
                 <Grid item xs={1}>
                   <Button onClick={() => handleRemoveHDD(index)} color="error" size="small">
                     Xóa
@@ -250,7 +302,29 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
               Thêm HDD
             </Button>
           </Grid>
-          <Grid item xs={12} sm={12} md={6}>
+          <Grid item container spacing={1} xs={12} sm={12} md={12}>
+            <RAMFields data={data.StandardRAM} handleChange={handleChange} error={error.StandardRAM} />
+            {data.additionalRAM.map((ram, index) => (
+              <Grid container key={index} alignItems="center">
+                <Grid item xs={12}>
+                  <RAMFields
+                    data={ram}
+                    handleChange={(e) => handleRAMChange(e, index, e.target.value)}
+                    error={error[`additionalRAM_${index}`]}
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <Button onClick={() => handleRemoveRAM(index)} color="error" size="small">
+                    Xóa
+                  </Button>
+                </Grid>
+              </Grid>
+            ))}
+            <Button onClick={handleAddRAM} color="primary">
+              Thêm RAM
+            </Button>
+          </Grid>
+          <Grid item xs={12} container spacing={1} sm={12} md={12}>
             <TextField
               margin="dense"
               label="CPU"
@@ -260,7 +334,9 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
               value={data.StandardCPU}
               onChange={handleChange}
             />
-            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.StandardCPU}</Typography>
+            <Grid item xs={12}>
+              <Typography sx={{ fontSize: 10, color: 'red' }}>{error.StandardCPU}</Typography>
+            </Grid>
             {data.additionalCPU.map((cpu, index) => (
               <Grid container key={index} alignItems="center">
                 <Grid item xs={12}>
@@ -285,42 +361,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
               Thêm CPU
             </Button>
           </Grid>
-          <Grid item xs={12} sm={12} md={6}>
-            <TextField
-              margin="dense"
-              label="RAM"
-              name="StandardRAM"
-              type="text"
-              fullWidth
-              value={data.StandardRAM}
-              onChange={handleChange}
-            />
-            <Typography sx={{ fontSize: 10, color: 'red' }}>{error.StandardRAM}</Typography>
-            {data.additionalRAM.map((ram, index) => (
-              <Grid container key={index} alignItems="center">
-                <Grid item xs={12}>
-                  <TextField
-                    margin="dense"
-                    label={`RAM thêm ${index + 1}`}
-                    type="text"
-                    fullWidth
-                    value={ram}
-                    onChange={(e) => handleRAMChange(index, e.target.value)}
-                  />
-                  <Typography sx={{ fontSize: 10, color: 'red' }}>{error[`additionalRAM_${index}`]}</Typography>
-                </Grid>
-                <Grid item xs={1}>
-                  <Button onClick={() => handleRemoveRAM(index)} color="error" size="small">
-                    Xóa
-                  </Button>
-                </Grid>
-              </Grid>
-            ))}
-            <Button onClick={handleAddRAM} color="primary">
-              Thêm RAM
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={12} md={6}>
+          <Grid item container xs={12} sm={12} spacing={1} md={12}>
             <TextField
               disabled={roomEdit}
               margin="dense"

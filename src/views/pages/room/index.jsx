@@ -160,7 +160,7 @@ const RoomListScreen = () => {
   const handleDelete = async () => {
     try {
       const res = await deleteRoom(roomToDelete);
-      if (res.status === 'success') {
+      if (res.success) {
         setData((prevData) => [...prevData.filter((item) => item.RoomID !== roomToDelete)]);
         setTimeout(() => showNotification('Xóa thành công', 'success'), 10);
       }

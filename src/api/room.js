@@ -4,7 +4,7 @@ const BASE_URL = import.meta.env.VITE_APP_API_URL + 'room/';
 
 // Hàm lấy thông tin phòng theo ID
 const getRoomByID = async (id) => {
-  const url = BASE_URL + id;
+  const url = BASE_URL + `id/${id}`;
   const data = await apiCall({ method: 'get', url });
 
   return data;
