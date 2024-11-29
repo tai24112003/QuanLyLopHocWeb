@@ -98,7 +98,14 @@ const RoomListScreen = () => {
       {
         accessorKey: 'Status',
         header: 'Trạng thái',
-        size: 150
+        size: 150,
+        Cell: ({ row }) => {
+          let styles =
+            row.original.Status == 'Trống'
+              ? { backgroundColor: '#00e676', color: 'white' }
+              : { backgroundColor: '#ffe57f', color: 'black' };
+          return <span style={{ ...styles, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}>{row.original.Status}</span>;
+        }
       },
       {
         accessorKey: 'actions',
