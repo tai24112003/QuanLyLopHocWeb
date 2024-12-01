@@ -56,7 +56,7 @@ const AuthLogin = ({ ...others }) => {
           window.location.href = data.data.role === 'MT' ? config.secondPath : config.defaultPath;
         })
         .catch((e) => {
-          setErrors({ submit: e.message });
+          setErrors({ submit: 'Tài khoản hoặc mật khẩu không chính xác' });
         });
     } catch (error) {
       console.error('Login error:', error.message);
