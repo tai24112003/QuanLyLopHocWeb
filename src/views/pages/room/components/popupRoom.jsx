@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Grid, Typography } from '@mui/material';
-import { gridSpacing } from 'store/constant';
 import HDDFields from './hddComponent';
 import RAMFields from './ramComponent';
 
@@ -32,29 +31,95 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
     StandardHDD: '',
     StandardCPU: '',
     StandardRAM: '',
-    NumberOfComputers: ''
+    NumberOfComputers: '',
+    additionalRAM: [],
+    additionalHDD: [],
+    additionalCPU: []
   });
+
+  const handleClosing = () => {
+    setData({
+      RoomName: '',
+      StandardHDD: roomEdit
+        ? null
+        : {
+            Model: '',
+            Interface: '',
+            Size: ''
+          },
+      StandardCPU: roomEdit ? null : '',
+      StandardRAM: roomEdit
+        ? null
+        : {
+            Capacity: '',
+            Manufacturer: ''
+          },
+      NumberOfComputers: '',
+      additionalRAM: [],
+      additionalHDD: [],
+      additionalCPU: []
+    });
+    setError({
+      RoomName: '',
+      StandardHDD: '',
+      StandardCPU: '',
+      StandardRAM: '',
+      NumberOfComputers: '',
+      additionalRAM: [],
+      additionalHDD: [],
+      additionalCPU: []
+    });
+    handleClose();
+  };
 
   useEffect(() => {
     if (open) {
-      const standardRAM = roomEdit?.StandardRAM ? roomEdit.StandardRAM.split('|') : [];
-      const standardHDD = roomEdit?.StandardHDD ? roomEdit.StandardHDD.split('|') : [];
+      const standardRAM = roomEdit?.StandardRAM
+        ? roomEdit.StandardRAM.split('|').map((item) => {
+            const info = item.split(/Capacity:\s*|\s*Manufacturer:\s*/);
+            return {
+              Capacity: info[1] ?? '',
+              Manufacturer: info[2] ?? ''
+            };
+          })
+        : [
+            {
+              Capacity: '',
+              Manufacturer: ''
+            }
+          ];
+      const standardHDD = roomEdit?.StandardHDD
+        ? roomEdit.StandardHDD.split('|').map((item) => {
+            const info = item.split(/Model:\s*|\s*Interface:\s*|\sSize:\s/);
+            return {
+              Model: info[1] ?? '',
+              Interface: info[2] ?? '',
+              Size: info[3] ?? ''
+            };
+          })
+        : [
+            {
+              Model: '',
+              Interface: '',
+              Size: ''
+            }
+          ];
       const standardCPU = roomEdit?.StandardCPU ? roomEdit.StandardCPU.split('|') : [];
-
       setData({
+        RoomID: roomEdit?.RoomID,
         RoomName: roomEdit?.RoomName ?? '',
         StandardHDD: standardHDD[0] ?? '',
         StandardRAM: standardRAM[0] ?? '',
-        StandardCPU: standardRAM[0] ?? '',
+        StandardCPU: standardCPU[0] ?? '',
         NumberOfComputers: roomEdit?.NumberOfComputers ?? '',
         additionalRAM: standardRAM.filter((value, idx) => {
-          return idx === 0;
+          return idx !== 0;
         }),
         additionalHDD: standardHDD.filter((value, idx) => {
-          return idx === 0;
+          return idx !== 0;
         }),
         additionalCPU: standardCPU.filter((value, idx) => {
-          return idx === 0;
+          return idx !== 0;
         })
       });
     }
@@ -94,13 +159,21 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   };
 
   const handleAddRAM = () => {
+    if (data.additionalRAM.length >= 3) return;
     setData((prevData) => ({
       ...prevData,
-      additionalRAM: [...prevData.additionalRAM, '']
+      additionalRAM: [
+        ...prevData.additionalRAM,
+        {
+          Capacity: '',
+          Manufacturer: ''
+        }
+      ]
     }));
   };
 
   const handleAddHDD = () => {
+    if (data.additionalHDD.length >= 4) return;
     setData((prevData) => ({
       ...prevData,
       additionalHDD: [...prevData.additionalHDD, '']
@@ -108,6 +181,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   };
 
   const handleAddCPU = () => {
+    if (data.additionalCPU.length >= 1) return;
     setData((prevData) => ({
       ...prevData,
       additionalCPU: [...prevData.additionalCPU, '']
@@ -118,7 +192,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
     const updatedRAMs = [...data.additionalRAM];
     const { name } = e.target;
     // Kiểm tra xem có phải thuộc tính trong "updatedRAMs" hay không
-    if (name.startsWith('StandardHDD.')) {
+    if (name.startsWith('StandardRAM.')) {
       const key = name.split('.')[1]; // Lấy phần sau dấu "."
       updatedRAMs[index] = { ...(updatedRAMs[index] ?? { [key]: value }), [key]: value };
     }
@@ -183,16 +257,43 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
       err.RoomName = 'Room Name không để trống';
       valid = false;
     }
-    if (!data.StandardHDD) {
-      err.StandardHDD = 'HDD không để trống';
+    if (!data.StandardHDD.Model) {
+      err.StandardHDD = {
+        ...err.StandardHDD,
+        Model: 'HDD Model không để trống'
+      };
+      valid = false;
+    }
+    if (!data.StandardHDD.Interface) {
+      err.StandardHDD = {
+        ...err.StandardHDD,
+        Interface: 'HDD Interface không để trống'
+      };
+      valid = false;
+    }
+    if (!data.StandardHDD.Size) {
+      err.StandardHDD = {
+        ...err.StandardHDD,
+        Size: 'HDD Size không để trống'
+      };
       valid = false;
     }
     if (!data.StandardCPU) {
       err.StandardCPU = 'CPU không để trống';
       valid = false;
     }
-    if (!data.StandardRAM) {
-      err.StandardRAM = 'RAM không để trống';
+    if (!data.StandardRAM.Capacity) {
+      err.StandardRAM = {
+        ...err.StandardRAM,
+        Capacity: 'RAM Capacity không để trống'
+      };
+      valid = false;
+    }
+    if (!data.StandardRAM.Manufacturer) {
+      err.StandardRAM = {
+        ...err.StandardRAM,
+        Manufacturer: 'RAM Manufacturer không để trống'
+      };
       valid = false;
     }
     if (!data.NumberOfComputers) {
@@ -201,33 +302,62 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
     }
 
     // Validate additional fields
+    err.additionalRAM = [];
     data.additionalRAM.forEach((ram, index) => {
-      if (!ram) {
-        err[`additionalRAM_${index}`] = `RAM thêm ${index + 1} không để trống`;
+      if (!ram.Capacity) {
+        err.additionalRAM[index] = {
+          Capacity: 'RAM Capacity không để trống'
+        };
+
+        valid = false;
+      }
+      if (!ram.Manufacturer) {
+        err.additionalRAM[index] = {
+          ...err.additionalRAM[index],
+          Manufacturer: 'RAM Manufacturer không để trống'
+        };
         valid = false;
       }
     });
 
+    err.additionalHDD = [];
     data.additionalHDD.forEach((hdd, index) => {
-      if (!hdd) {
-        err[`additionalHDD_${index}`] = `HDD thêm ${index + 1} không để trống`;
+      if (!hdd.Model) {
+        err.additionalHDD[index] = {
+          Model: 'HDD Model không để trống'
+        };
+
+        valid = false;
+      }
+      if (!hdd.Size) {
+        err.additionalHDD[index] = {
+          ...err.additionalHDD[index],
+          Size: 'HDD Size không để trống'
+        };
+        valid = false;
+      }
+      if (!hdd.Interface) {
+        err.additionalHDD[index] = {
+          ...err.additionalHDD[index],
+          Interface: 'HDD Interface không để trống'
+        };
         valid = false;
       }
     });
 
+    err.additionalCPU = [];
     data.additionalCPU.forEach((cpu, index) => {
       if (!cpu) {
-        err[`additionalCPU_${index}`] = `CPU thêm ${index + 1} không để trống`;
+        err.additionalCPU[index] = 'CPU không để trống';
         valid = false;
       }
     });
-
     setError(err);
     return valid;
   };
 
   const handleSaveClick = () => {
-    if (true) {
+    if (validate()) {
       const combinedRAM = [
         ...data.additionalRAM.map(
           (item) => `Capacity:&&${item.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${item.Manufacturer.replaceAll(' ', '&&')}`
@@ -248,7 +378,6 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
         .replaceAll(' ', '')
         .replaceAll('&&', ' ');
       const combinedCPU = [...data.additionalCPU, data.StandardCPU].join('|').replaceAll(' ', '');
-
       handleSave({
         ...data,
         StandardRAM: combinedRAM,
@@ -259,14 +388,14 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   };
 
   return (
-    <Dialog open={open} onClose={handleClose}>
+    <Dialog open={open} onClose={handleClosing}>
       <DialogTitle sx={{ fontSize: 20 }}>Nhập thông tin phòng</DialogTitle>
       <DialogContent>
         <Grid container spacing={1}>
-          <Grid container xs={12}>
+          <Grid container>
             <Grid item xs={12} className="p-5">
               <TextField
-                disabled={roomEdit}
+                disabled={!!roomEdit}
                 autoFocus
                 margin="dense"
                 label="Room Name"
@@ -286,11 +415,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
             <HDDFields data={data.StandardHDD} handleChange={handleChange} error={error.StandardHDD} />
             {data.additionalHDD.map((hdd, index) => (
               <Grid container key={index} alignItems="center">
-                <HDDFields
-                  data={hdd}
-                  handleChange={(e) => handleHDDChange(e, index, e.target.value)}
-                  error={error[`additionalHDD_${index}`]}
-                />
+                <HDDFields data={hdd} handleChange={(e) => handleHDDChange(e, index, e.target.value)} error={error.additionalHDD[index]} />
                 <Grid item xs={1}>
                   <Button onClick={() => handleRemoveHDD(index)} color="error" size="small">
                     Xóa
@@ -310,7 +435,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
                   <RAMFields
                     data={ram}
                     handleChange={(e) => handleRAMChange(e, index, e.target.value)}
-                    error={error[`additionalRAM_${index}`]}
+                    error={error.additionalRAM[index]}
                   />
                 </Grid>
                 <Grid item xs={1}>
@@ -348,7 +473,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
                     value={cpu}
                     onChange={(e) => handleCPUChange(index, e.target.value)}
                   />
-                  <Typography sx={{ fontSize: 10, color: 'red' }}>{error[`additionalCPU_${index}`]}</Typography>
+                  <Typography sx={{ fontSize: 10, color: 'red' }}>{error.additionalCPU[index]}</Typography>
                 </Grid>
                 <Grid item xs={1}>
                   <Button onClick={() => handleRemoveCPU(index)} color="error" size="small">
@@ -377,7 +502,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} color="error">
+        <Button onClick={handleClosing} color="error">
           Hủy
         </Button>
         <Button onClick={handleSaveClick} color="primary">

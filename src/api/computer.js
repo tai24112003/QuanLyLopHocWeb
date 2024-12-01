@@ -36,7 +36,7 @@ const deleteComputer = async ({ idRoom, computerID }) => {
 // Sửa máy tính
 const updateComputer = async (dataNew) => {
   const url = BASE_URL + ``;
-  const data = await apiCall({ method: 'put', url, data: { ...dataNew, ComputerName: dataNew.Computer.ComputerName } });
+  const data = await apiCall({ method: 'put', url, data: { ...dataNew, ComputerName: dataNew.ComputerName } });
 
   return data;
 };

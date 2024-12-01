@@ -48,7 +48,7 @@ const MainRoutes = {
   children: [
     {
       path: '/',
-      element: <AuthDashboardDefault />
+      element: <AuthManageStudentScreen />
     },
     {
       path: 'account',

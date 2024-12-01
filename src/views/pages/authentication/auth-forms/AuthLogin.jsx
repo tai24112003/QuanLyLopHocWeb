@@ -53,7 +53,7 @@ const AuthLogin = ({ ...others }) => {
       login(values)
         .then((data) => {
           Cookies.set('asset_token', data.data.token, { expires: 7 });
-          window.location.href = config.defaultPath;
+          window.location.href = data.data.role === 'MT' ? config.secondPath : config.defaultPath;
         })
         .catch((e) => {
           setErrors({ submit: e.message });

@@ -30,7 +30,6 @@ const RoomDetailScreen = () => {
       }
     });
     getRoomByID(id).then((data) => {
-      console.log(data.data);
       setNameRoom(data.data);
     });
   }, []);
@@ -140,8 +139,11 @@ const RoomDetailScreen = () => {
   const handleSave = async (room) => {
     try {
       if (selectedRoom) {
-        await updateComputer(room);
-        setData((prevData) => prevData.map((item) => (item.ID === room.ID ? room : item)));
+        const res = await updateComputer(room);
+        if (res.success) {
+          setTimeout(() => showNotification('Cập nhật thành công', 'success'), 10);
+          setData((prevData) => prevData.map((item) => (item.ID === room.ID ? room : item)));
+        }
       } else {
         const newRoom = { ...room, RoomID: nameRoom[0]?.RoomID };
         const res = await addComputer(newRoom);
