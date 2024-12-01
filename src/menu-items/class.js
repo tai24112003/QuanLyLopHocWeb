@@ -6,20 +6,21 @@ const icons = { IconDashboard, IconEdit, IconList };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
 
-const studentScreen = {
-  id: 'student',
-  title: 'Sinh viên',
+const classScreen = {
+  id: 'room',
+  title: 'Lớp',
   type: 'group',
   children: [
     {
-      id: 'student-list',
-      title: 'Chuyên cần',
+      id: 'room-list',
+      title: 'Danh sách',
       type: 'item',
-      url: '/student',
-      icon: icons.IconList
+      url: '/class',
+      icon: icons.IconList,
+      breadcrumbs: true
     }
   ],
   role: ['admin', 'TK', 'PK', 'GV']
 };
 
-export default studentScreen;
+export default classScreen;

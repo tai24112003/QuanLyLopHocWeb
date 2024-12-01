@@ -9,8 +9,12 @@ import { Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material';
 import { gridSpacing } from 'store/constant';
 import { isEmailValid, isPhoneNumberValid } from 'views/utilities/common';
 import { Password } from '@mui/icons-material';
+import { useSelector } from 'react-redux';
 
 const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
+  const user = useSelector((state) => {
+    return state.customization.user;
+  });
   const [data, setData] = useState({
     name: '',
     email: '',
@@ -67,6 +71,8 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
     if (error.name === '' && error.password === '' && error.email === '' && error.passwordConfirm === '' && error.phone === '')
       handleSave(data);
   };
+
+  console.log(data);
 
   return (
     <Dialog open={open} onClose={handleClose} fullWidth>
@@ -152,7 +158,12 @@ const PopupWithTextField = ({ open, handleClose, handleSave, subjectEdit }) => {
           </Grid>
           <Grid item xs={12} sm={6} md={3} lg={3}>
             <InputLabel>Vai trò</InputLabel>
-            <Select onChange={(e) => setData({ ...data, role: e.target.value })} value={data.role} fullWidth>
+            <Select
+              disabled={data.role === 'TK' && user.role !== 'TK'}
+              onChange={(e) => setData({ ...data, role: e.target.value })}
+              value={data.role}
+              fullWidth
+            >
               <MenuItem value="admin">Admin</MenuItem>
               <MenuItem value="GV">Giáo viên</MenuItem>
               <MenuItem value="TK">Trưởng khoa</MenuItem>

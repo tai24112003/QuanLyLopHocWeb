@@ -18,18 +18,13 @@ const MaintainScreen = Loadable(lazy(() => import('views/pages/maintain')));
 const DetailMaintainScreen = Loadable(lazy(() => import('views/pages/detail-session')));
 const HistoryComputerScreen = Loadable(lazy(() => import('views/pages/history-computer')));
 const ProfilePage = Loadable(lazy(() => import('views/pages/my-account')));
+const ClassScreen = Loadable(lazy(() => import('views/pages/class')));
 const NotFound = Loadable(lazy(() => import('views/NotFound')));
-
-// utilities routing
-const UtilsTypography = Loadable(lazy(() => import('views/utilities/Typography')));
-const UtilsColor = Loadable(lazy(() => import('views/utilities/Color')));
-const UtilsShadow = Loadable(lazy(() => import('views/utilities/Shadow')));
-// const UtilsMaterialIcons = Loadable(lazy(() => import('views/utilities/MaterialIcons')));
-// const UtilsTablerIcons = Loadable(lazy(() => import('views/utilities/TablerIcons')));
 
 // sample page routing
 const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 const AuthRoomScreen = withAuth(onlyMaintain(RoomScreen));
+const AuthCLassScreen = withAuth(ClassScreen);
 const AuthManageStudentScreen = withAuth(ManageStudentScreen);
 const AuthRoomDetailScreen = withAuth(onlyMaintain(RoomDetailScreen));
 const AuthAccountListScreen = withAuth(onlyAdmin(AccountListScreen));
@@ -78,6 +73,15 @@ const MainRoutes = {
         {
           path: ':id',
           element: <AuthRoomDetailScreen />
+        }
+      ]
+    },
+    {
+      path: 'class',
+      children: [
+        {
+          path: '',
+          element: <AuthCLassScreen />
         }
       ]
     },
