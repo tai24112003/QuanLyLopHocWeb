@@ -14,7 +14,7 @@ const RAMFields = ({ data, error, handleChange }) => {
           value={data?.Capacity}
           onChange={handleChange}
         />
-        <Typography sx={{ fontSize: 10, color: 'red' }}>{error?.Model}</Typography>
+        <Typography sx={{ fontSize: 10, color: 'red' }}>{error?.Capacity}</Typography>
       </Grid>
       <Grid item xs={12} sm={4}>
         <TextField
@@ -26,7 +26,7 @@ const RAMFields = ({ data, error, handleChange }) => {
           value={data?.Manufacturer}
           onChange={handleChange}
         />
-        <Typography sx={{ fontSize: 10, color: 'red' }}>{error?.Interface}</Typography>
+        <Typography sx={{ fontSize: 10, color: 'red' }}>{error?.Manufacturer}</Typography>
       </Grid>
     </Grid>
   );

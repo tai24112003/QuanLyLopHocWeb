@@ -150,8 +150,11 @@ const RoomListScreen = () => {
   const handleSave = async (room) => {
     try {
       if (selectedRoom) {
-        await updateRoom(room);
-        setData((prevData) => prevData.map((item) => (item.RoomName === room.RoomName ? room : item)));
+        const res = await updateRoom(room);
+        if (res.status == 'success') {
+          setData((prevData) => prevData.map((item) => (item.RoomName === room.RoomName ? { ...room, Status: 'Trống' } : item)));
+          setTimeout(() => showNotification('Cập nhật thành công', 'success'), 10);
+        }
       } else {
         const newRoom = { ...room, Status: 'Trống' };
         const res = await addRoom(newRoom);

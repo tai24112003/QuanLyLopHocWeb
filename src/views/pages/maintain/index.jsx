@@ -16,7 +16,6 @@ import { updateComputer } from 'api/computer';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
 import { Link } from 'react-router-dom';
 
-// ==============================|| DEFAULT DASHBOARD ||============================== //
 const MaintainScreen = () => {
   const [data, setData] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
@@ -68,17 +67,6 @@ const MaintainScreen = () => {
           return <span style={{ ...styles, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}>{styles.title}</span>;
         }
       },
-      // {
-      //   accessorKey: 'MouseConnected',
-      //   header: 'Chuột',
-      //   size: 200,
-      //   Cell: ({ row }) => {
-      //     let styleRole = row.original.KeyboardConnected
-      //       ? { backgroundColor: '#00e676', color: 'white', title: 'Kết nối' }
-      //       : { backgroundColor: '#ffe57f', color: 'black', title: 'Không kết nối' };
-      //     return <div style={{ ...styleRole, padding: '0 10px', display: 'inline-block', borderRadius: 10 }}>{styleRole.title}</div>;
-      //   }
-      // },
       {
         accessorKey: 'duration',
         header: 'Thao tác',
