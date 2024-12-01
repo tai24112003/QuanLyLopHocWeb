@@ -202,7 +202,7 @@ const DetailMaintainScreen = () => {
                     <Grid item xs={9} sm={2.5}>
                       <Typography>
                         {data?.MouseConnected ? (
-                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main }}>'Kết nối'</span>
+                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main, padding: 5 }}>Kết nối</span>
                         ) : (
                           <span style={{ borderRadius: 10, backgroundColor: theme.palette.warning.main, padding: 5 }}>Không kết nối</span>
                         )}
@@ -214,7 +214,7 @@ const DetailMaintainScreen = () => {
                     <Grid item xs={9} sm={2.5}>
                       <Typography>
                         {data?.KeyboardConnected ? (
-                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main }}>'Kết nối'</span>
+                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main, padding: 5 }}>Kết nối</span>
                         ) : (
                           <span style={{ borderRadius: 10, backgroundColor: theme.palette.warning.main, padding: 5 }}>Không kết nối</span>
                         )}
@@ -226,7 +226,7 @@ const DetailMaintainScreen = () => {
                     <Grid item xs={9} sm={2.5}>
                       <Typography>
                         {data?.MonitorConnected ? (
-                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main }}>'Kết nối'</span>
+                          <span style={{ borderRadius: 10, backgroundColor: theme.palette.success.main, padding: 5 }}>Kết nối</span>
                         ) : (
                           <span style={{ borderRadius: 10, backgroundColor: theme.palette.warning.main, padding: 5 }}>Không kết nối</span>
                         )}
