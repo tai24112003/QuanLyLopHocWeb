@@ -22,7 +22,6 @@ const ClassScreen = Loadable(lazy(() => import('views/pages/class')));
 const NotFound = Loadable(lazy(() => import('views/NotFound')));
 
 // sample page routing
-const SamplePage = Loadable(lazy(() => import('views/sample-page')));
 const AuthRoomScreen = withAuth(onlyMaintain(RoomScreen));
 const AuthCLassScreen = withAuth(ClassScreen);
 const AuthManageStudentScreen = withAuth(ManageStudentScreen);
