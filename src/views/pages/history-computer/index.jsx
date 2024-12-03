@@ -14,11 +14,12 @@ import { runGetSessionComputerByComputerId, runGetSessionComputerWithMismatch, r
 import { useTheme } from '@emotion/react';
 import { getComputerByID, updateComputer } from 'api/computer';
 import ConfirmationDialog from 'ui-component/popup/confirmDelete';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { format } from 'date-fns';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 const HistoryComputerScreen = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [computer, setComputer] = useState();
   const [openPopup, setOpenPopUp] = useState(false);
@@ -175,63 +176,72 @@ const HistoryComputerScreen = () => {
   });
 
   return (
-    <>
-      <Grid container spacing={gridSpacing}>
-        <Grid item xs={12}>
-          <Card sx={{ margin: 'auto' }}>
-            <CardContent>
-              <Typography variant="h5" component="div">
-                Thông số hiện tại của máy {computer?.ComputerName}
-              </Typography>
-              <Grid container style={{ marginTop: 10 }} spacing={gridSpacing}>
-                <Grid item xs={12}>
-                  <Grid container>
-                    <Grid item xs={12} sm={1.5}>
-                      <Typography color="primary">Vi xử lí:</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={10.5}>
-                      <Typography>{computer?.CPU}</Typography>
-                    </Grid>
+    <Grid container spacing={gridSpacing} direction="column" style={{ minHeight: '100vh' }}>
+      <Grid item xs={12}>
+        <Card sx={{ margin: 'auto' }}>
+          <CardContent>
+            <Typography variant="h5" component="div">
+              Thông số hiện tại của máy {computer?.ComputerName}
+            </Typography>
+            <Grid container style={{ marginTop: 10 }} spacing={gridSpacing}>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={12} sm={1.5}>
+                    <Typography color="primary">Vi xử lí:</Typography>
                   </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Grid container>
-                    <Grid item xs={12} sm={1.5}>
-                      <Typography color="primary">RAM:</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={10.5}>
-                      <Typography>{computer?.RAM}</Typography>
-                    </Grid>
-                  </Grid>
-                </Grid>
-                <Grid item xs={12}>
-                  <Grid container>
-                    <Grid item xs={12} sm={1.5}>
-                      <Typography color="primary">Ổ đĩa:</Typography>
-                    </Grid>
-                    <Grid item xs={12} sm={10.5}>
-                      <Typography>{computer?.HDD}</Typography>
-                    </Grid>
+                  <Grid item xs={12} sm={10.5}>
+                    <Typography>{computer?.CPU}</Typography>
                   </Grid>
                 </Grid>
               </Grid>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={12}>
-          <CustomTable label="Lịch sử" des={`Lịch sử thay đổi của máy ${computer?.ComputerName}`} data={data} columns={columns} />
-        </Grid>
-        <ConfirmationDialog
-          label="Xác nhận cập nhật"
-          confirmName="Xác nhận"
-          title="Bạn chắc chắn muốn lấy cấu hình này cập nhật làm mặc định cho máy?"
-          open={openPopup}
-          handleClose={handleClosePopup}
-          handleConfirm={handleConfirm}
-        />
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={12} sm={1.5}>
+                    <Typography color="primary">RAM:</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={10.5}>
+                    <Typography>{computer?.RAM}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12}>
+                <Grid container>
+                  <Grid item xs={12} sm={1.5}>
+                    <Typography color="primary">Ổ đĩa:</Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={10.5}>
+                    <Typography>{computer?.HDD}</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
       </Grid>
+
+      {/* Lịch sử */}
+      <Grid item xs={12}>
+        <CustomTable label="Lịch sử" des={`Lịch sử thay đổi của máy ${computer?.ComputerName}`} data={data} columns={columns} />
+      </Grid>
+
+      {/* Nút Quay về (Cuối trang) */}
+      <Grid item xs={12} sx={{ marginTop: 'auto' }}>
+        <Button variant="outlined" onClick={() => navigate(-1)}>
+          Quay về
+        </Button>
+      </Grid>
+
+      <ConfirmationDialog
+        label="Xác nhận cập nhật"
+        confirmName="Xác nhận"
+        title="Bạn chắc chắn muốn lấy cấu hình này cập nhật làm mặc định cho máy?"
+        open={openPopup}
+        handleClose={handleClosePopup}
+        handleConfirm={handleConfirm}
+      />
+
       <NotificationComponent />
-    </>
+    </Grid>
   );
 };
 

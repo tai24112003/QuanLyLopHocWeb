@@ -176,11 +176,13 @@ const RoomListScreen = () => {
       if (res.success) {
         setData((prevData) => [...prevData.filter((item) => item.RoomID !== roomToDelete)]);
         setTimeout(() => showNotification('Xóa thành công', 'success'), 10);
+      } else {
+        setTimeout(() => showNotification('Xóa không thành công', 'error'), 10);
       }
       setOpenConfirm(false);
       setRoomToDelete(null);
     } catch (error) {
-      console.error(error);
+      setTimeout(() => showNotification('Xóa không thành công', 'error'), 10);
     }
   };
 

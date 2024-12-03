@@ -75,7 +75,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   useEffect(() => {
     if (open) {
       const standardRAM = roomEdit?.RAM
-        ? roomEdit.RAM.split('|').map((item) => {
+        ? roomEdit.RAM.split('\n').map((item) => {
             const info = item.split(/Capacity:\s*|\s*Manufacturer:\s*/);
             return {
               Capacity: info[1] ?? '',
@@ -89,7 +89,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
             }
           ];
       const standardHDD = roomEdit?.HDD
-        ? roomEdit.HDD.split('|').map((item) => {
+        ? roomEdit.HDD.split('\n').map((item) => {
             const info = item.split(/Model:\s*|\s*Interface:\s*|\sSize:\s/);
             return {
               Model: info[1] ?? '',
@@ -104,7 +104,7 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
               Size: ''
             }
           ];
-      const standardCPU = roomEdit?.CPU ? roomEdit.CPU.split('|') : [];
+      const standardCPU = roomEdit?.CPU ? roomEdit.CPU.split('\n') : [];
       setData({
         ID: roomEdit?.ID,
         ComputerName: roomEdit?.ComputerName ?? '',
@@ -113,13 +113,14 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
         StandardRAM: standardRAM[0] ?? '',
         StandardCPU: standardCPU[0] ?? '',
         additionalRAM: standardRAM.filter((value, idx) => {
-          return idx !== 0;
+          return idx !== 0 && idx != standardRAM.length - 1;
         }),
         additionalHDD: standardHDD.filter((value, idx) => {
-          return idx !== 0;
+          console.log(value);
+          return idx !== 0 && idx != standardHDD.length - 1;
         }),
         additionalCPU: standardCPU.filter((value, idx) => {
-          return idx !== 0;
+          return idx !== 0 && idx != standardCPU.length - 1;
         })
       });
     }
@@ -355,25 +356,27 @@ const PopupWithTextField = ({ open, handleClose, handleSave, roomEdit }) => {
   const handleSaveClick = () => {
     if (validate()) {
       const combinedRAM = [
+        `Capacity:&&${data.StandardRAM.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${data.StandardRAM.Manufacturer.replaceAll(' ', '&&')}`,
         ...data.additionalRAM.map(
           (item) => `Capacity:&&${item.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${item.Manufacturer.replaceAll(' ', '&&')}`
         ),
-        `Capacity:&&${data.StandardRAM.Capacity.replaceAll(' ', '&&')}&&Manufacturer:&&${data.StandardRAM.Manufacturer.replaceAll(' ', '&&')}`
+        ' '
       ]
-        .join('|')
+        .join('\n')
         .replaceAll(' ', '')
         .replaceAll('&&', ' ');
       const combinedHDD = [
+        `Model:&&${data.StandardHDD.Model.replaceAll(' ', '&&')}&&Interface:&&${data.StandardHDD.Interface.replaceAll(' ', '&&')}&&Size:&&${data.StandardHDD.Size.replaceAll(' ', '&&')}`,
         ...data.additionalHDD.map(
           (item) =>
             `Model:&&${item.Model.replaceAll(' ', '&&')}&&Interface:&&${item.Interface.replaceAll(' ', '&&')}&&Size:&&${item.Size.replaceAll(' ', '&&')}`
         ),
-        `Model:&&${data.StandardHDD.Model.replaceAll(' ', '&&')}&&Interface:&&${data.StandardHDD.Interface.replaceAll(' ', '&&')}&&Size:&&${data.StandardHDD.Size.replaceAll(' ', '&&')}`
+        ' '
       ]
-        .join('|')
+        .join('\n')
         .replaceAll(' ', '')
         .replaceAll('&&', ' ');
-      const combinedCPU = [...data.additionalCPU, data.StandardCPU].join('|').replaceAll(' ', '');
+      const combinedCPU = [data.StandardCPU, ...data.additionalCPU, ' '].join('\n').replaceAll(' ', '');
       handleSave({
         ...data,
         RAM: combinedRAM,
