@@ -5,13 +5,14 @@ import { Delete, EditNote } from '@mui/icons-material';
 import PopupWithTextField from './components/popupRoom';
 import { gridSpacing } from 'store/constant';
 import useNotification from '../exam/components/Notification';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import MainCard from 'ui-component/cards/MainCard';
 import { addComputer, deleteComputer, getComputerByRoomID, updateComputer } from 'api/computer';
 import CustomTable from 'ui-component/table/Table';
 import { useTheme } from '@emotion/react';
 
 const RoomDetailScreen = () => {
+  const navigate = useNavigate();
   const [data, setData] = useState([]);
   const [openPopup, setOpenPopUp] = useState(false);
   const [nameRoom, setNameRoom] = useState('');
@@ -208,6 +209,15 @@ const RoomDetailScreen = () => {
         </Grid>
       </Grid>
 
+      {/* Quay về button */}
+      <Grid container spacing={gridSpacing} sx={{ marginTop: 2 }}>
+        <Grid item xs={12}>
+          <Button variant="outlined" onClick={() => navigate(-1)}>
+            Quay về
+          </Button>
+        </Grid>
+      </Grid>
+
       {/* Computers List */}
       {computers.length > 0 && (
         <Grid item xs={12}>
@@ -245,7 +255,8 @@ const RoomDetailScreen = () => {
           </Button>
         </DialogActions>
       </Dialog>
-      <NotificationComponent></NotificationComponent>
+
+      <NotificationComponent />
     </>
   );
 };

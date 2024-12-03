@@ -37,14 +37,14 @@ const Login = () => {
               <AuthCardWrapper>
                 <Grid container spacing={2} alignItems="center" justifyContent="center">
                   <Grid item>
-                    <b style={{ fontSize: 25, color: '#0203ff' }}>Cao đẳng kĩ thuật Cao Thắng</b>
+                    <b style={{ fontSize: 25, color: '#0203ff' }}>Trường Cao đẳng Kỹ thuật Cao Thắng</b>
                   </Grid>
                   <Grid item xs={12}>
                     <Grid container direction={{ xs: 'column-reverse', md: 'row' }} alignItems="center" justifyContent="center">
                       <Grid item>
                         <Stack alignItems="center" justifyContent="center" spacing={1}>
                           <Typography color="primary.main" gutterBottom variant={downMD ? 'h3' : 'h2'}>
-                            Chào mừng đã quay lại
+                            Khoa Công nghệ thông tin
                           </Typography>
                           <Typography variant="caption" fontSize="16px" textAlign={{ xs: 'center', md: 'inherit' }}>
                             Vui lòng nhập thông tin để đăng nhập

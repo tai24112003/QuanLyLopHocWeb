@@ -7,6 +7,7 @@ import { runUpdateUser } from 'api/user';
 import { SET_USER } from 'store/actions';
 import useNotification from '../exam/components/Notification';
 import ChangePasswordPopup from './components/changePassPopup';
+import { runGetUser } from 'api/auth';
 
 const ProfileSchema = Yup.object().shape({
   name: Yup.string().required('Họ và tên không được để trống').min(2, 'Họ và tên quá ngắn'),
@@ -19,15 +20,16 @@ const ProfileSchema = Yup.object().shape({
 const ProfilePage = () => {
   const [data, setData] = useState(null);
   const [isPopupOpen, setPopupOpen] = useState(false); // State quản lý popup
-  const user = useSelector((state) => state.customization.user);
   const dispatch = useDispatch();
   const { showNotification, NotificationComponent } = useNotification();
 
   useEffect(() => {
-    if (user) {
-      setData(user);
-    }
-  }, [user]);
+    runGetUser().then((data) => {
+      if (data.status === 'success') {
+        setData(data.data[0]);
+      }
+    });
+  }, []);
 
   const handleSubmit = (values) => {
     runUpdateUser(values)
